@@ -61,6 +61,7 @@ const AdminKycPage = lazy(() => import("./pages/admin/AdminKycPage"));
 const PrivacyPage = lazy(() => import("./pages/legal/PrivacyPage.tsx"));
 const TermsPage = lazy(() => import("./pages/legal/TermsPage.tsx"));
 const CookiesPage = lazy(() => import("./pages/legal/CookiesPage.tsx"));
+const DataRightsPage = lazy(() => import("./pages/legal/DataRightsPage.tsx"));
 const EarningsPage = lazy(() => import("./pages/EarningsPage.tsx"));
 const AdvertisePage = lazy(() => import("./pages/AdvertisePage.tsx"));
 const AdDetailPage = lazy(() => import("./pages/AdDetailPage.tsx"));
@@ -149,6 +150,7 @@ const App = () => (
               <Route path="/legal/privacy" element={<PrivacyPage />} />
               <Route path="/legal/terms" element={<TermsPage />} />
               <Route path="/legal/cookies" element={<CookiesPage />} />
+              <Route path="/legal/rights" element={<DataRightsPage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>

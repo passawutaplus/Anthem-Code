@@ -411,7 +411,9 @@ const SignupForm = ({ onSwitch }: { onSwitch: () => void }) => {
             ฉันยอมรับ{" "}
             <Link to="/legal/terms" target="_blank" className="text-primary hover:underline font-medium">ข้อกำหนดการใช้งาน</Link>
             {" "}และ{" "}
-            <Link to="/legal/privacy" target="_blank" className="text-primary hover:underline font-medium">นโยบายความเป็นส่วนตัว</Link>
+            <Link to="/legal/privacy" target="_blank" className="text-primary hover:underline font-medium">นโยบายความเป็นส่วนตัว (PDPA)</Link>
+            {" "}และรับทราบ{" "}
+            <Link to="/legal/cookies" target="_blank" className="text-primary hover:underline font-medium">นโยบายคุกกี้</Link>
           </span>
         </label>
       </div>

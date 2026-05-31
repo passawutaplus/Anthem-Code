@@ -20,6 +20,7 @@ import { useQuery } from "@tanstack/react-query";
 
 import { useProject } from "@/hooks/useProjects";
 import { useAuth } from "@/hooks/useAuth";
+import { isCategoryAllowed } from "@/lib/cookieConsent";
 
 const ProjectDetailPage = () => {
   const { id } = useParams();
@@ -47,14 +48,15 @@ const ProjectDetailPage = () => {
   // Track view: per-user history (for "For You" feed) + global counter (for stats)
   useEffect(() => {
     if (!dbProject?.id) return;
-    // Global counter — once per session per project to avoid inflation
+    const analyticsOk = isCategoryAllowed("analytics");
+    // Global counter — once per session per project (requires analytics consent)
     const key = `viewed:${dbProject.id}`;
-    if (!sessionStorage.getItem(key)) {
+    if (analyticsOk && !sessionStorage.getItem(key)) {
       sessionStorage.setItem(key, "1");
       supabase.rpc("increment_project_view", { _project_id: dbProject.id }).then(() => {}, () => {});
     }
     // Per-user history (only when signed-in)
-    if (user?.id) {
+    if (user?.id && analyticsOk) {
       supabase
         .from("project_views")
         .upsert(

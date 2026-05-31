@@ -124,7 +124,9 @@ const AuthDialog = () => {
             ดำเนินการต่อเท่ากับยอมรับ{" "}
             <Link to="/legal/terms" onClick={close} className="hover:text-foreground underline underline-offset-2">ข้อกำหนด</Link>
             {" "}และ{" "}
-            <Link to="/legal/privacy" onClick={close} className="hover:text-foreground underline underline-offset-2">นโยบายความเป็นส่วนตัว</Link>
+            <Link to="/legal/privacy" onClick={close} className="hover:text-foreground underline underline-offset-2">นโยบายความเป็นส่วนตัว (PDPA)</Link>
+            {" "}·{" "}
+            <Link to="/legal/cookies" onClick={close} className="hover:text-foreground underline underline-offset-2">คุกกี้</Link>
           </p>
         </div>
       </DialogContent>

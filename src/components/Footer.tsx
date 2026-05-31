@@ -6,9 +6,10 @@ const Footer = () => (
       <p>© {new Date().getFullYear()} Anthem · ทุกสิทธิ์สงวน</p>
       <nav className="flex items-center gap-4 flex-wrap justify-center">
         <Link to="/advertise" className="hover:text-foreground transition-colors font-medium">ลงโฆษณากับเรา</Link>
-        <Link to="/legal/privacy" className="hover:text-foreground transition-colors">นโยบายความเป็นส่วนตัว</Link>
-        <Link to="/legal/terms" className="hover:text-foreground transition-colors">ข้อกำหนด</Link>
+        <Link to="/legal/privacy" className="hover:text-foreground transition-colors">PDPA</Link>
         <Link to="/legal/cookies" className="hover:text-foreground transition-colors">คุกกี้</Link>
+        <Link to="/legal/terms" className="hover:text-foreground transition-colors">ข้อกำหนด</Link>
+        <Link to="/legal/rights" className="hover:text-foreground transition-colors">สิทธิข้อมูล</Link>
       </nav>
     </div>
   </footer>

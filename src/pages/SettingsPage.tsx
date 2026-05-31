@@ -12,6 +12,8 @@ import { supabase } from "@/integrations/supabase/client";
 import SkillsEditor from "@/components/profile/SkillsEditor";
 import ExperienceEditor from "@/components/profile/ExperienceEditor";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
+import { requestOpenCookiePreferences } from "@/lib/cookieConsent";
+import { Link } from "react-router-dom";
 
 const empty: ProfileInput = {
   displayName: "",
@@ -282,6 +284,37 @@ const SettingsPage = () => {
               <span className="inline-flex items-center gap-2"><MessageSquare className="w-4 h-4 text-primary" /> ฟีดแบ็กของฉัน</span>
               <ChevronRight className="w-4 h-4 text-muted-foreground" />
             </button>
+          </div>
+        </section>
+
+        <section className="rounded-2xl glass-panel p-6 space-y-3">
+          <SectionTitle icon={Shield} title="ความเป็นส่วนตัวและข้อมูล (PDPA)" />
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            จัดการความยินยอมคุกกี้ อ่านนโยบาย หรือใช้สิทธิเจ้าของข้อมูลตาม พ.ร.บ. คุ้มครองข้อมูลส่วนบุคคล
+          </p>
+          <div className="flex flex-col gap-2">
+            <button
+              type="button"
+              onClick={() => requestOpenCookiePreferences()}
+              className="flex items-center justify-between gap-2 rounded-xl bg-secondary hover:bg-accent px-4 py-3 text-sm font-medium text-foreground transition-colors text-left"
+            >
+              <span>การตั้งค่าคุกกี้</span>
+              <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
+            </button>
+            <Link
+              to="/legal/rights"
+              className="flex items-center justify-between gap-2 rounded-xl bg-secondary hover:bg-accent px-4 py-3 text-sm font-medium text-foreground transition-colors"
+            >
+              <span>สิทธิของเจ้าของข้อมูล</span>
+              <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
+            </Link>
+            <Link
+              to="/legal/privacy"
+              className="flex items-center justify-between gap-2 rounded-xl bg-secondary hover:bg-accent px-4 py-3 text-sm text-foreground transition-colors"
+            >
+              <span>นโยบายความเป็นส่วนตัว</span>
+              <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
+            </Link>
           </div>
         </section>
 

@@ -34,6 +34,7 @@ import {
 } from "@/hooks/useProjects";
 import { useAuth } from "@/hooks/useAuth";
 import { useAuthDialog } from "@/stores/authDialogStore";
+import { isCategoryAllowed } from "@/lib/cookieConsent";
 
 type FeedMode2 = "Explore" | SpecialFilter;
 const requiresAuth = (m: FeedMode2) => m === "For You" || m === "Following";
@@ -48,6 +49,7 @@ const FeedPage = (_props: { onMyPortClick: () => void }) => {
   const [category, setCategory] = useState<Category | "All">("All");
   const [mode, setMode] = useState<FeedMode>(() => {
     if (typeof window === "undefined") return "projects";
+    if (!isCategoryAllowed("functional")) return "projects";
     return (localStorage.getItem("feed-mode") as FeedMode) || "projects";
   });
   const [hireOpen, setHireOpen] = useState(false);
@@ -75,7 +77,7 @@ const FeedPage = (_props: { onMyPortClick: () => void }) => {
     list.includes(v) ? list.filter((x) => x !== v) : [...list, v];
   const changeMode = (m: FeedMode) => {
     setMode(m);
-    localStorage.setItem("feed-mode", m);
+    if (isCategoryAllowed("functional")) localStorage.setItem("feed-mode", m);
   };
 
   const setFeedMode = (m: FeedMode2) => {
