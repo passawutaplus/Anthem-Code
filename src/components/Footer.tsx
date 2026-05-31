@@ -1,0 +1,17 @@
+import { Link } from "react-router-dom";
+
+const Footer = () => (
+  <footer className="mt-12 border-t border-border/60">
+    <div className="max-w-5xl mx-auto px-4 py-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-muted-foreground">
+      <p>© {new Date().getFullYear()} Anthem · ทุกสิทธิ์สงวน</p>
+      <nav className="flex items-center gap-4 flex-wrap justify-center">
+        <Link to="/advertise" className="hover:text-foreground transition-colors font-medium">ลงโฆษณากับเรา</Link>
+        <Link to="/legal/privacy" className="hover:text-foreground transition-colors">นโยบายความเป็นส่วนตัว</Link>
+        <Link to="/legal/terms" className="hover:text-foreground transition-colors">ข้อกำหนด</Link>
+        <Link to="/legal/cookies" className="hover:text-foreground transition-colors">คุกกี้</Link>
+      </nav>
+    </div>
+  </footer>
+);
+
+export default Footer;

@@ -1,0 +1,416 @@
+import BriefcaseIcon from "../components/icons/BriefcaseIcon";
+import { useMemo, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { ArrowLeft, MapPin, Share2, Settings, ExternalLink, LayoutGrid, Sparkles, Phone, UserPlus, FileCheck, Plus, Layers3, ArrowDownUp, Eye, Heart, Clock, ChevronDown, ChevronUp, Gift as GiftIcon } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { useProfile } from "@/hooks/useProfile";
+import { useMyProjects } from "@/hooks/useProjects";
+import { useFollowState } from "@/hooks/useFollow";
+import { useCollections } from "@/hooks/useCollections";
+import { useInspireBoards } from "@/hooks/useInspire";
+import CollectionCard from "@/components/collections/CollectionCard";
+import { toast } from "sonner";
+import type { ExperienceItem } from "@/lib/validators";
+import ExperienceTimeline from "@/components/profile/ExperienceTimeline";
+import SkillsList from "@/components/profile/SkillsList";
+import ContactCards from "@/components/profile/ContactCards";
+import PortfolioGrid from "@/components/profile/PortfolioGrid";
+import ProfileMenuCard from "@/components/profile/ProfileMenuCard";
+import ReceivedGiftsSummary from "@/components/profile/ReceivedGiftsSummary";
+
+
+const SOLO_URL = "https://solofreelancer.com";
+
+const PortfolioProfilePage = () => {
+  const navigate = useNavigate();
+  const { user, loading: authLoading } = useAuth();
+  const { data: profile, isLoading } = useProfile(user?.id);
+  const { data: myProjects = [] } = useMyProjects(user?.id);
+  const { followers, following } = useFollowState(user?.id);
+  const { data: collections = [] } = useCollections(user?.id);
+  const { data: inspireBoards = [] } = useInspireBoards(user?.id);
+
+  const [portfolioSort, setPortfolioSort] = useState<"newest" | "views" | "likes">("newest");
+  const [showAllPortfolio, setShowAllPortfolio] = useState(false);
+
+
+  useEffect(() => {
+    if (!authLoading && !user) navigate("/auth?redirect=/portfolio");
+  }, [authLoading, user, navigate]);
+
+  const { data: hireCount = 0 } = useQuery({
+    queryKey: ["hire-count", user?.id],
+    enabled: !!user?.id,
+    queryFn: async () => {
+      const { count } = await supabase
+        .from("hiring_requests")
+        .select("id", { count: "exact", head: true })
+        .eq("freelancer_id", user!.id);
+      return count ?? 0;
+    },
+  });
+
+  const published = useMemo(() => myProjects.filter((p) => p.status === "Published"), [myProjects]);
+  const totalViews = useMemo(() => published.reduce((s, p) => s + (p.views ?? 0), 0), [published]);
+  const sortedPublished = useMemo(() => {
+    const arr = [...published];
+    if (portfolioSort === "views") {
+      arr.sort((a, b) => (b.views ?? 0) - (a.views ?? 0));
+    } else if (portfolioSort === "likes") {
+      arr.sort((a, b) => (b.likes ?? 0) - (a.likes ?? 0));
+    } else {
+      arr.sort((a, b) => new Date(b.created_at ?? 0).getTime() - new Date(a.created_at ?? 0).getTime());
+    }
+    return arr;
+  }, [published, portfolioSort]);
+  const visiblePortfolio = showAllPortfolio ? sortedPublished : sortedPublished.slice(0, 6);
+  const experience = (profile?.experience as unknown as ExperienceItem[]) ?? [];
+  const skills = profile?.skills ?? [];
+
+  const sharePublic = async () => {
+    if (!profile) return;
+    const url = `${window.location.origin}/u/${profile.id}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      toast.success("คัดลอกลิงก์โปรไฟล์แล้ว", { description: url });
+    } catch {
+      toast.error("คัดลอกไม่สำเร็จ");
+    }
+  };
+
+  if (authLoading || isLoading || !profile) {
+    return <div className="min-h-screen flex items-center justify-center text-muted-foreground">กำลังโหลด...</div>;
+  }
+
+  return (
+    <div className="min-h-screen bg-app-ambient">
+      {/* Top bar */}
+      <div className="sticky top-0 z-30 glass-panel border-x-0 border-t-0 rounded-none">
+        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+          <button onClick={() => navigate("/")} className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
+            <ArrowLeft className="w-4 h-4" /> ฟีด
+          </button>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => window.open(SOLO_URL, "_blank", "noopener,noreferrer")}
+              className="rounded-full glass-chip border-0 text-primary hover:text-primary"
+            >
+              <ExternalLink className="w-4 h-4 sm:mr-1" />
+              <span className="hidden sm:inline">Solo Freelancer</span>
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => navigate("/settings")} className="rounded-full glass-chip border-0">
+              <Settings className="w-4 h-4 sm:mr-1" /> <span className="hidden sm:inline">ตั้งค่า</span>
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      {/* Hero gradient backdrop */}
+      <div className="relative h-40 md:h-56">
+        <div className="absolute inset-0 bg-gradient-brand opacity-70" />
+        <div className="absolute inset-0 bg-gradient-to-t from-transparent via-transparent to-white/20" />
+      </div>
+
+
+      <div className="max-w-6xl mx-auto px-4 -mt-20 md:-mt-24 pb-16 grid grid-cols-1 md:grid-cols-[300px_1fr] gap-6 md:gap-8">
+        {/* LEFT: Profile card */}
+        <aside className="md:sticky md:top-20 md:self-start space-y-4">
+          <div className="rounded-3xl glass-panel p-6 text-center">
+            <div className="flex justify-center">
+              {profile.avatar_url ? (
+                <img src={profile.avatar_url} alt="" className="w-24 h-24 rounded-full object-cover ring-4 ring-primary/30 shadow-md" />
+              ) : (
+                <div className="w-24 h-24 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-3xl font-medium ring-4 ring-primary/30 shadow-md">
+                  {(profile.display_name || "?")[0]}
+                </div>
+              )}
+            </div>
+            <h1 className="mt-4 text-xl font-medium text-foreground leading-tight">{profile.display_name || "ยังไม่ได้ตั้งชื่อ"}</h1>
+            {profile.username && <p className="text-xs text-muted-foreground">@{profile.username}</p>}
+            {profile.role && (
+              <p className="mt-2 text-sm text-primary font-medium">{profile.role}</p>
+            )}
+            {profile.location && (
+              <p className="mt-1 inline-flex items-center gap-1 text-xs text-muted-foreground">
+                <MapPin className="w-3 h-3" /> {profile.location}
+              </p>
+            )}
+
+            <div className="mt-5 grid grid-cols-3 gap-1 py-3 border-y border-border">
+              <Stat value={published.length} label="ผลงาน" />
+              <Stat value={followers} label="ผู้ติดตาม" />
+              <Stat value={following} label="ติดตาม" />
+            </div>
+
+            <div className="mt-4 space-y-2">
+              <Button onClick={() => navigate("/portfolio/manage")} className="w-full rounded-full bg-primary text-primary-foreground hover:bg-primary/90">
+                <LayoutGrid className="w-4 h-4 mr-1" /> จัดการผลงาน
+              </Button>
+              <Button onClick={sharePublic} variant="outline" className="w-full rounded-full">
+                <Share2 className="w-4 h-4 mr-1" /> แชร์โปรไฟล์
+              </Button>
+            </div>
+          </div>
+
+          <div className="rounded-3xl glass-panel p-5 grid grid-cols-3 gap-3">
+            <MiniStat icon={UserPlus} label="คำขอจ้าง" value={hireCount} />
+            <MiniStat icon={FileCheck} label="เผยแพร่" value={published.length} />
+            <MiniStat icon={Sparkles} label="ยอดดูรวม" value={totalViews} />
+          </div>
+
+          <ProfileMenuCard />
+        </aside>
+
+        {/* RIGHT: Sections */}
+        <main className="space-y-6 min-w-0">
+          {/* About */}
+          <Section icon={Sparkles} title="เกี่ยวกับฉัน" action={<EditLink to="/settings" />}>
+            {profile.bio ? (
+              <p className="text-sm md:text-base text-foreground/85 leading-7 whitespace-pre-wrap">{profile.bio}</p>
+            ) : (
+              <EmptyHint text="ยังไม่ได้แนะนำตัว" cta="เพิ่มประวัติย่อ" onClick={() => navigate("/settings")} />
+            )}
+          </Section>
+
+          {/* Portfolio */}
+          <Section
+            icon={LayoutGrid}
+            title="ผลงาน"
+            count={published.length}
+            action={
+              <Button size="sm" onClick={() => navigate("/portfolio/new")} className="rounded-full bg-primary text-primary-foreground hover:bg-primary/90 h-8">
+                <Plus className="w-3.5 h-3.5 mr-1" /> เพิ่มผลงาน
+              </Button>
+            }
+          >
+            {published.length ? (
+              <div className="space-y-4">
+                <div className="flex items-center gap-1.5 overflow-x-auto -mx-1 px-1 pb-1">
+                  <span className="inline-flex items-center gap-1 text-xs text-muted-foreground shrink-0 mr-1">
+                    <ArrowDownUp className="w-3 h-3" /> เรียง
+                  </span>
+                  {([
+                    { key: "newest", label: "ล่าสุด", Icon: Clock },
+                    { key: "views", label: "วิวมากสุด", Icon: Eye },
+                    { key: "likes", label: "หัวใจมากสุด", Icon: Heart },
+                  ] as const).map(({ key, label, Icon }) => {
+                    const active = portfolioSort === key;
+                    return (
+                      <button
+                        key={key}
+                        onClick={() => setPortfolioSort(key)}
+                        className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs border whitespace-nowrap shrink-0 transition-colors ${
+                          active
+                            ? "border-primary bg-primary/10 text-primary"
+                            : "border-border text-muted-foreground hover:text-foreground"
+                        }`}
+                      >
+                        <Icon className="w-3 h-3" /> {label}
+                      </button>
+                    );
+                  })}
+                </div>
+                <PortfolioGrid projects={visiblePortfolio} />
+                {sortedPublished.length > 6 && (
+                  <Button
+                    variant="outline"
+                    onClick={() => setShowAllPortfolio((v) => !v)}
+                    className="w-full rounded-full"
+                  >
+                    {showAllPortfolio ? (
+                      <><ChevronUp className="w-4 h-4 mr-1" /> ย่อรายการ</>
+                    ) : (
+                      <><ChevronDown className="w-4 h-4 mr-1" /> ดูผลงานทั้งหมด ({sortedPublished.length})</>
+                    )}
+                  </Button>
+                )}
+              </div>
+            ) : (
+              <EmptyHint text="ยังไม่มีผลงานเผยแพร่" cta="ลงผลงานชิ้นแรก" onClick={() => navigate("/portfolio/new")} />
+            )}
+          </Section>
+
+          {/* My Collections */}
+          <Section
+            icon={Layers3}
+            title="คอลเลกชันของฉัน"
+            count={collections.length}
+            action={
+              <Button
+                size="sm"
+                onClick={() => navigate("/collections")}
+                className="rounded-full bg-primary text-primary-foreground hover:bg-primary/90 h-8"
+              >
+                <Plus className="w-3.5 h-3.5 mr-1" /> จัดการ
+              </Button>
+            }
+          >
+            {collections.length ? (
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
+                {collections.slice(0, 6).map((c) => (
+                  <CollectionCard key={c.id} collection={c} />
+                ))}
+              </div>
+            ) : (
+              <EmptyHint
+                text="ยังไม่มีคอลเลกชัน เริ่มเก็บผลงานที่บอกสไตล์ของคุณ"
+                cta="สร้างคอลเลกชัน"
+                onClick={() => navigate("/collections")}
+              />
+            )}
+          </Section>
+
+          {/* My Inspire */}
+          <Section
+            icon={Sparkles}
+            title="My Inspire"
+            count={inspireBoards.length}
+            action={
+              inspireBoards.length > 0 ? (
+                <span className="text-xs text-muted-foreground">รวมภาพที่ฉันชอบ</span>
+              ) : null
+            }
+          >
+            {inspireBoards.length ? (
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
+                {inspireBoards.slice(0, 6).map((b) => (
+                  <button
+                    key={b.id}
+                    onClick={() => navigate(`/inspire/${b.id}`)}
+                    className="group text-left rounded-2xl overflow-hidden border border-border bg-card hover:border-primary/60 hover:shadow-md transition"
+                  >
+                    <div className="aspect-[4/3] bg-muted overflow-hidden">
+                      {b.cover_url ? (
+                        <img src={b.cover_url} alt={b.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+                      ) : (
+                        <div className="w-full h-full grid place-items-center text-muted-foreground">
+                          <Sparkles className="w-6 h-6" />
+                        </div>
+                      )}
+                    </div>
+                    <div className="p-3">
+                      <p className="text-sm font-medium text-foreground truncate">{b.name}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">{b.item_count} ภาพ</p>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <EmptyHint
+                text="ยังไม่มีบอร์ดแรงบันดาลใจ กดปุ่ม Inspire บนภาพในผลงานเพื่อเริ่มเก็บ"
+                cta="ดูฟีดเพื่อหาแรงบันดาลใจ"
+                onClick={() => navigate("/")}
+              />
+            )}
+          </Section>
+
+          {/* Received Gifts */}
+          <Section icon={GiftIcon} title="ของขวัญที่ฉันได้รับ">
+            <ReceivedGiftsSummary userId={user!.id} />
+          </Section>
+
+
+
+
+
+
+
+          <Section icon={BriefcaseIcon} title="ประสบการณ์ทำงาน" action={<EditLink to="/settings" />}>
+            {experience.length ? (
+              <ExperienceTimeline items={experience} />
+            ) : (
+              <EmptyHint text="ยังไม่ได้เพิ่มประวัติการทำงาน" cta="เพิ่มประสบการณ์" onClick={() => navigate("/settings")} />
+            )}
+          </Section>
+
+          {/* Skills */}
+          <Section icon={Sparkles} title="ความชำนาญ" count={skills.length} action={<EditLink to="/settings" />}>
+            <SkillsList skills={skills} />
+          </Section>
+
+          {/* Contacts */}
+          <Section icon={Phone} title="ข้อมูลติดต่อ" action={<EditLink to="/settings" />}>
+            <ContactCards
+              email={profile.email}
+              phone={profile.phone}
+              website={profile.website}
+              lineId={profile.line_id}
+              facebook={profile.facebook}
+              instagram={profile.instagram}
+            />
+          </Section>
+        </main>
+      </div>
+    </div>
+  );
+};
+
+const Stat = ({ value, label }: { value: number; label: string }) => (
+  <div>
+    <p className="text-lg font-medium text-foreground leading-none">{value}</p>
+    <p className="text-[11px] text-muted-foreground mt-1 uppercase tracking-wider">{label}</p>
+  </div>
+);
+
+const MiniStat = ({ icon: Icon, label, value }: { icon: React.ComponentType<{ className?: string }>; label: string; value: number }) => (
+  <div className="flex items-center gap-2.5">
+    <div className="text-primary flex items-center justify-center">
+      <Icon className="w-5 h-5" />
+    </div>
+    <div>
+      <p className="text-sm font-medium text-foreground leading-none">{value}</p>
+      <p className="text-[11px] text-muted-foreground mt-0.5">{label}</p>
+    </div>
+  </div>
+);
+
+const Section = ({
+  icon: Icon, title, count, action, children,
+}: {
+  icon: React.ComponentType<{ className?: string }>;
+  title: string;
+  count?: number;
+  action?: React.ReactNode;
+  children: React.ReactNode;
+}) => (
+  <section className="rounded-3xl glass-panel p-5 md:p-6">
+    <div className="flex items-center justify-between gap-3 mb-4">
+      <div className="flex items-center gap-2">
+        <div className="text-primary flex items-center justify-center">
+          <Icon className="w-5 h-5" />
+        </div>
+        <h2 className="font-medium text-foreground">
+          {title}
+          {typeof count === "number" && <span className="text-muted-foreground font-normal ml-1.5 text-sm">({count})</span>}
+        </h2>
+      </div>
+      {action}
+    </div>
+    {children}
+  </section>
+);
+
+const EditLink = ({ to }: { to: string }) => {
+  const navigate = useNavigate();
+  return (
+    <Button size="sm" variant="ghost" onClick={() => navigate(to)} className="rounded-full h-8 text-xs text-muted-foreground hover:text-primary">
+      แก้ไข
+    </Button>
+  );
+};
+
+const EmptyHint = ({ text, cta, onClick }: { text: string; cta: string; onClick: () => void }) => (
+  <div className="text-center py-8">
+    <p className="text-sm text-muted-foreground mb-3">{text}</p>
+    <Button size="sm" variant="outline" onClick={onClick} className="rounded-full">
+      <Plus className="w-3.5 h-3.5 mr-1" /> {cta}
+    </Button>
+  </div>
+);
+
+export default PortfolioProfilePage;

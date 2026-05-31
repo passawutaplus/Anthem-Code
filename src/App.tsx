@@ -1,0 +1,165 @@
+import { lazy, Suspense } from "react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { Toaster as Sonner } from "@/components/ui/sonner";
+import { Toaster } from "@/components/ui/toaster";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { ThemeProvider } from "@/components/ThemeProvider";
+import Index from "./pages/Index.tsx";
+import NotFound from "./pages/NotFound.tsx";
+import CookieConsent from "./components/CookieConsent.tsx";
+import BottomNav from "./components/BottomNav.tsx";
+import RequireAuth from "./components/RequireAuth.tsx";
+import AuthDialog from "./components/AuthDialog.tsx";
+import FeedbackFab from "./components/feedback/FeedbackFab.tsx";
+
+// Code-split routes — only the home feed stays in the main chunk.
+const AuthPage = lazy(() => import("./pages/AuthPage.tsx"));
+const PortfolioProfilePage = lazy(() => import("./pages/PortfolioProfilePage.tsx"));
+const PortfolioManagePage = lazy(() => import("./pages/PortfolioManagePage.tsx"));
+const ProjectDetailPage = lazy(() => import("./pages/ProjectDetailPage.tsx"));
+const SettingsPage = lazy(() => import("./pages/SettingsPage.tsx"));
+const ProjectEditorPage = lazy(() => import("./pages/ProjectEditorPage.tsx"));
+const PublicProfilePage = lazy(() => import("./pages/PublicProfilePage.tsx"));
+const NotificationsPage = lazy(() => import("./pages/NotificationsPage.tsx"));
+const ChatListPage = lazy(() => import("./pages/ChatListPage.tsx"));
+const LiveChatPage = lazy(() => import("./pages/LiveChatPage.tsx"));
+const CollectionsPage = lazy(() => import("./pages/CollectionsPage.tsx"));
+const CollectionDetailPage = lazy(() => import("./pages/CollectionDetailPage.tsx"));
+const JobsPage = lazy(() => import("./pages/JobsPage.tsx"));
+const JobDetailPage = lazy(() => import("./pages/JobDetailPage.tsx"));
+const StudioProfilePage = lazy(() => import("./pages/StudioProfilePage.tsx"));
+const StudioCreatePage = lazy(() => import("./pages/StudioCreatePage.tsx"));
+const StudioInvitesPage = lazy(() => import("./pages/StudioInvitesPage.tsx"));
+const StudioManagePage = lazy(() => import("./pages/StudioManagePage.tsx"));
+const SimilarImagesPage = lazy(() => import("./pages/SimilarImagesPage.tsx"));
+const InspireBoardDetailPage = lazy(() => import("./pages/InspireBoardDetailPage.tsx"));
+const MyReportsPage = lazy(() => import("./pages/MyReportsPage.tsx"));
+const MyFeedbackPage = lazy(() => import("./pages/MyFeedbackPage.tsx"));
+const VerificationPage = lazy(() => import("./pages/VerificationPage.tsx"));
+const AdminLayout = lazy(() => import("./components/admin/AdminLayout"));
+const OverviewPage = lazy(() => import("./pages/admin/OverviewPage"));
+const AdminUsersPage = lazy(() => import("./pages/admin/AdminUsersPage"));
+const AdminStudiosPage = lazy(() => import("./pages/admin/AdminStudiosPage"));
+const AdminProjectsPage = lazy(() => import("./pages/admin/AdminProjectsPage"));
+const AdminJobsPage = lazy(() => import("./pages/admin/AdminJobsPage"));
+const AdminHiringPage = lazy(() => import("./pages/admin/AdminHiringPage"));
+const AdminCollabsPage = lazy(() => import("./pages/admin/AdminCollabsPage"));
+const AdminChatsPage = lazy(() => import("./pages/admin/AdminChatsPage"));
+const AdminCommentsPage = lazy(() => import("./pages/admin/AdminCommentsPage"));
+const AdminCollectionsPage = lazy(() => import("./pages/admin/AdminCollectionsPage"));
+const AdminGiftsPage = lazy(() => import("./pages/admin/AdminGiftsPage"));
+const AdminNotificationsPage = lazy(() => import("./pages/admin/AdminNotificationsPage"));
+const AdminStoragePage = lazy(() => import("./pages/admin/AdminStoragePage"));
+const AdminAuditPage = lazy(() => import("./pages/admin/AdminAuditPage"));
+const AdminSystemPage = lazy(() => import("./pages/admin/AdminSystemPage"));
+const AdminAdsPage = lazy(() => import("./pages/admin/AdminAdsPage"));
+const AdminReportsPage = lazy(() => import("./pages/admin/AdminReportsPage"));
+const AdminFeedbackPage = lazy(() => import("./pages/admin/AdminFeedbackPage"));
+const AdminAmlPage = lazy(() => import("./pages/admin/AdminAmlPage"));
+const AdminKycPage = lazy(() => import("./pages/admin/AdminKycPage"));
+const PrivacyPage = lazy(() => import("./pages/legal/PrivacyPage.tsx"));
+const TermsPage = lazy(() => import("./pages/legal/TermsPage.tsx"));
+const CookiesPage = lazy(() => import("./pages/legal/CookiesPage.tsx"));
+const EarningsPage = lazy(() => import("./pages/EarningsPage.tsx"));
+const AdvertisePage = lazy(() => import("./pages/AdvertisePage.tsx"));
+const AdDetailPage = lazy(() => import("./pages/AdDetailPage.tsx"));
+const ContractEditorPage = lazy(() => import("./pages/ContractEditorPage.tsx"));
+const ContractsListPage = lazy(() => import("./pages/ContractsListPage.tsx"));
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 60_000,
+      gcTime: 5 * 60_000,
+      refetchOnWindowFocus: false,
+      retry: 1,
+    },
+  },
+});
+
+const RouteFallback = () => (
+  <div className="min-h-[40vh] flex items-center justify-center text-muted-foreground">
+    กำลังโหลด...
+  </div>
+);
+
+const App = () => (
+  <QueryClientProvider client={queryClient}>
+    <ThemeProvider>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Suspense fallback={<RouteFallback />}>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/auth" element={<AuthPage />} />
+              <Route path="/portfolio" element={<RequireAuth><PortfolioProfilePage /></RequireAuth>} />
+              <Route path="/portfolio/manage" element={<RequireAuth><PortfolioManagePage /></RequireAuth>} />
+              <Route path="/portfolio/new" element={<RequireAuth><ProjectEditorPage /></RequireAuth>} />
+              <Route path="/portfolio/:id/edit" element={<RequireAuth><ProjectEditorPage /></RequireAuth>} />
+              <Route path="/project/:id" element={<ProjectDetailPage />} />
+              <Route path="/similar/:projectId" element={<SimilarImagesPage />} />
+              <Route path="/inspire/:boardId" element={<InspireBoardDetailPage />} />
+              <Route path="/u/:userId" element={<PublicProfilePage />} />
+              <Route path="/earnings" element={<RequireAuth><EarningsPage /></RequireAuth>} />
+
+              <Route path="/settings" element={<RequireAuth><SettingsPage /></RequireAuth>} />
+              <Route path="/notifications" element={<RequireAuth><NotificationsPage /></RequireAuth>} />
+              <Route path="/chat" element={<RequireAuth><ChatListPage /></RequireAuth>} />
+              <Route path="/chat/:id" element={<RequireAuth><LiveChatPage /></RequireAuth>} />
+              <Route path="/collections" element={<RequireAuth><CollectionsPage /></RequireAuth>} />
+              <Route path="/collections/:id" element={<RequireAuth><CollectionDetailPage /></RequireAuth>} />
+              <Route path="/me/reports" element={<RequireAuth><MyReportsPage /></RequireAuth>} />
+              <Route path="/me/feedback" element={<RequireAuth><MyFeedbackPage /></RequireAuth>} />
+              <Route path="/verify" element={<RequireAuth><VerificationPage /></RequireAuth>} />
+              <Route path="/admin" element={<AdminLayout />}>
+                <Route index element={<OverviewPage />} />
+                <Route path="users" element={<AdminUsersPage />} />
+                <Route path="studios" element={<AdminStudiosPage />} />
+                <Route path="projects" element={<AdminProjectsPage />} />
+                <Route path="jobs" element={<AdminJobsPage />} />
+                <Route path="hiring" element={<AdminHiringPage />} />
+                <Route path="collabs" element={<AdminCollabsPage />} />
+                <Route path="chats" element={<AdminChatsPage />} />
+                <Route path="comments" element={<AdminCommentsPage />} />
+                <Route path="collections" element={<AdminCollectionsPage />} />
+                <Route path="gifts" element={<AdminGiftsPage />} />
+                <Route path="aml" element={<AdminAmlPage />} />
+                <Route path="kyc" element={<AdminKycPage />} />
+                <Route path="ads" element={<AdminAdsPage />} />
+                <Route path="notifications" element={<AdminNotificationsPage />} />
+                <Route path="storage" element={<AdminStoragePage />} />
+                <Route path="audit" element={<AdminAuditPage />} />
+                <Route path="reports" element={<AdminReportsPage />} />
+                <Route path="feedback" element={<AdminFeedbackPage />} />
+                <Route path="system" element={<AdminSystemPage />} />
+              </Route>
+              <Route path="/jobs" element={<JobsPage />} />
+              <Route path="/advertise" element={<AdvertisePage />} />
+              <Route path="/ads/:id" element={<AdDetailPage />} />
+              <Route path="/jobs/:id" element={<JobDetailPage />} />
+              <Route path="/contracts" element={<ContractsListPage />} />
+              <Route path="/contracts/new" element={<ContractEditorPage />} />
+              <Route path="/s/:slug" element={<StudioProfilePage />} />
+              <Route path="/studio/new" element={<StudioCreatePage />} />
+              <Route path="/studio/invites" element={<StudioInvitesPage />} />
+              <Route path="/studio/manage" element={<StudioManagePage />} />
+              <Route path="/legal/privacy" element={<PrivacyPage />} />
+              <Route path="/legal/terms" element={<TermsPage />} />
+              <Route path="/legal/cookies" element={<CookiesPage />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </Suspense>
+          <CookieConsent />
+          <BottomNav />
+          <AuthDialog />
+          <FeedbackFab />
+        </BrowserRouter>
+      </TooltipProvider>
+    </ThemeProvider>
+  </QueryClientProvider>
+);
+
+export default App;

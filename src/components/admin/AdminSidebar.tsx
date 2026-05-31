@@ -1,0 +1,126 @@
+import BriefcaseIcon from "../icons/BriefcaseIcon";
+import { NavLink } from "react-router-dom";
+import {
+  LayoutDashboard, Users, Building2, FolderKanban,
+  HandshakeIcon, HeartHandshake, MessageSquare, MessageCircle,
+  Bookmark, Bell, HardDrive, ScrollText, Activity, Gift, Megaphone,
+  Flag, MessageSquareHeart, Shield, ShieldCheck,
+} from "lucide-react";
+import { useAdminRealtime } from "@/hooks/admin/useAdminRealtime";
+
+type Item = { to: string; label: string; icon: React.ComponentType<{ className?: string }>; end?: boolean };
+
+const sections: { title: string; items: Item[] }[] = [
+  {
+    title: "ภาพรวม",
+    items: [{ to: "/admin", label: "Dashboard", icon: LayoutDashboard, end: true }],
+  },
+  {
+    title: "ผู้ใช้ & ชุมชน",
+    items: [
+      { to: "/admin/users", label: "ผู้ใช้", icon: Users },
+      { to: "/admin/studios", label: "สตูดิโอ", icon: Building2 },
+    ],
+  },
+  {
+    title: "คอนเทนต์",
+    items: [
+      { to: "/admin/projects", label: "ผลงาน", icon: FolderKanban },
+      { to: "/admin/collections", label: "คอลเลกชัน", icon: Bookmark },
+      { to: "/admin/comments", label: "คอมเมนต์", icon: MessageCircle },
+    ],
+  },
+  {
+    title: "ตลาดงาน",
+    items: [
+      { to: "/admin/jobs", label: "ประกาศงาน", icon: BriefcaseIcon },
+      { to: "/admin/hiring", label: "คำขอจ้าง", icon: HandshakeIcon },
+      { to: "/admin/collabs", label: "คอลแลป", icon: HeartHandshake },
+    ],
+  },
+  {
+    title: "การเงิน & โฆษณา",
+    items: [
+      { to: "/admin/gifts", label: "ของขวัญ & กระเป๋า", icon: Gift },
+      { to: "/admin/ads", label: "โฆษณา", icon: Megaphone },
+    ],
+  },
+  {
+    title: "การสื่อสาร",
+    items: [
+      { to: "/admin/chats", label: "แชต", icon: MessageSquare },
+      { to: "/admin/notifications", label: "แจ้งเตือน", icon: Bell },
+    ],
+  },
+  {
+    title: "ความปลอดภัย & เสียงผู้ใช้",
+    items: [
+      { to: "/admin/aml", label: "AML / ฟอกเงิน", icon: Shield },
+      { to: "/admin/kyc", label: "ยืนยันตัวตน (KYC)", icon: ShieldCheck },
+      { to: "/admin/reports", label: "รายงานเนื้อหา", icon: Flag },
+      { to: "/admin/feedback", label: "ฟีดแบ็กผู้ใช้", icon: MessageSquareHeart },
+    ],
+  },
+  {
+    title: "ระบบ",
+    items: [
+      { to: "/admin/storage", label: "พื้นที่เก็บไฟล์", icon: HardDrive },
+      { to: "/admin/audit", label: "บันทึกการใช้งาน", icon: ScrollText },
+      { to: "/admin/system", label: "สุขภาพระบบ", icon: Activity },
+    ],
+  },
+];
+
+export default function AdminSidebar() {
+  // Subscribe to realtime updates that invalidate admin queries app-wide
+  useAdminRealtime();
+
+  return (
+    <aside className="hidden md:flex flex-col w-60 shrink-0 border-r border-admin-border bg-admin-surface min-h-screen sticky top-0">
+      <div className="px-5 py-6 border-b border-admin-border">
+        <div className="flex items-center gap-2">
+          <div className="w-7 h-7 rounded-sm bg-admin-fg flex items-center justify-center">
+            <div className="w-3 h-3 rounded-full bg-admin-accent" />
+          </div>
+          <div>
+            <p className="font-mono text-xs uppercase tracking-widest text-admin-muted">Admin</p>
+            <p className="font-medium text-sm text-admin-fg">Control Center</p>
+          </div>
+        </div>
+      </div>
+      <nav className="flex-1 px-2 py-3 overflow-y-auto">
+        {sections.map((sec, i) => (
+          <div key={sec.title} className={i > 0 ? "mt-4" : ""}>
+            <p className="px-3 pb-1.5 font-mono text-[10px] uppercase tracking-[0.18em] text-admin-muted/70">
+              {sec.title}
+            </p>
+            <div className="space-y-0.5">
+              {sec.items.map((it) => (
+                <NavLink
+                  key={it.to}
+                  to={it.to}
+                  end={it.end}
+                  className={({ isActive }) =>
+                    `flex items-center gap-3 px-3 py-2 rounded-sm text-sm transition-colors ${
+                      isActive
+                        ? "bg-admin-fg text-admin-bg"
+                        : "text-admin-muted hover:bg-admin-hover hover:text-admin-fg"
+                    }`
+                  }
+                >
+                  <it.icon className="w-4 h-4" />
+                  <span>{it.label}</span>
+                </NavLink>
+              ))}
+            </div>
+          </div>
+        ))}
+      </nav>
+      <div className="px-4 py-3 border-t border-admin-border">
+        <NavLink to="/" className="text-xs font-mono uppercase tracking-wider text-admin-muted hover:text-admin-accent">
+          ← กลับสู่เว็บไซต์
+        </NavLink>
+      </div>
+    </aside>
+  );
+}
