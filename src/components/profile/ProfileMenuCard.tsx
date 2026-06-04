@@ -1,5 +1,7 @@
 import { useNavigate } from "react-router-dom";
-import { LayoutGrid, Layers3, Coins, MessageCircle, Settings, LogOut, Plus, Building2, Flag, MessageSquare, ShieldCheck } from "lucide-react";
+import { LayoutGrid, Layers3, Coins, MessageCircle, Settings, LogOut, Plus, Building2, Flag, MessageSquare, ShieldCheck, Sparkles } from "lucide-react";
+import { useSubscription } from "@/core/subscription";
+import { SO1O_PRICING_URL } from "@/lib/productLinks";
 import BriefcaseIcon from "@/components/icons/BriefcaseIcon";
 import { supabase } from "@/integrations/supabase/client";
 import { useMyStudios, useSetActiveStudio } from "@/hooks/useStudios";
@@ -8,6 +10,7 @@ const ProfileMenuCard = () => {
   const navigate = useNavigate();
   const { data: myStudios = [] } = useMyStudios();
   const setActive = useSetActiveStudio();
+  const { isPro } = useSubscription();
 
   const item =
     "w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm text-foreground/85 hover:bg-foreground/5 hover:text-foreground transition-colors text-left";
@@ -65,6 +68,18 @@ const ProfileMenuCard = () => {
       <button onClick={() => navigate("/me/feedback")} className={item}>
         <MessageSquare className="w-4 h-4 text-primary" /> ฟีดแบ็กของฉัน
       </button>
+
+      <div className="my-2 border-t border-border" />
+      <p className="px-3 pt-1 pb-1 text-[10px] uppercase tracking-wider text-muted-foreground">ระบบ So1o</p>
+      {isPro ? (
+        <p className="px-3 py-1.5 text-xs text-primary font-medium flex items-center gap-1.5">
+          <Sparkles className="w-3.5 h-3.5" /> So1o Pro — ใช้ได้ทั้ง an1hem และ My Desk
+        </p>
+      ) : (
+        <a href={SO1O_PRICING_URL} target="_blank" rel="noopener noreferrer" className={item}>
+          <Sparkles className="w-4 h-4 text-primary" /> สมัคร So1o Pro (หลังบ้าน + หน้าร้าน)
+        </a>
+      )}
 
       <div className="my-2 border-t border-border" />
       <button onClick={() => navigate("/verify")} className={item}>

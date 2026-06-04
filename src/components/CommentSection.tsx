@@ -11,14 +11,13 @@ import { useAuthDialog } from "@/stores/authDialogStore";
 
 interface Props {
   projectId: string | undefined;
-  isMockProject?: boolean;
 }
 
-const CommentSection = ({ projectId, isMockProject }: Props) => {
+const CommentSection = ({ projectId }: Props) => {
   const { user } = useAuth();
   const openAuth = useAuthDialog((s) => s.openSignup);
   const [text, setText] = useState("");
-  const { data: comments = [], isLoading } = useProjectComments(isMockProject ? undefined : projectId);
+  const { data: comments = [], isLoading } = useProjectComments(projectId);
   const createMut = useCreateComment();
   const deleteMut = useDeleteComment();
 
@@ -45,11 +44,7 @@ const CommentSection = ({ projectId, isMockProject }: Props) => {
         ความคิดเห็น {comments.length > 0 && <span className="text-muted-foreground text-sm font-normal">({comments.length})</span>}
       </h2>
 
-      {isMockProject ? (
-        <div className="rounded-2xl bg-muted/30 border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
-          ผลงานตัวอย่าง — ยังไม่เปิดให้คอมเมนต์
-        </div>
-      ) : !user ? (
+      {!user ? (
         <div className="rounded-2xl glass-panel p-6 text-center space-y-3">
           <p className="text-sm text-muted-foreground">เข้าสู่ระบบเพื่อร่วมแสดงความคิดเห็น</p>
           <Button
@@ -86,7 +81,7 @@ const CommentSection = ({ projectId, isMockProject }: Props) => {
 
       <div className="space-y-3">
         {isLoading && <p className="text-sm text-muted-foreground">กำลังโหลด...</p>}
-        {!isLoading && !isMockProject && comments.length === 0 && (
+        {!isLoading && comments.length === 0 && (
           <p className="text-sm text-muted-foreground text-center py-6">ยังไม่มีคอมเมนต์ — มาเป็นคนแรกกันเถอะ</p>
         )}
         {comments.map((c) => (

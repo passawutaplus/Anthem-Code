@@ -28,24 +28,46 @@ export function useAdminRealtime() {
         qc.invalidateQueries({ queryKey: ["admin-ad-overview"] });
         qc.invalidateQueries({ queryKey: ["ad-daily-stats"] });
       })
-      // Core entities
+      // Core entities (matches useAdminList query keys)
       .on("postgres_changes", { event: "*", schema: "public", table: "projects" }, () => {
-        qc.invalidateQueries({ queryKey: ["admin-projects"] });
+        qc.invalidateQueries({ queryKey: ["admin-list", "projects"] });
       })
       .on("postgres_changes", { event: "*", schema: "public", table: "profiles" }, () => {
-        qc.invalidateQueries({ queryKey: ["admin-users"] });
+        qc.invalidateQueries({ queryKey: ["admin-list", "profiles"] });
       })
       .on("postgres_changes", { event: "*", schema: "public", table: "studios" }, () => {
-        qc.invalidateQueries({ queryKey: ["admin-studios"] });
+        qc.invalidateQueries({ queryKey: ["admin-list", "studios"] });
       })
       .on("postgres_changes", { event: "*", schema: "public", table: "job_posts" }, () => {
-        qc.invalidateQueries({ queryKey: ["admin-jobs"] });
+        qc.invalidateQueries({ queryKey: ["admin-list", "job_posts"] });
       })
       .on("postgres_changes", { event: "*", schema: "public", table: "hiring_requests" }, () => {
-        qc.invalidateQueries({ queryKey: ["admin-hiring"] });
+        qc.invalidateQueries({ queryKey: ["admin-list", "hiring_requests"] });
       })
       .on("postgres_changes", { event: "*", schema: "public", table: "collab_requests" }, () => {
-        qc.invalidateQueries({ queryKey: ["admin-collabs"] });
+        qc.invalidateQueries({ queryKey: ["admin-list", "collab_requests"] });
+      })
+      .on("postgres_changes", { event: "*", schema: "public", table: "project_comments" }, () => {
+        qc.invalidateQueries({ queryKey: ["admin-list", "project_comments"] });
+      })
+      .on("postgres_changes", { event: "*", schema: "public", table: "collections" }, () => {
+        qc.invalidateQueries({ queryKey: ["admin-list", "collections"] });
+      })
+      .on("postgres_changes", { event: "*", schema: "public", table: "inspire_boards" }, () => {
+        qc.invalidateQueries({ queryKey: ["admin-list", "inspire_boards"] });
+      })
+      .on("postgres_changes", { event: "*", schema: "public", table: "gifts" }, () => {
+        qc.invalidateQueries({ queryKey: ["admin-gifts-catalog"] });
+      })
+      .on("postgres_changes", { event: "*", schema: "shared", table: "notifications" }, () => {
+        qc.invalidateQueries({ queryKey: ["admin-notifications"] });
+      })
+      .on("postgres_changes", { event: "*", schema: "public", table: "aml_flags" }, () => {
+        qc.invalidateQueries({ queryKey: ["aml-flags"] });
+        qc.invalidateQueries({ queryKey: ["aml-overview"] });
+      })
+      .on("postgres_changes", { event: "*", schema: "public", table: "kyc_requests" }, () => {
+        qc.invalidateQueries({ queryKey: ["kyc-requests"] });
       })
       .subscribe();
 

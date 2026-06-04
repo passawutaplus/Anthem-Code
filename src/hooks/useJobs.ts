@@ -74,11 +74,6 @@ export const useOpenJobs = (opts?: { limit?: number; postType?: "hiring" | "seek
       const { data, error } = await q;
       if (error) throw error;
       const real = (data ?? []) as JobPost[];
-      if (real.length === 0) {
-        const { mockJobs } = await import("@/data/mockJobs");
-        const f = opts?.postType ? mockJobs.filter((j) => j.post_type === opts.postType) : mockJobs;
-        return opts?.limit ? f.slice(0, opts.limit) : f;
-      }
       return attachPosters(await attachStudios(real));
     },
   });
@@ -103,10 +98,6 @@ export const useJobById = (id?: string) =>
     queryKey: ["job", id],
     enabled: !!id,
     queryFn: async (): Promise<JobPost | null> => {
-      if (id?.startsWith("mock-job-")) {
-        const { mockJobs } = await import("@/data/mockJobs");
-        return mockJobs.find((j) => j.id === id) ?? null;
-      }
       const { data, error } = await supabase.from("job_posts").select("*").eq("id", id!).maybeSingle();
       if (error) throw error;
       if (!data) return null;

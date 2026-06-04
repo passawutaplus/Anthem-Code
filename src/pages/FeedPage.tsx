@@ -23,7 +23,6 @@ import { FilterPanel, type DesignerSort } from "@/components/feed/DesignerToolba
 import StudioGrid from "@/components/feed/StudioGrid";
 import { useDesigners } from "@/hooks/useDesigners";
 
-import { projects as mockProjects } from "@/data/mockData";
 import { categories as allCategories, type Category, type Project, type ProjectStatus, type SpecialFilter } from "@/data/projectTypes";
 import {
   usePublishedProjects,
@@ -144,13 +143,12 @@ const FeedPage = (_props: { onMyPortClick: () => void }) => {
         allowCollab: (p as any).allow_collab ?? true,
       };
     });
-    const combined = feedMode === "Explore" ? [...mapped, ...mockProjects] : mapped;
     if (feedMode === "Newest") {
-      return [...combined].sort(
-        (a, b) => new Date(b.publishedDate).getTime() - new Date(a.publishedDate).getTime()
+      return [...mapped].sort(
+        (a, b) => new Date(b.publishedDate).getTime() - new Date(a.publishedDate).getTime(),
       );
     }
-    return combined;
+    return mapped;
   }, [sourceData, ownersMap, feedMode]);
 
   const filtered = projects.filter((p) => {

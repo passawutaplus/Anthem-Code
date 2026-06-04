@@ -8,14 +8,16 @@ import StatsCard from "@/components/StatsCard";
 import ManageProjectCard from "@/components/ManageProjectCard";
 import SearchBar from "@/components/SearchBar";
 import CollabRequestsSection from "@/components/CollabRequestsSection";
-import { projects as mockProjects, type Project, type ProjectStatus, type Category } from "@/data/mockData";
+import type { Project, ProjectStatus, Category } from "@/data/projectTypes";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { useHiringRequests, type HiringStatusDB } from "@/hooks/useHiringRequests";
 import { useAcceptRequest, useRejectRequest, useFindConversationByRequest } from "@/hooks/useChat";
 import { useDeleteProject, useMyProjects } from "@/hooks/useProjects";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
+import { useSearchParams } from "react-router-dom";
 import { timeAgoTH } from "@/lib/format";
+import SeoHead from "@/components/SeoHead";
 
 type ProjectTab = "ทั้งหมด" | "Published" | "Draft" | "Private";
 type HiringTab = HiringStatusDB | "ทั้งหมด";
@@ -24,6 +26,9 @@ const STATUSES: HiringStatusDB[] = ["ใหม่", "ที่ต้องตอ
 
 const PortfolioManagePage = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const hiringRef = useRef<HTMLDivElement>(null);
+  const collabRef = useRef<HTMLDivElement>(null);
   const { user, loading: authLoading } = useAuth();
   const { data: requests = [] } = useHiringRequests(user?.id);
   const accept = useAcceptRequest();
@@ -39,6 +44,14 @@ const PortfolioManagePage = () => {
   useEffect(() => {
     if (!authLoading && !user) navigate("/auth?redirect=/portfolio");
   }, [authLoading, user, navigate]);
+
+  useEffect(() => {
+    const focus = searchParams.get("focus");
+    const el = focus === "collab" ? collabRef.current : focus === "hiring" ? hiringRef.current : null;
+    if (el) {
+      requestAnimationFrame(() => el.scrollIntoView({ behavior: "smooth", block: "start" }));
+    }
+  }, [searchParams]);
 
   const myProjects: Project[] = useMemo(() => {
     const mapped: Project[] = dbProjects.map((p) => ({
@@ -58,8 +71,7 @@ const PortfolioManagePage = () => {
       tools: p.tools ?? [],
       price: p.price_thb ? `฿${p.price_thb.toLocaleString("th-TH")}` : undefined,
     }));
-    const mockMine = mockProjects.filter((p) => p.owner === "You");
-    return [...mapped, ...mockMine];
+    return mapped;
   }, [dbProjects]);
 
   const totalViews = myProjects.reduce((s, p) => s + p.views, 0);
@@ -79,6 +91,7 @@ const PortfolioManagePage = () => {
 
   return (
     <div className="min-h-screen bg-app-ambient">
+      <SeoHead title="จัดการผลงาน" path="/portfolio/manage" noindex />
       <div className="bg-gradient-to-b from-primary/10 to-background">
         <div className="max-w-5xl mx-auto px-4 pt-6 pb-4">
           <button onClick={() => navigate("/portfolio")} className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-4 transition-colors">
@@ -121,7 +134,7 @@ const PortfolioManagePage = () => {
           <StatsCard label="ถูกใจ" value={totalLikes} icon={Heart} accent />
         </div>
 
-        <div className="space-y-3">
+        <div className="space-y-3" ref={hiringRef} id="hiring-section">
           <div className="flex items-center gap-3">
             <div className="text-primary"><Mail className="w-5 h-5" strokeWidth={2.25} /></div>
             <div>
@@ -227,7 +240,9 @@ const PortfolioManagePage = () => {
           </div>
         </div>
 
-        <CollabRequestsSection />
+        <div ref={collabRef} id="collab-section">
+          <CollabRequestsSection />
+        </div>
 
 
         <div className="space-y-3">

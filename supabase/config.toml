@@ -8,3 +8,6 @@ verify_jwt = false
 
 [functions.embed-project]
 verify_jwt = false
+
+[functions.sync-so1o-tier]
+verify_jwt = false

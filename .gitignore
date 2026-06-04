@@ -12,6 +12,11 @@ dist
 dist-ssr
 *.local
 
+# Secrets — use shell env or scripts/ecosystem/.env.seed.local (never commit)
+.env
+.env.*
+!.env.example
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

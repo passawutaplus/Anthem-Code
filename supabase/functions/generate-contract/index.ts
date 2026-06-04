@@ -1,7 +1,13 @@
-// Generate contract draft (Thai) using Lovable AI Gateway.
-// Requires authenticated user. Validates input with zod.
+// Generate contract draft (Thai) via Google Gemini.
 import { z } from "npm:zod@3";
 import { createClient } from "npm:@supabase/supabase-js@2";
+import {
+  GeminiError,
+  defaultModel,
+  geminiGenerateText,
+  getGeminiApiKey,
+  normalizeGeminiModel,
+} from "../_shared/gemini.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -9,7 +15,6 @@ const corsHeaders = {
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
-const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY")!;
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY")!;
 
@@ -87,30 +92,19 @@ Deno.serve(async (req) => {
   if (!parsed.success) return json({ error: parsed.error.flatten().fieldErrors }, 400);
 
   try {
-    const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
-        messages: [
-          { role: "system", content: "คุณเป็นผู้ช่วยร่างสัญญาภาษาไทย ตอบเป็น Markdown เท่านั้น" },
-          { role: "user", content: buildPrompt(parsed.data) },
-        ],
-        temperature: 0.3,
-      }),
+    const model = normalizeGeminiModel("google/gemini-2.5-flash", defaultModel());
+    const draft = await geminiGenerateText(getGeminiApiKey(), model, {
+      messages: [
+        { role: "system", content: "คุณเป็นผู้ช่วยร่างสัญญาภาษาไทย ตอบเป็น Markdown เท่านั้น" },
+        { role: "user", content: buildPrompt(parsed.data) },
+      ],
+      temperature: 0.3,
     });
-
-    if (res.status === 429) return json({ error: "ใช้งานเยอะเกินไป ลองใหม่อีกครั้ง" }, 429);
-    if (res.status === 402) return json({ error: "เครดิต AI หมด กรุณาเติม Lovable AI" }, 402);
-    if (!res.ok) return json({ error: "AI service error" }, 502);
-
-    const j = await res.json();
-    const draft: string = j.choices?.[0]?.message?.content ?? "";
     return json({ draft });
-  } catch {
+  } catch (e) {
+    if (e instanceof GeminiError && e.status === 429) {
+      return json({ error: "ใช้งานเยอะเกินไป ลองใหม่อีกครั้ง" }, 429);
+    }
     return json({ error: "internal error" }, 500);
   }
 });

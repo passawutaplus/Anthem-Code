@@ -5,10 +5,9 @@
  * app reads query params to prefill forms. Tracking is best-effort.
  */
 import { supabase } from "@/integrations/supabase/client";
+import { SO1O_APP_URL } from "@/lib/productLinks";
 
-export const SO1O_APP_URL =
-  (import.meta.env.VITE_SO1O_APP_URL as string | undefined) ??
-  "https://so1o.lovable.app";
+export { SO1O_APP_URL };
 
 type CrossLinkContext = {
   /** Where the CTA lives, e.g. "project_detail" | "chat_header". */

@@ -11,6 +11,8 @@ import { safeHttpUrl } from "@/lib/safeUrl";
 import JobCard from "@/components/jobs/JobCard";
 import { useAuth } from "@/hooks/useAuth";
 import { requireAuth } from "@/lib/requireAuth";
+import SeoHead from "@/components/SeoHead";
+import { truncateDescription } from "@/lib/seo";
 
 const StudioProfilePage = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -27,6 +29,12 @@ const StudioProfilePage = () => {
 
   return (
     <div className="min-h-screen bg-app-ambient pb-24 lg:pb-12">
+      <SeoHead
+        title={studio.name}
+        description={truncateDescription(studio.description || `สตูดิโอ ${studio.name} บน Anthem`)}
+        path={`/s/${slug}`}
+        image={studio.cover_url ?? studio.avatar_url ?? undefined}
+      />
       <div className="relative h-48 lg:h-64 bg-gradient-to-br from-primary/20 to-primary/5">
         {studio.cover_url && <img src={studio.cover_url} alt="" className="w-full h-full object-cover" />}
         <button

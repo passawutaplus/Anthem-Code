@@ -9,7 +9,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Mail, User as UserIcon, Eye, EyeOff, Loader2, Info, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable";
+import { signInWithOAuth } from "@/integrations/oauth";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { useAuthDialog } from "@/stores/authDialogStore";
@@ -67,8 +67,8 @@ const AuthDialog = () => {
   }, [user, open, close]);
 
   const handleGoogle = async () => {
-    const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin + window.location.pathname,
+    const result = await signInWithOAuth("google", {
+      redirectTo: window.location.origin + window.location.pathname,
     });
     if (result.error) toast.error(result.error.message || "เข้าสู่ระบบด้วย Google ไม่สำเร็จ");
   };

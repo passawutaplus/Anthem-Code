@@ -25,10 +25,6 @@ export const useProjectComments = (projectId: string | undefined) => {
         .order("created_at", { ascending: false });
       if (error) throw error;
       const rows = data ?? [];
-      if (rows.length === 0) {
-        const { mockCommentsFor } = await import("@/data/mockComments");
-        return mockCommentsFor(projectId!, 10);
-      }
       const ids = Array.from(new Set(rows.map((r) => r.user_id)));
       const { data: profs } = await supabase
         .from("profiles")

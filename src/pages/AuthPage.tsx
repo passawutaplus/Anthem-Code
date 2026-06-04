@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable";
+import { signInWithOAuth } from "@/integrations/oauth";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
@@ -90,8 +90,8 @@ const AuthPage = () => {
   }, [user, navigate, redirect]);
 
   const handleGoogle = async () => {
-    const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin + redirect,
+    const result = await signInWithOAuth("google", {
+      redirectTo: window.location.origin + redirect,
     });
     if (result.error) toast.error(result.error.message || "เข้าสู่ระบบด้วย Google ไม่สำเร็จ");
   };
@@ -169,8 +169,8 @@ const AuthPage = () => {
             </h1>
             <p className="text-sm text-muted-foreground mb-6 thai-body">
               {tab === "login"
-                ? "เข้าสู่ระบบเพื่อจัดการพอร์ตโฟลิโอของคุณ"
-                : "เริ่มต้นใช้งานฟรี — ใช้เวลาไม่ถึง 1 นาที"}
+                ? "เข้าสู่ระบบเพื่อจัดการพอร์ตโฟลิโอของคุณ — ใช้อีเมลเดียวกับ So1o เพื่อรับสิทธิ์ Pro ร่วมกัน"
+                : "เริ่มต้นใช้งานฟรี — ใช้อีเมลเดียวกับ So1o ถ้ามีแพ็ก Pro แล้ว"}
             </p>
 
             <Tabs value={tab} onValueChange={(v) => setTab(v as typeof tab)} className="w-full">

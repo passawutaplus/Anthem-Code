@@ -99,8 +99,8 @@ export default function AdminAmlPage() {
       />
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <KpiCard label="ธงเปิดอยู่" value={o.open_flags ?? 0} icon={AlertTriangle} accent />
-        <KpiCard label="ระดับวิกฤต" value={o.critical_flags ?? 0} icon={Shield} />
+        <KpiCard label="ธงเปิดอยู่" value={o.flags_open ?? 0} icon={AlertTriangle} accent />
+        <KpiCard label="ระดับวิกฤต" value={o.flags_critical ?? 0} icon={Shield} />
         <KpiCard label="บัญชีถูกระงับ" value={o.frozen_accounts ?? 0} icon={Snowflake} />
         <KpiCard label="ความเสี่ยงสูง" value={o.high_risk_users ?? 0} icon={Activity} />
       </div>

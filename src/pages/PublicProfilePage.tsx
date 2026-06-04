@@ -17,6 +17,8 @@ import CollectionCard from "@/components/collections/CollectionCard";
 import { safeHttpUrl } from "@/lib/safeUrl";
 import { highlight } from "@/lib/highlight";
 import { PROJECT_FEED_SELECT, PUBLIC_PROFILE_SELECT } from "@/lib/dbSelects";
+import SeoHead from "@/components/SeoHead";
+import { truncateDescription } from "@/lib/seo";
 
 
 const PublicProfilePage = () => {
@@ -80,8 +82,28 @@ const PublicProfilePage = () => {
     );
   }
 
+  const displayName = profile.display_name || profile.username || "ครีเอเตอร์";
+  const seoDesc = truncateDescription(
+    profile.bio || `ดูพอร์ตโฟลิโอและผลงานของ ${displayName} บน Anthem`,
+  );
+
   return (
     <div className="min-h-screen bg-app-ambient">
+      <SeoHead
+        title={displayName}
+        description={seoDesc}
+        path={`/u/${userId}`}
+        image={profile.avatar_url ?? undefined}
+        type="profile"
+        jsonLd={{
+          "@context": "https://schema.org",
+          "@type": "Person",
+          name: displayName,
+          description: profile.bio || undefined,
+          image: profile.avatar_url || undefined,
+          url: typeof window !== "undefined" ? window.location.href : undefined,
+        }}
+      />
       <div className="sticky top-0 z-20 glass-panel border-x-0 border-t-0 rounded-none">
         <div className="max-w-5xl mx-auto px-4 py-3">
           <button onClick={() => navigate(-1)} className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">

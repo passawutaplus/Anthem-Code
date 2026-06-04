@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,7 +16,7 @@ interface Props {
 const CashoutDialog = ({ open, onOpenChange }: Props) => {
   const { data: wallet } = useWallet();
   const cashout = useRequestCashout();
-  const balance = wallet?.balance_px ?? 0;
+  const earnedBalance = wallet?.earned_px ?? 0;
   const [amount, setAmount] = useState<string>("");
   const [bank, setBank] = useState("");
   const [accountNumber, setAccountNumber] = useState("");
@@ -26,7 +27,7 @@ const CashoutDialog = ({ open, onOpenChange }: Props) => {
   const net = amountNum - fee;
   const canSubmit =
     amountNum >= MIN_CASHOUT_PX &&
-    amountNum <= balance &&
+    amountNum <= earnedBalance &&
     bank.trim() &&
     accountNumber.trim() &&
     accountName.trim();
@@ -36,8 +37,8 @@ const CashoutDialog = ({ open, onOpenChange }: Props) => {
       { amountPx: amountNum, bank: bank.trim(), accountNumber: accountNumber.trim(), accountName: accountName.trim() },
       {
         onSuccess: () => {
-          toast.success(`ขอถอน ${amountNum.toLocaleString()} px สำเร็จ (โหมดทดสอบ)`, {
-            description: `จะได้รับ ฿ ${net.toLocaleString()} หลังหักค่าธรรมเนียม 15%`,
+          toast.success(`ส่งคำขอถอน ${amountNum.toLocaleString()} px แล้ว`, {
+            description: `อยู่ในคิวดำเนินการ — สุทธิประมาณ ฿ ${net.toLocaleString()} หลังหักค่าธรรมเนียม 15%`,
           });
           onOpenChange(false);
           setAmount("");
@@ -55,7 +56,7 @@ const CashoutDialog = ({ open, onOpenChange }: Props) => {
             <Banknote className="w-5 h-5 text-primary" /> ถอน Pixel เข้าบัญชี
           </DialogTitle>
           <DialogDescription>
-            ยอดในกระเป๋า <span className="text-primary font-semibold">{balance.toLocaleString()} px</span> · ขั้นต่ำ {MIN_CASHOUT_PX.toLocaleString()} px · ค่าธรรมเนียม {PLATFORM_FEE_RATE * 100}%
+            ยอดถอนได้ (จากของขวัญ) <span className="text-primary font-semibold">{earnedBalance.toLocaleString()} px</span> · ขั้นต่ำ {MIN_CASHOUT_PX.toLocaleString()} px · ค่าธรรมเนียม {PLATFORM_FEE_RATE * 100}%
           </DialogDescription>
         </DialogHeader>
 
@@ -65,16 +66,16 @@ const CashoutDialog = ({ open, onOpenChange }: Props) => {
             <Input
               type="number"
               min={MIN_CASHOUT_PX}
-              max={balance}
+              max={earnedBalance}
               placeholder={`อย่างน้อย ${MIN_CASHOUT_PX}`}
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
             />
             <button
-              onClick={() => setAmount(String(balance))}
+              onClick={() => setAmount(String(earnedBalance))}
               className="text-[11px] text-primary hover:underline"
             >
-              ใช้ยอดทั้งหมด ({balance.toLocaleString()} px)
+              ใช้ยอดทั้งหมด ({earnedBalance.toLocaleString()} px)
             </button>
           </div>
 
@@ -100,8 +101,9 @@ const CashoutDialog = ({ open, onOpenChange }: Props) => {
             <Row label="จะได้รับสุทธิ" value={`฿ ${Math.max(net, 0).toLocaleString()}`} bold />
           </div>
 
-          <div className="text-[11px] text-muted-foreground bg-muted/50 rounded-lg p-2 leading-relaxed">
-            ⚠️ โหมดทดสอบ: คำขอจะถูกบันทึกแต่ยังไม่มีการโอนเงินจริง
+          <div className="text-[11px] text-muted-foreground bg-muted/50 rounded-lg p-2 leading-relaxed space-y-1">
+            <p>คำขอจะเข้าคิว <span className="font-medium text-foreground">รอดำเนินการ</span> — ทีมงานจะโอนเมื่อระบบชำระเงินเปิดใช้งาน</p>
+            <p>ต้องยืนยันตัวตน (KYC) ก่อนถอน — ดูที่หน้า <Link to="/verify" className="text-primary underline">ยืนยันตัวตน</Link></p>
           </div>
 
           <Button

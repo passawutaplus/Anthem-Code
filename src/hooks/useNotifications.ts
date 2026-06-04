@@ -41,10 +41,7 @@ export const useActivityNotifications = () => {
         .select("id, title, cover_url")
         .eq("owner_id", user!.id);
       const projects = myProjects ?? [];
-      if (projects.length === 0) {
-        const { mockActivityNotifs } = await import("@/data/mockNotifications");
-        return mockActivityNotifs;
-      }
+      if (projects.length === 0) return [];
       const projectIds = projects.map((p) => p.id);
       const projectMap: Record<string, { title: string; cover: string }> = {};
       projects.forEach((p) => (projectMap[p.id] = { title: p.title, cover: p.cover_url ?? "" }));
@@ -165,10 +162,6 @@ export const useHireNotifications = () => {
         status: r.status,
         budgetAmount: r.budget_amount,
       }));
-      if (rows.length === 0) {
-        const { mockHireNotifs } = await import("@/data/mockNotifications");
-        return mockHireNotifs;
-      }
       return rows;
     },
   });
@@ -199,10 +192,7 @@ export const useCollabNotifications = () => {
         .order("created_at", { ascending: false })
         .limit(50);
       const rows = data ?? [];
-      if (rows.length === 0) {
-        const { mockCollabNotifs } = await import("@/data/mockNotifications");
-        return mockCollabNotifs;
-      }
+      if (rows.length === 0) return [];
       const profMap = await fetchProfiles(Array.from(new Set(rows.map((r) => r.sender_id))));
       return rows.map((r) => ({
         id: r.id,

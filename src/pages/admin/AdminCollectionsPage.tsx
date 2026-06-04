@@ -1,29 +1,71 @@
+import { toast } from "sonner";
 import SectionHeader from "@/components/admin/SectionHeader";
 import DataTable, { Column } from "@/components/admin/DataTable";
-import StatusPill from "@/components/admin/StatusPill";
 import { SearchBar, useSearch } from "@/components/admin/SearchBar";
+import AdminRowActions from "@/components/admin/AdminRowActions";
 import { useAdminList } from "@/hooks/admin/useAdminList";
+import { useAdminDeleteCollection } from "@/hooks/admin/useAdminMutations";
 import { formatThaiDate } from "@/lib/format";
 
 interface Row {
-  id: string; name: string; category: string; owner_id: string;
-  is_public: boolean; item_count: number; created_at: string;
+  id: string;
+  name: string;
+  user_id: string;
+  is_public: boolean;
+  created_at: string;
 }
 
 export default function AdminCollectionsPage() {
-  const { data, isLoading } = useAdminList<Row>("collections");
-  const { q, setQ, filtered } = useSearch(data, ["name", "category"]);
+  const { data, isLoading } = useAdminList<Row>("collections", "id,name,user_id,is_public,created_at");
+  const { q, setQ, filtered } = useSearch(data, ["name"]);
+  const remove = useAdminDeleteCollection();
+
   const cols: Column<Row>[] = [
     { key: "name", header: "ชื่อ", render: (r) => <span className="font-medium">{r.name}</span> },
-    { key: "cat", header: "หมวด", render: (r) => r.category ? <StatusPill status={r.category} tone="muted" /> : "—" },
-    { key: "items", header: "Items", render: (r) => <span className="font-mono">{r.item_count}</span> },
-    { key: "pub", header: "Visibility", render: (r) => <StatusPill status={r.is_public ? "PUBLIC" : "PRIVATE"} tone={r.is_public ? "accent" : "muted"} /> },
-    { key: "owner", header: "Owner", render: (r) => <span className="font-mono text-xs">{r.owner_id.slice(0, 8)}…</span> },
+    {
+      key: "owner",
+      header: "เจ้าของ",
+      render: (r) => (
+        <a href={`/u/${r.user_id}`} className="font-mono text-xs text-admin-accent hover:underline">
+          {r.user_id.slice(0, 8)}…
+        </a>
+      ),
+    },
+    { key: "public", header: "สาธารณะ", render: (r) => (r.is_public ? "ใช่" : "ไม่") },
     { key: "at", header: "สร้างเมื่อ", render: (r) => <span className="font-mono text-xs">{formatThaiDate(r.created_at)}</span> },
+    {
+      key: "actions",
+      header: "",
+      className: "w-12",
+      render: (r) => (
+        <AdminRowActions
+          actions={[
+            { label: "ดูคอลเลกชัน", href: `/collections/${r.id}` },
+            {
+              label: "ลบคอลเลกชัน",
+              destructive: true,
+              onClick: () => {
+                if (!window.confirm(`ลบ "${r.name}"?`)) return;
+                remove.mutate(r.id, {
+                  onSuccess: () => toast.success("ลบแล้ว"),
+                  onError: (e: Error) => toast.error(e.message),
+                });
+              },
+            },
+          ]}
+        />
+      ),
+    },
   ];
+
   return (
     <div>
-      <SectionHeader eyebrow="collections" title="คอลเลกชัน" description={`${data?.length ?? 0} ชุด`} actions={<SearchBar value={q} onChange={setQ} />} />
+      <SectionHeader
+        eyebrow="collections"
+        title="คอลเลกชัน"
+        description={`${data?.length ?? 0} คอลเลกชัน`}
+        actions={<SearchBar value={q} onChange={setQ} />}
+      />
       <DataTable columns={cols} rows={filtered} loading={isLoading} rowKey={(r) => r.id} />
     </div>
   );

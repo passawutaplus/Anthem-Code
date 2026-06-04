@@ -3,7 +3,7 @@ import { NavLink } from "react-router-dom";
 import {
   LayoutDashboard, Users, Building2, FolderKanban,
   HandshakeIcon, HeartHandshake, MessageSquare, MessageCircle,
-  Bookmark, Bell, HardDrive, ScrollText, Activity, Gift, Megaphone,
+  Bookmark, Bell, HardDrive, ScrollText, Activity, Gift, Megaphone, Sparkles,
   Flag, MessageSquareHeart, Shield, ShieldCheck,
 } from "lucide-react";
 import { useAdminRealtime } from "@/hooks/admin/useAdminRealtime";
@@ -28,6 +28,7 @@ const sections: { title: string; items: Item[] }[] = [
       { to: "/admin/projects", label: "ผลงาน", icon: FolderKanban },
       { to: "/admin/collections", label: "คอลเลกชัน", icon: Bookmark },
       { to: "/admin/comments", label: "คอมเมนต์", icon: MessageCircle },
+      { to: "/admin/inspire", label: "Inspire", icon: Sparkles },
     ],
   },
   {

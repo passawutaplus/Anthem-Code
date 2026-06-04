@@ -4,8 +4,11 @@
  */
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import type { Database } from "@/integrations/supabase/types";
 
 export type AppKey = "anthem" | "so1o" | "shared";
+
+type NotificationRow = Database["public"]["Views"]["notifications"]["Row"];
 
 export interface Notification {
   id: string;
@@ -21,24 +24,43 @@ export interface Notification {
   created_at: string;
 }
 
+function toNotification(row: NotificationRow): Notification | null {
+  if (!row.id || !row.user_id) return null;
+  return {
+    id: row.id,
+    user_id: row.user_id,
+    app: (row.app ?? "anthem") as AppKey,
+    kind: row.kind ?? "",
+    title: row.title ?? "",
+    body: row.body ?? "",
+    link: row.link ?? "",
+    metadata: (row.metadata && typeof row.metadata === "object" ? row.metadata : {}) as Record<string, unknown>,
+    is_read: !!row.is_read,
+    is_dismissed: !!row.is_dismissed,
+    created_at: row.created_at ?? new Date().toISOString(),
+  };
+}
+
 export function useNotifications(userId: string | null | undefined) {
   const [items, setItems] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(false);
 
-  // `public.notifications` is a view bridging shared.notifications and is not
-  // yet in the generated types — escape via `any` until types regenerate.
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const tbl = () => (supabase as any).from("notifications");
-
   const fetchItems = useCallback(async () => {
     if (!userId) return;
     setLoading(true);
-    const { data, error } = await tbl()
+    const { data, error } = await supabase
+      .from("notifications")
       .select("*")
       .eq("is_dismissed", false)
       .order("created_at", { ascending: false })
-      .limit(50);
-    if (!error && data) setItems(data as Notification[]);
+      .limit(80);
+    if (!error && data) {
+      setItems(
+        (data as NotificationRow[])
+          .map(toNotification)
+          .filter((n): n is Notification => n !== null),
+      );
+    }
     setLoading(false);
   }, [userId]);
 
@@ -59,12 +81,12 @@ export function useNotifications(userId: string | null | undefined) {
   }, [userId, fetchItems]);
 
   const markRead = useCallback(async (id: string) => {
-    await tbl().update({ is_read: true }).eq("id", id);
+    await supabase.from("notifications").update({ is_read: true }).eq("id", id);
     setItems((prev) => prev.map((n) => (n.id === id ? { ...n, is_read: true } : n)));
   }, []);
 
   const dismiss = useCallback(async (id: string) => {
-    await tbl().update({ is_dismissed: true }).eq("id", id);
+    await supabase.from("notifications").update({ is_dismissed: true }).eq("id", id);
     setItems((prev) => prev.filter((n) => n.id !== id));
   }, []);
 

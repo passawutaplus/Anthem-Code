@@ -6,7 +6,6 @@ import { so1oUrl, trackCrossLink } from "@/lib/crossLink";
 import SaveToCollectionPopover from "@/components/collections/SaveToCollectionPopover";
 import { Layers3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import type { Project } from "@/data/projectTypes";
 import HireDialog from "@/components/HireDialog";
 import CollabDialog from "@/components/CollabDialog";
 import CommentSection from "@/components/CommentSection";
@@ -21,29 +20,14 @@ import { useQuery } from "@tanstack/react-query";
 import { useProject } from "@/hooks/useProjects";
 import { useAuth } from "@/hooks/useAuth";
 import { isCategoryAllowed } from "@/lib/cookieConsent";
+import SeoHead from "@/components/SeoHead";
+import { truncateDescription } from "@/lib/seo";
 
 const ProjectDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
   const { data: dbProject, isLoading } = useProject(id);
-  const [mockProject, setMockProject] = useState<Project | undefined>();
-
-  useEffect(() => {
-    if (dbProject || isLoading || !id) {
-      setMockProject(undefined);
-      return;
-    }
-    let cancelled = false;
-    import("@/data/mockData").then((mod) => {
-      if (!cancelled) setMockProject(mod.projects.find((p) => p.id === id));
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [dbProject, isLoading, id]);
-
-  const isMockProject = !dbProject && !isLoading && !!mockProject;
 
   // Track view: per-user history (for "For You" feed) + global counter (for stats)
   useEffect(() => {
@@ -85,7 +69,7 @@ const ProjectDetailPage = () => {
   // Comments count
   const { data: commentsCount = 0 } = useQuery({
     queryKey: ["comments-count", id],
-    enabled: !!id && !isMockProject,
+    enabled: !!id && !!dbProject,
     queryFn: async () => {
       const { count } = await supabase
         .from("project_comments")
@@ -120,34 +104,14 @@ const ProjectDetailPage = () => {
         allowHire: (dbProject as any).allow_hire ?? true,
         allowCollab: (dbProject as any).allow_collab ?? true,
       }
-    : mockProject
-      ? {
-          id: mockProject.id,
-          title: mockProject.title,
-          gallery: mockProject.image ? [mockProject.image] : [],
-          category: mockProject.category,
-          ownerId: undefined as string | undefined,
-          owner: mockProject.owner,
-          ownerAvatar: "",
-          likes: mockProject.likes,
-          views: mockProject.views,
-          bookmarked: mockProject.bookmarked,
-          publishedDate: mockProject.publishedDate,
-          tools: mockProject.tools ?? [],
-          tags: [] as string[],
-          price: mockProject.price as string | undefined,
-          description: "",
-          allowHire: true,
-          allowCollab: true,
-        }
-      : null;
+    : null;
 
   const [liked, setLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(project?.likes ?? 0);
   const [hireOpen, setHireOpen] = useState(false);
   const [collabOpen, setCollabOpen] = useState(false);
 
-  if (isLoading && !mockProject) {
+  if (isLoading) {
     return <div className="min-h-screen bg-app-ambient flex items-center justify-center text-muted-foreground">กำลังโหลด...</div>;
   }
   if (!project) {
@@ -174,8 +138,28 @@ const ProjectDetailPage = () => {
     }
   };
 
+  const coverImage = project.gallery[0] ?? "";
+
   return (
     <div className="min-h-screen bg-app-ambient">
+      <SeoHead
+        title={project.title}
+        description={truncateDescription(
+          project.description || `${project.title} โดย ${project.owner} — ${project.category} บน Anthem`,
+        )}
+        path={`/project/${project.id}`}
+        image={coverImage || undefined}
+        type="article"
+        jsonLd={{
+          "@context": "https://schema.org",
+          "@type": "CreativeWork",
+          name: project.title,
+          description: project.description || project.title,
+          image: coverImage || undefined,
+          author: { "@type": "Person", name: project.owner },
+          url: typeof window !== "undefined" ? window.location.href : undefined,
+        }}
+      />
       <div className="sticky top-0 z-20 bg-background/80 backdrop-blur-md border-b border-border">
         <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
           <button onClick={() => navigate(-1)} className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
@@ -289,7 +273,7 @@ const ProjectDetailPage = () => {
 
         {/* Comments full width below */}
         <div className="mt-10 lg:mt-14 max-w-3xl">
-          <CommentSection projectId={project.id} isMockProject={isMockProject} />
+          <CommentSection projectId={project.id} />
         </div>
       </div>
 

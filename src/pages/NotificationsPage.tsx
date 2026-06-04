@@ -1,7 +1,7 @@
 import BriefcaseIcon from "../components/icons/BriefcaseIcon";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Heart, Bookmark, MessageCircle, Handshake, Bell, Sparkles, Megaphone, CheckCircle2, XCircle, CreditCard } from "lucide-react";
+import { ArrowLeft, Heart, Bookmark, MessageCircle, Handshake, Bell, Sparkles, Megaphone, CheckCircle2, XCircle, CreditCard, Inbox } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useActivityNotifications, useHireNotifications, useCollabNotifications } from "@/hooks/useNotifications";
 import { useUnreadJobMatchCount } from "@/hooks/useJobMatchNotifications";
@@ -10,6 +10,9 @@ import { useAdApplicationNotifications } from "@/hooks/useAds";
 import { useAuth } from "@/hooks/useAuth";
 import { useEffect } from "react";
 import { useUpdateCollabStatus } from "@/hooks/useCollabRequests";
+import { useNotifications as useInbox } from "@/core/notifications";
+import InboxList from "@/components/notifications/InboxList";
+import SeoHead from "@/components/SeoHead";
 
 const timeAgo = (iso: string) => {
   const diff = Date.now() - new Date(iso).getTime();
@@ -42,7 +45,8 @@ const Empty = ({ icon: Icon, text }: { icon: typeof Bell; text: string }) => (
 const NotificationsPage = () => {
   const navigate = useNavigate();
   const { user, loading } = useAuth();
-  const [tab, setTab] = useState("matches");
+  const [tab, setTab] = useState("inbox");
+  const inbox = useInbox(user?.id);
   const { data: activity = [], isLoading: la } = useActivityNotifications();
   const { data: hires = [], isLoading: lh } = useHireNotifications();
   const { data: collabs = [], isLoading: lc } = useCollabNotifications();
@@ -58,6 +62,7 @@ const NotificationsPage = () => {
 
   return (
     <div className="min-h-screen bg-app-ambient pb-24 lg:pb-8">
+      <SeoHead title="การแจ้งเตือน" path="/notifications" noindex />
       <header className="sticky top-0 z-20 bg-background/60 backdrop-blur-xl border-b border-border/40">
         <div className="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between">
           <button onClick={() => navigate(-1)} className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
@@ -70,7 +75,13 @@ const NotificationsPage = () => {
 
       <div className="max-w-3xl mx-auto px-4 pt-5">
         <Tabs value={tab} onValueChange={setTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-5 bg-secondary/60 rounded-full p-1 h-11">
+          <TabsList className="grid w-full grid-cols-3 sm:grid-cols-6 bg-secondary/60 rounded-full p-1 h-11">
+            <TabsTrigger value="inbox" className="rounded-full data-[state=active]:bg-background data-[state=active]:shadow-sm gap-1 text-xs px-1.5">
+              <Inbox className="w-3.5 h-3.5" /> <span className="hidden sm:inline">กล่อง</span>
+              {inbox.unreadCount > 0 && (
+                <span className="text-[10px] bg-primary text-primary-foreground px-1.5 py-0.5 rounded-full">{inbox.unreadCount}</span>
+              )}
+            </TabsTrigger>
             <TabsTrigger value="matches" className="rounded-full data-[state=active]:bg-background data-[state=active]:shadow-sm gap-1 text-xs px-1.5">
               <Sparkles className="w-3.5 h-3.5" /> <span className="hidden sm:inline">งานที่ใช่</span>
               {unreadMatches > 0 && <span className="text-[10px] bg-primary text-primary-foreground px-1.5 py-0.5 rounded-full">{unreadMatches}</span>}
@@ -93,10 +104,20 @@ const NotificationsPage = () => {
             </TabsTrigger>
           </TabsList>
 
+          <TabsContent value="inbox" className="mt-5">
+            <InboxList
+              items={inbox.items}
+              loading={inbox.loading}
+              onOpen={(n) => {
+                if (!n.is_read) inbox.markRead(n.id);
+              }}
+              onDismiss={inbox.dismiss}
+            />
+          </TabsContent>
+
           <TabsContent value="matches" className="mt-5">
             <JobMatchList />
           </TabsContent>
-
 
           <TabsContent value="activity" className="mt-5 space-y-2">
             {la ? (

@@ -10,4 +10,5 @@
 export * from "./auth";
 export * from "./wallet";
 export * from "./profiles";
+export * from "./subscription";
 export * from "./types";

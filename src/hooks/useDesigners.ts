@@ -6,64 +6,54 @@ import type { DesignerCardData } from "@/data/designerTypes";
 
 export type { DesignerCardData };
 
-const loadMockDesigners = () =>
-  import("@/data/mockDesigners").then((m) => m.mockDesigners as DesignerCardData[]);
-
 export const useDesigners = () =>
   useQuery({
-    queryKey: ["designers-feed", "v3"],
+    queryKey: ["designers-feed", "v4"],
     queryFn: async (): Promise<DesignerCardData[]> => {
-      try {
-        const { data: profiles, error } = await supabase
-          .from("profiles")
-          .select(PROFILE_DESIGNER_SELECT)
-          .order("updated_at", { ascending: false })
-          .limit(60);
-        if (error) throw error;
-        const list = profiles ?? [];
-        const ids = list.map((p) => p.id);
-        if (!ids.length) return loadMockDesigners();
+      const { data: profiles, error } = await supabase
+        .from("profiles")
+        .select(PROFILE_DESIGNER_SELECT)
+        .order("updated_at", { ascending: false })
+        .limit(60);
+      if (error) throw error;
+      const list = profiles ?? [];
+      const ids = list.map((p) => p.id);
+      if (!ids.length) return [];
 
-        const { data: projects } = await supabase
-          .from("projects")
-          .select(PROJECT_FEED_SELECT)
-          .in("owner_id", ids)
-          .eq("status", "Published")
-          .order("created_at", { ascending: false });
+      const { data: projects } = await supabase
+        .from("projects")
+        .select(PROJECT_FEED_SELECT)
+        .in("owner_id", ids)
+        .eq("status", "Published")
+        .order("created_at", { ascending: false });
 
-        const grouped = new Map<string, Tables<"projects">[]>();
-        (projects ?? []).forEach((p) => {
-          const arr = grouped.get(p.owner_id) ?? [];
-          if (arr.length < 6) arr.push(p as Tables<"projects">);
-          grouped.set(p.owner_id, arr);
-        });
+      const grouped = new Map<string, Tables<"projects">[]>();
+      (projects ?? []).forEach((p) => {
+        const arr = grouped.get(p.owner_id) ?? [];
+        if (arr.length < 6) arr.push(p as Tables<"projects">);
+        grouped.set(p.owner_id, arr);
+      });
 
-        const real = list
-          .map((profile) => {
-            const ownerProjects = grouped.get(profile.id) ?? [];
-            const parts: string[] = [
-              profile.display_name ?? "",
-              profile.username ?? "",
-              profile.role ?? "",
-              profile.bio ?? "",
-              (profile.skills ?? []).join(" "),
-              ownerProjects.map((p) => p.title).join(" "),
-              ownerProjects.map((p) => p.category ?? "").join(" "),
-              ownerProjects.flatMap((p) => p.tools ?? []).join(" "),
-              ownerProjects.flatMap((p) => p.tags ?? []).join(" "),
-            ];
-            return {
-              profile: profile as Tables<"profiles">,
-              projects: ownerProjects,
-              searchHaystack: parts.join(" ").toLowerCase(),
-            };
-          })
-          .filter((d) => d.projects.length > 0);
-
-        const mocks = await loadMockDesigners();
-        return [...real, ...mocks];
-      } catch {
-        return loadMockDesigners();
-      }
+      return list
+        .map((profile) => {
+          const ownerProjects = grouped.get(profile.id) ?? [];
+          const parts: string[] = [
+            profile.display_name ?? "",
+            profile.username ?? "",
+            profile.role ?? "",
+            profile.bio ?? "",
+            (profile.skills ?? []).join(" "),
+            ownerProjects.map((p) => p.title).join(" "),
+            ownerProjects.map((p) => p.category ?? "").join(" "),
+            ownerProjects.flatMap((p) => p.tools ?? []).join(" "),
+            ownerProjects.flatMap((p) => p.tags ?? []).join(" "),
+          ];
+          return {
+            profile: profile as Tables<"profiles">,
+            projects: ownerProjects,
+            searchHaystack: parts.join(" ").toLowerCase(),
+          };
+        })
+        .filter((d) => d.projects.length > 0);
     },
   });

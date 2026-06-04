@@ -12,3 +12,13 @@ Allow: /
 
 User-agent: *
 Allow: /
+Disallow: /admin
+Disallow: /auth
+Disallow: /settings
+Disallow: /notifications
+Disallow: /chat
+Disallow: /portfolio/manage
+Disallow: /earnings
+Disallow: /verify
+
+Sitemap: https://anthem.app/sitemap.xml

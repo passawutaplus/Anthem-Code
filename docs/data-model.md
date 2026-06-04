@@ -5,7 +5,9 @@
 ## Target placement
 
 ### `shared` (Anthem + So1o ใช้ร่วม)
-- `profiles`, `user_roles`
+- `profiles` (+ `subscription_tier`, `subscription_seats` — So1o Pro ปลดล็อกทั้งสองแอป)
+- `subscriptions`, `user_credits` (billing ผ่าน So1o, อ่านร่วมกัน)
+- `user_roles`
 - `wallets`, `wallet_topups`, `cashout_requests`
 - `gifts`, `gift_transactions`
 - `contracts`, `admin_audit_log`

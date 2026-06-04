@@ -14,6 +14,7 @@ import ExperienceEditor from "@/components/profile/ExperienceEditor";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { requestOpenCookiePreferences } from "@/lib/cookieConsent";
 import { Link } from "react-router-dom";
+import { EcosystemProCard } from "@/components/ecosystem/EcosystemProCard";
 
 const empty: ProfileInput = {
   displayName: "",
@@ -126,6 +127,8 @@ const SettingsPage = () => {
       </div>
 
       <form onSubmit={handleSave} className="max-w-3xl mx-auto px-4 pb-24 space-y-6">
+        <EcosystemProCard />
+
         <section className="rounded-2xl glass-panel p-6">
           <div className="flex items-center gap-4">
             <div className="relative">

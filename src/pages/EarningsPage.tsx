@@ -10,6 +10,7 @@ import { useReceivedGifts, useGifts } from "@/hooks/useGifting";
 import { useCashoutHistory, MIN_CASHOUT_PX, PLATFORM_FEE_RATE } from "@/hooks/useCashout";
 import CashoutDialog from "@/components/gifting/CashoutDialog";
 import { formatThaiDate } from "@/lib/format";
+import SeoHead from "@/components/SeoHead";
 
 const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
   Pencil, Coffee, Highlighter, PenTool, Palette, Laptop,
@@ -53,6 +54,7 @@ const EarningsPage = () => {
 
   return (
     <div className="min-h-screen bg-app-ambient">
+      <SeoHead title="รายได้ของฉัน" path="/earnings" noindex />
       <div className="sticky top-0 z-20 glass-panel border-x-0 border-t-0 rounded-none">
         <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
           <button onClick={() => navigate(-1)} className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
@@ -64,6 +66,12 @@ const EarningsPage = () => {
       </div>
 
       <div className="max-w-5xl mx-auto px-4 py-6 space-y-6">
+        <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 text-sm text-foreground/90 leading-relaxed">
+          <p className="font-medium text-foreground">ระบบชำระเงินกำลังเตรียมเปิดใช้งาน</p>
+          <p className="text-muted-foreground mt-1 text-xs">
+            เติม Pixel และถอนเงินจริงจะพร้อมหลังเชื่อม payment gateway — ตอนนี้เติม/ถอนเป็นโหมดทดสอบหรือคิวรอดำเนินการ
+          </p>
+        </div>
         {/* Stat cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <StatCard
@@ -219,7 +227,7 @@ const EarningsPage = () => {
                         ? "bg-destructive/10 text-destructive"
                         : "bg-muted text-muted-foreground"
                     }`}>
-                      {c.status === "mock_paid" ? "โอนแล้ว (mock)" : c.status === "pending" ? "รอดำเนินการ" : "ปฏิเสธ"}
+                      {c.status === "mock_paid" ? "โอนแล้ว" : c.status === "pending" ? "รอดำเนินการ" : "ปฏิเสธ"}
                     </span>
                     <p className="text-[10px] text-muted-foreground mt-1">{formatThaiDate(c.created_at)}</p>
                   </div>

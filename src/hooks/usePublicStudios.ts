@@ -22,10 +22,7 @@ export const usePublicStudios = () =>
         .limit(120);
       if (error) throw error;
       const list = (studios ?? []) as Studio[];
-      if (list.length === 0) {
-        const { mockStudios } = await import("@/data/mockStudios");
-        return mockStudios;
-      }
+      if (list.length === 0) return [];
 
       const ids = list.map((s) => s.id);
       const [{ data: members }, { data: projects }] = await Promise.all([

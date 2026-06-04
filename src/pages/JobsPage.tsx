@@ -12,6 +12,7 @@ import { Search, Plus, ArrowLeft, UserSearch, SlidersHorizontal, X, FileSignatur
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import Footer from "@/components/Footer";
 import { cn } from "@/lib/utils";
+import SeoHead from "@/components/SeoHead";
 
 const LOCATION_CHIPS = [
   { v: "all", label: "ทั้งหมด" },
@@ -72,6 +73,11 @@ const JobsPage = () => {
 
   return (
     <div className="min-h-screen bg-app-ambient pb-24 lg:pb-12">
+      <SeoHead
+        title={mode === "hiring" ? "งานจ้างดีไซน์" : "หางานฟรีแลนซ์"}
+        description="ค้นหางานดีไซน์ โพสต์ประกาศจ้าง หรือหาโอกาสร่วมงานจากสตูดิโอและบริษัทบน Anthem"
+        path="/jobs"
+      />
       <div className="max-w-6xl mx-auto px-4 py-6 space-y-5">
         <div className="flex items-center gap-3">
           <button

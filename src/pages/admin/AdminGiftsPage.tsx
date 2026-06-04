@@ -9,8 +9,14 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { formatThaiDate } from "@/lib/format";
-import { Gift, Wallet, ArrowUpRight, Users, Sparkles, Coins, ExternalLink, Search } from "lucide-react";
+import { Gift, Wallet, ArrowUpRight, Users, Sparkles, Coins, ExternalLink, Search, Settings2 } from "lucide-react";
 import { toast } from "sonner";
+import AdminRowActions from "@/components/admin/AdminRowActions";
+import { useAdminRejectCashout, useAdminUpdateGift, useAdminUpdateGiftLimits } from "@/hooks/admin/useAdminMutations";
+import { Label } from "@/components/ui/label";
+
+const isCashoutPaid = (s: string) => s === "mock_paid" || s === "paid";
+const isCashoutPending = (s: string) => s === "pending";
 
 interface Overview {
   gift_count: number;
@@ -131,6 +137,42 @@ export default function AdminGiftsPage() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const rejectCashout = useAdminRejectCashout();
+  const updateGift = useAdminUpdateGift();
+
+  const catalog = useQuery({
+    queryKey: ["admin-gifts-catalog"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("gifts")
+        .select("id,code,name_th,name_en,icon,price_px,active,display_order")
+        .order("display_order", { ascending: true });
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+
+  type LimitsRow = {
+    daily_limit_unverified: number;
+    daily_limit_verified: number;
+    velocity_per_hour: number;
+    hold_hours: number;
+    max_topup_per_tx: number;
+  };
+
+  const limits = useQuery({
+    queryKey: ["admin-gift-limits"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("gift_limits_config").select("*").eq("id", 1).maybeSingle();
+      if (error) throw error;
+      return data as LimitsRow | null;
+    },
+  });
+
+  const saveLimits = useAdminUpdateGiftLimits();
+  const [limitForm, setLimitForm] = useState<LimitsRow | null>(null);
+  const limitsReady = limitForm ?? limits.data;
+
   const o = overview.data;
   const [tab, setTab] = useState("transactions");
 
@@ -141,7 +183,7 @@ export default function AdminGiftsPage() {
   const [recipientsQuery, setRecipientsQuery] = useState("");
   const [sendersQuery, setSendersQuery] = useState("");
   const [cashoutQuery, setCashoutQuery] = useState("");
-  const [cashoutStatus, setCashoutStatus] = useState<"all" | "pending" | "paid">("all");
+  const [cashoutStatus, setCashoutStatus] = useState<"all" | "pending" | "paid" | "rejected">("all");
   const [topupQuery, setTopupQuery] = useState("");
 
   const norm = (s: string) => s.toLowerCase().trim();
@@ -186,8 +228,9 @@ export default function AdminGiftsPage() {
     const rows = cashouts.data ?? [];
     const q = norm(cashoutQuery);
     return rows.filter((r) => {
-      if (cashoutStatus === "pending" && r.status === "mock_paid") return false;
-      if (cashoutStatus === "paid" && r.status !== "mock_paid") return false;
+      if (cashoutStatus === "pending" && !isCashoutPending(r.status)) return false;
+      if (cashoutStatus === "paid" && !isCashoutPaid(r.status)) return false;
+      if (cashoutStatus === "rejected" && r.status !== "rejected") return false;
       if (!q) return true;
       const b = r.bank_info as { account_number?: string; account_name?: string; bank?: string } | null;
       const hay = [r.user_name, b?.account_number, b?.account_name, b?.bank].filter(Boolean).join(" ").toLowerCase();
@@ -312,15 +355,97 @@ export default function AdminGiftsPage() {
     },
     {
       key: "status", header: "สถานะ",
-      render: (r) => r.status === "mock_paid"
-        ? <Badge variant="default" className="bg-emerald-600 hover:bg-emerald-600">จ่ายแล้ว</Badge>
-        : <Badge variant="secondary">รอจ่าย</Badge>,
+      render: (r) => {
+        if (isCashoutPaid(r.status)) return <Badge className="bg-emerald-600 hover:bg-emerald-600">จ่ายแล้ว</Badge>;
+        if (r.status === "rejected") return <Badge variant="destructive">ปฏิเสธ</Badge>;
+        if (isCashoutPending(r.status)) return <Badge variant="secondary">รอจ่าย</Badge>;
+        return <Badge variant="outline">{r.status}</Badge>;
+      },
     },
     {
       key: "action", header: "",
-      render: (r) => r.status !== "mock_paid"
-        ? <Button size="sm" variant="outline" disabled={markPaid.isPending} onClick={() => markPaid.mutate(r.id)}>ทำเครื่องหมายจ่ายแล้ว</Button>
-        : <span className="text-[11px] text-admin-muted font-mono">{r.processed_at ? formatThaiDate(r.processed_at) : ""}</span>,
+      render: (r) =>
+        isCashoutPending(r.status) ? (
+          <div className="flex gap-1">
+            <Button size="sm" variant="outline" disabled={markPaid.isPending} onClick={() => markPaid.mutate(r.id)}>
+              จ่ายแล้ว
+            </Button>
+            <Button
+              size="sm"
+              variant="ghost"
+              className="text-destructive"
+              disabled={rejectCashout.isPending}
+              onClick={() => {
+                const note = window.prompt("เหตุผลปฏิเสธ (ถ้ามี):") ?? "";
+                rejectCashout.mutate(
+                  { id: r.id, note },
+                  {
+                    onSuccess: () => toast.success("ปฏิเสธคำขอแล้ว — คืน earned_px"),
+                    onError: (e: Error) => toast.error(e.message),
+                  },
+                );
+              }}
+            >
+              ปฏิเสธ
+            </Button>
+          </div>
+        ) : (
+          <span className="text-[11px] text-admin-muted font-mono">{r.processed_at ? formatThaiDate(r.processed_at) : ""}</span>
+        ),
+    },
+  ];
+
+  type GiftRow = NonNullable<typeof catalog.data>[number];
+  const catalogCols: Column<GiftRow>[] = [
+    { key: "icon", header: "", render: (r) => <span className="text-lg">{r.icon}</span>, className: "w-10" },
+    { key: "name", header: "ชื่อ", render: (r) => <span className="font-medium">{r.name_th}</span> },
+    { key: "code", header: "Code", render: (r) => <span className="font-mono text-xs">{r.code}</span> },
+    { key: "px", header: "ราคา px", render: (r) => <span className="font-mono tabular-nums">{r.price_px}</span> },
+    {
+      key: "active",
+      header: "เปิดใช้",
+      render: (r) => (r.active ? <Badge>active</Badge> : <Badge variant="secondary">off</Badge>),
+    },
+    {
+      key: "actions",
+      header: "",
+      className: "w-12",
+      render: (r) => (
+        <AdminRowActions
+          actions={[
+            {
+              label: r.active ? "ปิดการขาย" : "เปิดการขาย",
+              onClick: () =>
+                updateGift.mutate(
+                  { id: r.id, active: !r.active },
+                  {
+                    onSuccess: () => toast.success("อัปเดตของขวัญแล้ว"),
+                    onError: (e: Error) => toast.error(e.message),
+                  },
+                ),
+            },
+            {
+              label: "แก้ราคา px",
+              onClick: () => {
+                const v = window.prompt("ราคา px ใหม่:", String(r.price_px));
+                if (v == null || v.trim() === "") return;
+                const n = parseInt(v, 10);
+                if (!Number.isFinite(n) || n < 0) {
+                  toast.error("ราคาไม่ถูกต้อง");
+                  return;
+                }
+                updateGift.mutate(
+                  { id: r.id, active: r.active, price_px: n },
+                  {
+                    onSuccess: () => toast.success("อัปเดตราคาแล้ว"),
+                    onError: (e: Error) => toast.error(e.message),
+                  },
+                );
+              },
+            },
+          ]}
+        />
+      ),
     },
   ];
 
@@ -367,6 +492,8 @@ export default function AdminGiftsPage() {
           <TabsTrigger value="senders">ผู้ให้สูงสุด</TabsTrigger>
           <TabsTrigger value="cashouts">Cashout</TabsTrigger>
           <TabsTrigger value="topups">เติม Pixel</TabsTrigger>
+          <TabsTrigger value="catalog">แคตตาล็อก</TabsTrigger>
+          <TabsTrigger value="limits">ขีดจำกัด</TabsTrigger>
         </TabsList>
 
         <TabsContent value="transactions" className="space-y-3">
@@ -416,6 +543,7 @@ export default function AdminGiftsPage() {
                 { value: "all", label: "ทั้งหมด" },
                 { value: "pending", label: "รอจ่าย" },
                 { value: "paid", label: "จ่ายแล้ว" },
+                { value: "rejected", label: "ปฏิเสธ" },
               ]}
             />
             <ResultCount shown={filteredCashouts.length} total={(cashouts.data ?? []).length} />
@@ -428,6 +556,73 @@ export default function AdminGiftsPage() {
             <ResultCount shown={filteredTopups.length} total={(topups.data ?? []).length} />
           </FilterBar>
           <DataTable columns={topupCols} rows={filteredTopups} loading={topups.isLoading} rowKey={(r) => r.id} empty="ไม่พบรายการตามเงื่อนไข" />
+        </TabsContent>
+        <TabsContent value="catalog" className="space-y-3">
+          <p className="text-xs text-admin-muted">เปิด/ปิดและแก้ราคาของขวัญในระบบ (ไม่สร้างรายการใหม่จาก admin)</p>
+          <DataTable columns={catalogCols} rows={catalog.data ?? []} loading={catalog.isLoading} rowKey={(r) => r.id} />
+        </TabsContent>
+        <TabsContent value="limits" className="space-y-4">
+          <div className="border border-admin-border rounded-sm p-4 bg-admin-surface max-w-lg space-y-4">
+            <div className="flex items-center gap-2 text-admin-muted">
+              <Settings2 className="w-4 h-4" />
+              <p className="font-mono text-[10px] uppercase tracking-wider">gift_limits_config</p>
+            </div>
+            {limits.isLoading && <p className="text-sm text-admin-muted">กำลังโหลด…</p>}
+            {limitsReady && (
+              <div className="grid gap-3 sm:grid-cols-2">
+                {(
+                  [
+                    ["daily_limit_unverified", "เพดานรายวัน (ยังไม่ยืนยัน)"],
+                    ["daily_limit_verified", "เพดานรายวัน (ยืนยันแล้ว)"],
+                    ["velocity_per_hour", "ความถี่ต่อชั่วโมง"],
+                    ["hold_hours", "Hold (ชม.)"],
+                    ["max_topup_per_tx", "เติมสูงสุดต่อครั้ง"],
+                  ] as const
+                ).map(([key, label]) => (
+                  <div key={key} className="space-y-1">
+                    <Label className="text-xs text-admin-muted">{label}</Label>
+                    <Input
+                      type="number"
+                      className="h-8 text-sm border-admin-border"
+                      value={String((limitForm ?? limits.data)![key])}
+                      onChange={(e) => {
+                        const n = parseInt(e.target.value, 10);
+                        const base = limitForm ?? limits.data!;
+                        setLimitForm({ ...base, [key]: Number.isFinite(n) ? n : 0 });
+                      }}
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
+            <Button
+              size="sm"
+              disabled={!limitsReady || saveLimits.isPending}
+              onClick={() => {
+                const f = limitForm ?? limits.data;
+                if (!f) return;
+                saveLimits.mutate(
+                  {
+                    daily_unverified: f.daily_limit_unverified,
+                    daily_verified: f.daily_limit_verified,
+                    velocity: f.velocity_per_hour,
+                    hold_hours: f.hold_hours,
+                    max_topup: f.max_topup_per_tx,
+                  },
+                  {
+                    onSuccess: () => {
+                      toast.success("บันทึกขีดจำกัดแล้ว");
+                      setLimitForm(null);
+                      qc.invalidateQueries({ queryKey: ["admin-gift-limits"] });
+                    },
+                    onError: (e: Error) => toast.error(e.message),
+                  },
+                );
+              }}
+            >
+              บันทึกขีดจำกัด
+            </Button>
+          </div>
         </TabsContent>
       </Tabs>
     </div>
