@@ -10,7 +10,7 @@ VITE_DEMO_MODE=true
 
 จะแสดงแถบบนสุดพร้อมวิธี login demo
 
-## รัน seed (ข้อมูลจริงจำลอง 20 ครีเอเตอร์)
+## รัน seed (ข้อมูลจริงจำลอง 50 ครีเอเตอร์ + กิจกรรมครบ)
 
 ```bash
 npm run db:push
@@ -32,7 +32,9 @@ npm run db:push
 - [ ] `/project/{id}` — รายละเอียด + จ้าง/คอลแลป
 - [ ] `/jobs` — ประกาศจาก seed
 - [ ] `/s/doi-studio` — สตูดิโอ demo
-- [ ] Login demo → `/portfolio`, `/notifications`, `/admin` (ถ้ามี role admin)
+- [ ] Login demo → `/portfolio`, `/notifications`, `/chat`, `/collections`
+- [ ] ตรวจคอมเมนต์/ไลค์/จ้าง/คอลแลปบนผลงาน
+- [ ] Admin: users 50, projects, comments, gifts (ถ้ามี role admin)
 
 ## ลบ demo ก่อน production
 

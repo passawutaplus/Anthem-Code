@@ -10,7 +10,7 @@
 2. `supabase/migrations/20260604220000_admin_operations.sql`
 3. `supabase/migrations/20260604230000_fix_cashout_paid_status.sql`
 4. `supabase/migrations/20260604240000_public_feed_stats.sql`
-5. *(demo สำหรับทดสอบ UX)* `20260604130100_seed_community_catalog.sql` แล้ว `20260604200000_seed_art_design_enriched.sql`
+5. *(demo 50 users + กิจกรรมครบ)* `20260604130100_seed_community_catalog.sql` → `20260604200000_seed_art_design_enriched.sql` → `20260604250000_seed_50_users_full_activity.sql`
 
 ลบ demo ภายหลัง: `purge-demo-users.sql`
 

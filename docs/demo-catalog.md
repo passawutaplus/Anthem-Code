@@ -1,79 +1,64 @@
-# Demo Catalog (ชุมชนตัวอย่าง)
+# Demo Catalog — 50 ครีเอเตอร์ (ชุมชนตัวอย่าง)
 
-ข้อมูล demo สำหรับดูภาพรวมเว็บ — **ลบทีหลังได้** โดยลบ auth users ที่อีเมลลงท้าย `@demo.an1hem.app` และแถวที่อ้าง `_catalog_demo_uid`
+ข้อมูล demo สำหรับดูภาพรวมเว็บแบบใช้งานจริง — **ลบทีหลังได้** ผ่าน `scripts/sql/purge-demo-users.sql` + ลบ auth users `@demo.an1hem.app`
 
 ## รัน seed
 
-### วิธีที่ 1: SQL migration (แนะนำ)
-
-ใน Supabase SQL Editor หรือ CLI:
-
 ```bash
-supabase db push
+npm run db:push
+# หรือรัน SQL ตาม scripts/sql/README.md
 ```
 
-ไฟล์ที่เกี่ยวข้อง:
+### ลำดับ migration
 
-1. `20260604130100_seed_community_catalog.sql` — users, profiles, projects, studios, jobs
-2. `20260604200000_seed_art_design_enriched.sql` — ภาพ art/design, follows, likes, **โฆษณา active**
+1. `20260604130100_seed_community_catalog.sql` — 20 users แรก
+2. `20260604200000_seed_art_design_enriched.sql` — ภาพ Unsplash, social, ads
+3. `20260604250000_seed_50_users_full_activity.sql` — **+30 users, กิจกรรมครบ**
 
-### วิธีที่ 2: Node script (ต้องมี service role)
-
-```bash
-# สร้าง scripts/ecosystem/.env.seed.local
-# SUPABASE_URL=...
-# SUPABASE_SERVICE_ROLE_KEY=eyJ...
-
-node scripts/run-seed.mjs
-```
-
-## เข้าสู่ระบบทดสอบ
+## เข้าสู่ระบบ
 
 | ฟิลด์ | ค่า |
 |--------|-----|
-| อีเมล | `{username}@demo.an1hem.app` เช่น `phatsawut@demo.an1hem.app` |
+| อีเมล | `{username}@demo.an1hem.app` |
 | รหัสผ่าน | `an1hem-demo-seed` |
 
-รายชื่อ username: `phatsawut`, `napatsara`, `pimchanok`, … (20 คน — ดูใน migration)
+### Username ทั้ง 50 คน
 
-UUID คงที่: `00000000-0000-0000-0000-00000000a001` … `a014` (hex ต่อท้าย)
+`phatsawut`, `napatsara`, `pimchanok`, `wannakorn`, `thanya`, `chatchai`, `atittaya`, `ploypailin`, `thanakorn`, `anucha`, `parichat`, `jessada`, `supatra`, `wathanyu`, `kritsana`, `siriporn`, `kittipong`, `manatsanan`, `nattawut`, `phattranit`, `arinya`, `boonlert`, `chanida`, `decha`, `ekkachai`, `fahsaeng`, `gamelan`, `hathairat`, `ithipol`, `jirawat`, `kanya`, `lalita`, `mekkhala`, `niran`, `orathai`, `prapas`, `rattana`, `sombat`, `thawee`, `udaiphon`, `vichai`, `walai`, `xanadu`, `yupa`, `zakari`, `narong`, `pensri`, `santisuk`, `theerapong`, `wilawan`
 
-## สิ่งที่ seed สร้าง
+UUID: `00000000-0000-0000-0000-00000000a000` … `a031` (index 0..49)
 
-- **20 ครีเอเตอร์** สาย art / design / illustration / UI / photo
-- **20 ผลงาน Published** — รูปจาก Unsplash (art & design) กล้อง 3 รูปต่อโปรเจกต์
-- **10 สตูดิโอ** พร้อม slug `/s/doi-studio` ฯลฯ
-- **12 ประกาศงาน**
-- **ติดตาม + ไลค์** จำลอง social graph
-- **6 แคมเปญโฆษณา `active`** แสดงในฟีด (`AdCard`)
+## สิ่งที่ seed สร้าง (รวมชุด 50)
 
-## โฆษณาในฟีด
+| รายการ | จำนวนโดยประมาณ |
+|--------|----------------|
+| ครีเอเตอร์ + auth | 50 |
+| ผลงาน Published | 70 (คนละ 1–2 โปรเจกต์) |
+| สตูดิโอ | 15 |
+| ประกาศงาน | 25 |
+| ติดตาม (follows) | ~300 คู่ |
+| ไลค์ | ~350 |
+| คอมเมนต์ | 80 |
+| คำขอคอลแลป | 40 |
+| คำขอจ้าง | 35 |
+| คอลเลกชัน + รายการ | 30 |
+| Inspire boards | 25 |
+| ของขวัญ (gift tx) | 45 |
+| สมัครงาน | 25 |
+| แชต + ข้อความ | 15 ห้อง |
+| แจ้งเตือน | 40 |
+| กระเป๋า + เติม px | 50 |
 
-- ดึงจาก RPC `get_active_ads` — สถานะ `active` และยังไม่หมดอายุ
-- ผู้ลงโฆษณาจริง: `/advertise` (mock ชำระเงิน)
-- Demo: seed ใส่ `ad_campaigns` โดยตรง + ข้อความ `โฆษณาตัวอย่าง — ข้อมูล demo`
+รูปภาพ: **Unsplash** (art/design) + **Dicebear** (avatar)
 
-## Sitemap
+## โหมดทดสอบบนเว็บ
 
-```bash
-npm run sitemap:gen
+```env
+VITE_DEMO_MODE=true
 ```
 
-สร้าง `public/sitemap.xml` รวมหน้า static + `/project/{id}` + `/u/{id}` + `/s/{slug}` ของ demo
+ดู `docs/ux-demo-guide.md`
 
-ตั้ง `VITE_SITE_URL` ให้ตรงโดเมนจริงก่อน generate
+## ลบข้อมูล demo
 
-## ลบข้อมูล demo (ภายหลัง)
-
-```sql
--- ลำดับคร่าว ๆ (ปรับตาม FK จริง)
-DELETE FROM public.ad_events WHERE ad_id IN (SELECT id FROM public.ad_campaigns WHERE id::text LIKE '00000000-0000-0000-0004-%');
-DELETE FROM public.ad_campaigns WHERE id::text LIKE '00000000-0000-0000-0004-%';
-DELETE FROM public.project_likes WHERE project_id::text LIKE '00000000-0000-0000-0002-%';
-DELETE FROM public.follows WHERE follower_id::text LIKE '00000000-0000-0000-0000-00000000a0%';
-DELETE FROM public.projects WHERE id::text LIKE '00000000-0000-0000-0002-%';
-DELETE FROM public.job_posts WHERE id::text LIKE '00000000-0000-0000-0003-%';
--- studios, members, profiles, auth.users ...
-```
-
-ลบ `auth.users` ที่ `email LIKE '%@demo.an1hem.app'` ผ่าน Dashboard → Authentication
+`scripts/sql/purge-demo-users.sql` แล้วลบ users ใน Dashboard → Authentication

@@ -12,7 +12,7 @@ export default function DemoModeBanner() {
     >
       <Info className="w-3.5 h-3.5 shrink-0 text-primary" aria-hidden />
       <span>
-        <strong>โหมดทดสอบ</strong> — ข้อมูล demo 20 ครีเอเตอร์ (
+        <strong>โหมดทดสอบ</strong> — ข้อมูล demo 50 ครีเอเตอร์ (
         <code className="text-[11px] bg-muted px-1 rounded">*@demo.an1hem.app</code> / รหัส{" "}
         <code className="text-[11px] bg-muted px-1 rounded">an1hem-demo-seed</code>)
       </span>
