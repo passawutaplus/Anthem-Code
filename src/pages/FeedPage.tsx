@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { LogIn, SearchX } from "lucide-react";
+import { LogIn, Plus, SearchX } from "lucide-react";
 import EmptyState from "@/components/ui/EmptyState";
 import ProjectGridSkeleton from "@/components/ui/ProjectGridSkeleton";
 import { useProfilesByIds } from "@/core/profiles";
@@ -226,7 +226,16 @@ const FeedPage = (_props: { onMyPortClick: () => void }) => {
                 onSelect={(c) => setCategory(c as Category | "All")}
               />
             </div>
-            <div className="ml-auto sm:ml-0">
+            <div className="ml-auto sm:ml-0 flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => (user ? navigate("/portfolio/new") : useAuthDialog.getState().openSignup("/portfolio/new"))}
+                aria-label="ลงผลงานใหม่"
+                title="ลงผลงานใหม่"
+                className="inline-flex items-center justify-center w-9 h-9 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm transition-colors shrink-0"
+              >
+                <Plus className="w-5 h-5" />
+              </button>
               <FeedModeToggle value={mode} onChange={changeMode} />
             </div>
           </div>

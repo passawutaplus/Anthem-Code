@@ -73,6 +73,7 @@ const TermsPage = lazy(() => import("./pages/legal/TermsPage.tsx"));
 const CookiesPage = lazy(() => import("./pages/legal/CookiesPage.tsx"));
 const DataRightsPage = lazy(() => import("./pages/legal/DataRightsPage.tsx"));
 const IntellectualPropertyPage = lazy(() => import("./pages/legal/IntellectualPropertyPage.tsx"));
+const ExploreProjectsPage = lazy(() => import("./pages/ExploreProjectsPage.tsx"));
 const EarningsPage = lazy(() => import("./pages/EarningsPage.tsx"));
 const AdvertisePage = lazy(() => import("./pages/AdvertisePage.tsx"));
 const AdDetailPage = lazy(() => import("./pages/AdDetailPage.tsx"));
@@ -110,6 +111,7 @@ const App = () => (
               <Route path="/portfolio/new" element={<RequireAuth><ProjectEditorPage /></RequireAuth>} />
               <Route path="/portfolio/:id/edit" element={<RequireAuth><ProjectEditorPage /></RequireAuth>} />
               <Route path="/project/:id" element={<ProjectDetailPage />} />
+              <Route path="/explore/:kind/:value" element={<ExploreProjectsPage />} />
               <Route path="/similar/:projectId" element={<SimilarImagesPage />} />
               <Route path="/inspire/:boardId" element={<InspireBoardDetailPage />} />
               <Route path="/u/:userId" element={<PublicProfilePage />} />

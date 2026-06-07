@@ -1,4 +1,5 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { exploreProjectsUrl } from "@/lib/exploreRoutes";
 import { Heart, Layers3, Eye, MessageCircle, Sparkles, Calendar, Handshake, Flag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -34,6 +35,8 @@ interface Props {
 }
 
 const ProjectSidePanel = (p: Props) => {
+  const navigate = useNavigate();
+
   return (
     <aside className="space-y-4">
       <div className="rounded-2xl glass-panel p-5 space-y-4 backdrop-blur-sm">
@@ -168,7 +171,19 @@ const ProjectSidePanel = (p: Props) => {
           <h3 className="text-sm font-medium text-foreground">แท็ก</h3>
           <div className="flex flex-wrap gap-1.5">
             {p.tags.map((t) => (
-              <Badge key={t} variant="secondary" className="rounded-full font-normal">#{t}</Badge>
+              <button
+                key={t}
+                type="button"
+                onClick={() => navigate(exploreProjectsUrl("tag", t))}
+                className="inline-flex"
+              >
+                <Badge
+                  variant="secondary"
+                  className="rounded-full font-normal hover:bg-primary/10 hover:text-primary transition-colors cursor-pointer"
+                >
+                  #{t}
+                </Badge>
+              </button>
             ))}
           </div>
         </div>

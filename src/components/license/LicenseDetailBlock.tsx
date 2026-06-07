@@ -1,8 +1,11 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { getLicenseMeta } from "@/lib/licenses";
 import { LicenseBadgeInline } from "@/components/license/LicenseBadge";
-import { Check, X, Minus } from "lucide-react";
+import { Check, X, Minus, ChevronDown } from "lucide-react";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { cn } from "@/lib/utils";
 
 interface Props {
   licenseType?: string | null;
@@ -38,45 +41,64 @@ const LicenseDetailBlock = ({
   allowHire,
   onHire,
 }: Props) => {
+  const [open, setOpen] = useState(false);
   const meta = getLicenseMeta(licenseType);
   const holder = copyrightHolder?.trim() || ownerName || "เจ้าของผลงาน";
   const commercialValue = meta.allowsCommercial ? true : meta.id === "commercial_license" || meta.id === "attribution_ok" ? "partial" : false;
 
   return (
-    <div className="rounded-2xl glass-panel p-5 space-y-4">
-      <div className="flex items-center justify-between gap-2">
-        <h3 className="text-sm font-medium text-foreground">สิทธิ์การใช้งาน</h3>
-        <LicenseBadgeInline licenseType={licenseType} />
+    <Collapsible open={open} onOpenChange={setOpen}>
+      <div className="rounded-2xl glass-panel overflow-hidden">
+        <CollapsibleTrigger asChild>
+          <button
+            type="button"
+            className="w-full flex items-center justify-between gap-2 px-4 py-3 text-left hover:bg-muted/30 transition-colors"
+            aria-label={open ? "ย่อรายละเอียดสิทธิ์การใช้งาน" : "ดูรายละเอียดสิทธิ์การใช้งาน"}
+          >
+            <LicenseBadgeInline licenseType={licenseType} />
+            <ChevronDown
+              className={cn(
+                "w-4 h-4 text-muted-foreground transition-transform shrink-0",
+                open && "rotate-180",
+              )}
+            />
+          </button>
+        </CollapsibleTrigger>
+
+        <CollapsibleContent>
+          <div className="px-5 pb-5 space-y-4 border-t border-border/50 pt-4">
+            <h3 className="text-sm font-medium text-foreground">สิทธิ์การใช้งาน</h3>
+            <p className="text-sm text-foreground/80 leading-relaxed">
+              {licenseType === "custom" && licenseNote?.trim() ? licenseNote.trim() : meta.detailParagraph}
+            </p>
+
+            <div className="space-y-2">
+              <p className="text-xs text-muted-foreground">เจ้าของลิขสิทธิ์: <span className="text-foreground">{holder}</span></p>
+              <BoolRow label="นำไปใช้ซ้ำ" value={meta.allowsReuse} />
+              <BoolRow label="ใช้เชิงพาณิชย์" value={commercialValue} />
+              <BoolRow label="ต้องอ้างอิงเครดิต" value={meta.requiresAttribution} />
+            </div>
+
+            {hasThirdPartyAssets && thirdPartyNote?.trim() && (
+              <p className="text-xs text-muted-foreground bg-muted/40 rounded-lg p-2">
+                มี asset จากที่อื่น: {thirdPartyNote.trim()}
+              </p>
+            )}
+
+            <div className="flex flex-wrap items-center gap-2">
+              {(meta.allowsCommercial || meta.id === "commercial_license") && (allowHire ?? true) && onHire && (
+                <Button size="sm" className="rounded-full" onClick={onHire}>
+                  อยากใช้งานนี้? ติดต่อจ้าง
+                </Button>
+              )}
+              <Link to="/legal/ip" className="text-xs text-primary hover:underline">
+                เรียนรู้เรื่องลิขสิทธิ์
+              </Link>
+            </div>
+          </div>
+        </CollapsibleContent>
       </div>
-
-      <p className="text-sm text-foreground/80 leading-relaxed">
-        {licenseType === "custom" && licenseNote?.trim() ? licenseNote.trim() : meta.detailParagraph}
-      </p>
-
-      <div className="space-y-2 pt-2 border-t border-border/50">
-        <p className="text-xs text-muted-foreground">เจ้าของลิขสิทธิ์: <span className="text-foreground">{holder}</span></p>
-        <BoolRow label="นำไปใช้ซ้ำ" value={meta.allowsReuse} />
-        <BoolRow label="ใช้เชิงพาณิชย์" value={commercialValue} />
-        <BoolRow label="ต้องอ้างอิงเครดิต" value={meta.requiresAttribution} />
-      </div>
-
-      {hasThirdPartyAssets && thirdPartyNote?.trim() && (
-        <p className="text-xs text-muted-foreground bg-muted/40 rounded-lg p-2">
-          มี asset จากที่อื่น: {thirdPartyNote.trim()}
-        </p>
-      )}
-
-      <div className="flex flex-wrap items-center gap-2 pt-1">
-        {(meta.allowsCommercial || meta.id === "commercial_license") && (allowHire ?? true) && onHire && (
-          <Button size="sm" className="rounded-full" onClick={onHire}>
-            อยากใช้งานนี้? ติดต่อจ้าง
-          </Button>
-        )}
-        <Link to="/legal/ip" className="text-xs text-primary hover:underline">
-          เรียนรู้เรื่องลิขสิทธิ์
-        </Link>
-      </div>
-    </div>
+    </Collapsible>
   );
 };
 

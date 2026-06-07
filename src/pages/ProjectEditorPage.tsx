@@ -16,6 +16,7 @@ import { categories } from "@/data/projectTypes";
 import { toast } from "sonner";
 import StudioCreditPicker from "@/components/profile/StudioCreditPicker";
 import LicensePicker from "@/components/license/LicensePicker";
+import TagPicker from "@/components/tags/TagPicker";
 import ThirdPartyAssetsToggle from "@/components/license/ThirdPartyAssetsToggle";
 import OriginalWorkAttestation from "@/components/license/OriginalWorkAttestation";
 import { type LicenseType, isLicenseType } from "@/lib/licenses";
@@ -415,14 +416,12 @@ const ProjectEditorPage = () => {
             onAdd={(v) => addChip(v, tools, setTools, setToolInput)}
             onRemove={(i) => setTools(tools.filter((_, j) => j !== i))}
           />
-          <ChipBox
-            label="แท็ก"
-            placeholder="แบรนด์ดิ้ง, มินิมอล..."
-            items={tags}
+          <TagPicker
+            userId={user?.id}
+            tags={tags}
+            onChange={setTags}
             input={tagInput}
             setInput={setTagInput}
-            onAdd={(v) => addChip(v, tags, setTags, setTagInput)}
-            onRemove={(i) => setTags(tags.filter((_, j) => j !== i))}
           />
         </aside>
       </div>
