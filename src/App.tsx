@@ -18,6 +18,7 @@ import DemoModeBanner from "./components/DemoModeBanner.tsx";
 
 // Code-split routes — only the home feed stays in the main chunk.
 const AuthPage = lazy(() => import("./pages/AuthPage.tsx"));
+const AuthCallbackPage = lazy(() => import("./pages/AuthCallbackPage.tsx"));
 const PortfolioProfilePage = lazy(() => import("./pages/PortfolioProfilePage.tsx"));
 const PortfolioManagePage = lazy(() => import("./pages/PortfolioManagePage.tsx"));
 const ProjectDetailPage = lazy(() => import("./pages/ProjectDetailPage.tsx"));
@@ -95,6 +96,7 @@ const App = () => (
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/auth" element={<AuthPage />} />
+              <Route path="/auth/callback" element={<AuthCallbackPage />} />
               <Route path="/portfolio" element={<RequireAuth><PortfolioProfilePage /></RequireAuth>} />
               <Route path="/portfolio/manage" element={<RequireAuth><PortfolioManagePage /></RequireAuth>} />
               <Route path="/hire-requests" element={<RequireAuth><RedirectTo to="/portfolio/manage?focus=hiring" /></RequireAuth>} />

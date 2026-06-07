@@ -22,7 +22,7 @@ if [[ -n "${SUPABASE_ACCESS_TOKEN:-}" ]]; then
   echo "Using SUPABASE_ACCESS_TOKEN from environment."
 fi
 
-PROJECT_REF="${SUPABASE_PROJECT_REF:-uutbvwyoivqojozrangi}"
+PROJECT_REF="${SUPABASE_PROJECT_REF:-rvnzjiskqliexysicfmh}"
 
 if ! "${CLI[@]}" projects list &>/dev/null; then
   echo "Not logged in. Run one of:"

@@ -9,9 +9,11 @@ SET search_path = public
 AS $$
   SELECT jsonb_build_object(
     'designers', (SELECT COUNT(*)::int FROM public.profiles),
-    'projects', (SELECT COUNT(*)::int FROM public.projects WHERE status = 'Published'),
-    'collabs', (SELECT COUNT(*)::int FROM public.collab_requests),
-    'hires', (SELECT COUNT(*)::int FROM public.hiring_requests)
+    'projects', (
+      SELECT COUNT(*)::int FROM anthem.projects WHERE status = 'Published'
+    ),
+    'collabs', (SELECT COUNT(*)::int FROM anthem.collab_requests),
+    'hires', (SELECT COUNT(*)::int FROM anthem.hiring_requests)
   );
 $$;
 

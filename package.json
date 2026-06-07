@@ -16,6 +16,8 @@
     "e2e:ui": "playwright test --ui",
     "sitemap:gen": "node scripts/generate-sitemap.mjs",
     "seed:demo": "node scripts/run-seed.mjs",
+    "admin:create-user": "node scripts/create-admin-user.mjs",
+    "db:apply-anthem": "node scripts/apply-anthem-remote.mjs",
     "db:push": "bash scripts/supabase-db-push.sh"
   },
   "dependencies": {

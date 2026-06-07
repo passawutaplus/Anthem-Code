@@ -6,7 +6,8 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
-import { signInWithOAuth } from "@/integrations/oauth";
+import { SocialButtons, AuthEmailSeparator } from "@/components/auth/SocialButtons";
+import { safeRelativePath } from "@/lib/oauthRedirect";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
@@ -14,15 +15,6 @@ import {
   ArrowLeft, Mail, User as UserIcon, Eye, EyeOff, Loader2,
   Sparkles, Info, Heart, Bookmark, Share2,
 } from "lucide-react";
-
-const GoogleIcon = () => (
-  <svg className="h-4 w-4" viewBox="0 0 24 24" aria-hidden="true">
-    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.75h3.57c2.08-1.92 3.28-4.74 3.28-8.07z" />
-    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.75c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-    <path fill="#FBBC05" d="M5.84 14.12c-.22-.66-.35-1.36-.35-2.12s.13-1.46.35-2.12V7.04H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.96l3.66-2.84z" />
-    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.04l3.66 2.84C6.71 7.31 9.14 5.38 12 5.38z" />
-  </svg>
-);
 
 const PasswordInput = ({ id, value, onChange, placeholder, autoComplete, minLength, required, invalid }: {
   id: string;
@@ -63,20 +55,10 @@ const PasswordInput = ({ id, value, onChange, placeholder, autoComplete, minLeng
   );
 };
 
-const Separator = () => (
-  <div className="relative my-1">
-    <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-border/60" /></div>
-    <div className="relative flex justify-center text-[11px]">
-      <span className="bg-background px-3 text-muted-foreground">หรือเข้าด้วยอีเมล</span>
-    </div>
-  </div>
-);
-
 const AuthPage = () => {
   const navigate = useNavigate();
   const [params] = useSearchParams();
-  const rawRedirect = params.get("redirect");
-  const redirect = /^\/(?![/\\])/.test(rawRedirect ?? "") ? (rawRedirect as string) : "/";
+  const redirect = safeRelativePath(params.get("redirect"), "/");
 
   const { user } = useAuth();
   const [tab, setTab] = useState<"login" | "signup">("login");
@@ -88,13 +70,6 @@ const AuthPage = () => {
       setTimeout(() => navigate(redirect, { replace: true }), 250);
     }
   }, [user, navigate, redirect]);
-
-  const handleGoogle = async () => {
-    const result = await signInWithOAuth("google", {
-      redirectTo: window.location.origin + redirect,
-    });
-    if (result.error) toast.error(result.error.message || "เข้าสู่ระบบด้วย Google ไม่สำเร็จ");
-  };
 
   return (
     <div className={cn(
@@ -180,28 +155,14 @@ const AuthPage = () => {
               </TabsList>
 
               <TabsContent value="login" className="space-y-4 mt-0">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={handleGoogle}
-                  className="w-full h-11 gap-2 rounded-xl bg-background/60 backdrop-blur"
-                >
-                  <GoogleIcon /> เข้าสู่ระบบด้วย Google
-                </Button>
-                <Separator />
+                <SocialButtons redirectTo={redirect} />
+                <AuthEmailSeparator />
                 <LoginForm redirect={redirect} onSwitch={() => setTab("signup")} />
               </TabsContent>
 
               <TabsContent value="signup" className="space-y-4 mt-0">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={handleGoogle}
-                  className="w-full h-11 gap-2 rounded-xl bg-background/60 backdrop-blur"
-                >
-                  <GoogleIcon /> สมัครด้วย Google
-                </Button>
-                <Separator />
+                <SocialButtons redirectTo={redirect} />
+                <AuthEmailSeparator />
                 <SignupForm onSwitch={() => setTab("login")} />
               </TabsContent>
             </Tabs>

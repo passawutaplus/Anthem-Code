@@ -7,7 +7,11 @@ import type { User } from "@supabase/supabase-js";
  */
 export const requireAuth = (user: User | null | undefined, action: () => void): boolean => {
   if (!user) {
-    useAuthDialog.getState().openSignup();
+    const path =
+      typeof window !== "undefined"
+        ? `${window.location.pathname}${window.location.search}`
+        : "/";
+    useAuthDialog.getState().openSignup(path);
     return false;
   }
   action();
@@ -19,7 +23,11 @@ export const useGatedAction = (user: User | null | undefined) => {
   return <T extends (...args: any[]) => any>(fn: T) =>
     ((...args: Parameters<T>) => {
       if (!user) {
-        useAuthDialog.getState().openSignup();
+        const path =
+          typeof window !== "undefined"
+            ? `${window.location.pathname}${window.location.search}`
+            : "/";
+        useAuthDialog.getState().openSignup(path);
         return;
       }
       return fn(...args);

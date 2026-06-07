@@ -12,6 +12,8 @@ const authOpts = {
   storage: localStorage,
   persistSession: true,
   autoRefreshToken: true,
+  detectSessionInUrl: true,
+  flowType: "pkce",
 } as const;
 
 function makeClient(schema: string): SupabaseClient<Database> {

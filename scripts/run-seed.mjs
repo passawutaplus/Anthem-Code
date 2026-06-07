@@ -309,8 +309,8 @@ async function main() {
     member_count: 1,
   }));
   const { error: stErr } = await anthemDb.from("studios").upsert(studios, { onConflict: "id" });
-  if (stErr) throw new Error(`studios: ${stErr.message}`);
-  console.log("Studios upserted:", studios.length);
+  if (stErr) console.warn("studios:", stErr.message);
+  else console.log("Studios upserted:", studios.length);
 
   const members = Array.from({ length: 10 }, (_, i) => ({
     studio_id: catalogStudioId(i),
@@ -320,8 +320,8 @@ async function main() {
   const { error: memErr } = await anthemDb.from("studio_members").upsert(members, {
     onConflict: "studio_id,user_id",
   });
-  if (memErr) throw new Error(`studio_members: ${memErr.message}`);
-  console.log("Studio members upserted:", members.length);
+  if (memErr) console.warn("studio_members:", memErr.message);
+  else console.log("Studio members upserted:", members.length);
 
   const jobs = Array.from({ length: 12 }, (_, i) => ({
     id: catalogJobId(i),
@@ -342,8 +342,8 @@ async function main() {
     employment_type: "project",
   }));
   const { error: jobErr } = await anthemDb.from("job_posts").upsert(jobs, { onConflict: "id" });
-  if (jobErr) throw new Error(`job_posts: ${jobErr.message}`);
-  console.log("Job posts upserted:", jobs.length);
+  if (jobErr) console.warn("job_posts:", jobErr.message);
+  else console.log("Job posts upserted:", jobs.length);
 
   const follows = [];
   for (let i = 0; i < 20; i++) {
