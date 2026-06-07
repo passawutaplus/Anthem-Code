@@ -11,10 +11,14 @@ import { Switch } from "@/components/ui/switch";
 import { useAuth } from "@/hooks/useAuth";
 import { useCreateProject, useProject, useUpdateProject } from "@/hooks/useProjects";
 import { uploadProjectImage } from "@/lib/uploadImage";
-import { projectSchema } from "@/lib/validators";
+import { projectSchema, validateProjectPublish } from "@/lib/validators";
 import { categories } from "@/data/projectTypes";
 import { toast } from "sonner";
 import StudioCreditPicker from "@/components/profile/StudioCreditPicker";
+import LicensePicker from "@/components/license/LicensePicker";
+import ThirdPartyAssetsToggle from "@/components/license/ThirdPartyAssetsToggle";
+import OriginalWorkAttestation from "@/components/license/OriginalWorkAttestation";
+import { type LicenseType, isLicenseType } from "@/lib/licenses";
 
 type Status = "Published" | "Draft" | "Private";
 
@@ -44,6 +48,12 @@ const ProjectEditorPage = () => {
   const [allowCollab, setAllowCollab] = useState(true);
   const [studioId, setStudioId] = useState<string | null>(null);
   const [creditedIds, setCreditedIds] = useState<string[]>([]);
+  const [licenseType, setLicenseType] = useState<LicenseType>("all_rights");
+  const [licenseNote, setLicenseNote] = useState("");
+  const [copyrightHolder, setCopyrightHolder] = useState("");
+  const [hasThirdPartyAssets, setHasThirdPartyAssets] = useState(false);
+  const [thirdPartyNote, setThirdPartyNote] = useState("");
+  const [rightsAttested, setRightsAttested] = useState(false);
   const [toolInput, setToolInput] = useState("");
   const [tagInput, setTagInput] = useState("");
   const [uploadingCover, setUploadingCover] = useState(false);
@@ -69,6 +79,13 @@ const ProjectEditorPage = () => {
       setAllowCollab((existing as any).allow_collab ?? true);
       setStudioId((existing as any).studio_id ?? null);
       setCreditedIds(((existing as any).credited_user_ids as string[]) ?? []);
+      const lt = (existing as { license_type?: string }).license_type;
+      setLicenseType(isLicenseType(lt ?? "") ? lt : "all_rights");
+      setLicenseNote((existing as { license_note?: string }).license_note ?? "");
+      setCopyrightHolder((existing as { copyright_holder?: string }).copyright_holder ?? "");
+      setHasThirdPartyAssets((existing as { has_third_party_assets?: boolean }).has_third_party_assets ?? false);
+      setThirdPartyNote((existing as { third_party_note?: string }).third_party_note ?? "");
+      setRightsAttested(!!(existing as { rights_attested_at?: string | null }).rights_attested_at);
     }
   }, [existing]);
 
@@ -131,6 +148,8 @@ const ProjectEditorPage = () => {
     if (!user) return;
     const targetStatus: Status = publish === undefined ? status : publish ? "Published" : "Draft";
 
+    const rightsAttestedAt = rightsAttested ? new Date().toISOString() : null;
+
     const payload = {
       title: title.trim(),
       subtitle: subtitle.trim(),
@@ -146,6 +165,12 @@ const ProjectEditorPage = () => {
       allow_collab: allowCollab,
       studio_id: studioId,
       credited_user_ids: studioId ? creditedIds : [],
+      license_type: licenseType,
+      license_note: licenseNote.trim(),
+      has_third_party_assets: hasThirdPartyAssets,
+      third_party_note: thirdPartyNote.trim(),
+      copyright_holder: copyrightHolder.trim(),
+      rights_attested_at: rightsAttestedAt,
     };
 
     const parsed = projectSchema.safeParse(payload);
@@ -155,6 +180,15 @@ const ProjectEditorPage = () => {
     }
     if (targetStatus === "Published" && !cover) {
       toast.error("ต้องมีภาพปกก่อนเผยแพร่");
+      return;
+    }
+    if (targetStatus === "Published" && !rightsAttested) {
+      toast.error("กรุณายืนยันสิทธิ์ในผลงานก่อนเผยแพร่");
+      return;
+    }
+    const publishErr = validateProjectPublish(parsed.data);
+    if (publishErr) {
+      toast.error(publishErr);
       return;
     }
 
@@ -315,6 +349,28 @@ const ProjectEditorPage = () => {
             </div>
 
             <div className="space-y-3 pt-2 border-t border-border/60">
+              <LicensePicker
+                value={licenseType}
+                onChange={setLicenseType}
+                licenseNote={licenseNote}
+                onLicenseNoteChange={setLicenseNote}
+                copyrightHolder={copyrightHolder}
+                onCopyrightHolderChange={setCopyrightHolder}
+              />
+              <ThirdPartyAssetsToggle
+                enabled={hasThirdPartyAssets}
+                onEnabledChange={setHasThirdPartyAssets}
+                note={thirdPartyNote}
+                onNoteChange={setThirdPartyNote}
+              />
+              <OriginalWorkAttestation
+                checked={rightsAttested}
+                onCheckedChange={setRightsAttested}
+                required={status === "Published"}
+              />
+            </div>
+
+            <div className="space-y-3 pt-2 border-t border-border/60">
               <Label className="text-xs font-semibold text-muted-foreground uppercase">ปุ่มติดต่อในผลงานนี้</Label>
               <div className="flex items-center justify-between gap-3">
                 <div className="min-w-0">
@@ -330,6 +386,11 @@ const ProjectEditorPage = () => {
                 </div>
                 <Switch checked={allowCollab} onCheckedChange={setAllowCollab} />
               </div>
+              {licenseType === "commercial_license" && !allowHire && (
+                <p className="text-xs text-amber-600 bg-amber-500/10 rounded-lg px-3 py-2">
+                  แนะนำเปิดปุ่ม &quot;สนใจจ้างงาน&quot; เพื่อให้ผู้ชมติดต่อซื้อสิทธิ์ได้ง่ายขึ้น
+                </p>
+              )}
             </div>
           </div>
 

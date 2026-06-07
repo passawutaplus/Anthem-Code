@@ -9,6 +9,7 @@ const Footer = () => (
         <Link to="/legal/privacy" className="hover:text-foreground transition-colors">PDPA</Link>
         <Link to="/legal/cookies" className="hover:text-foreground transition-colors">คุกกี้</Link>
         <Link to="/legal/terms" className="hover:text-foreground transition-colors">ข้อกำหนด</Link>
+        <Link to="/legal/ip" className="hover:text-foreground transition-colors">ลิขสิทธิ์</Link>
         <Link to="/legal/rights" className="hover:text-foreground transition-colors">สิทธิข้อมูล</Link>
       </nav>
     </div>

@@ -1255,20 +1255,26 @@ export type Database = {
           allow_collab: boolean
           allow_hire: boolean
           category: string
+          copyright_holder: string
           cover_url: string | null
           created_at: string
           credited_user_ids: string[]
           description: string | null
           embedding: string | null
           gallery_urls: string[]
+          has_third_party_assets: boolean
           id: string
+          license_note: string
+          license_type: string
           likes: number
           owner_id: string
           price_thb: number | null
+          rights_attested_at: string | null
           status: string
           studio_id: string | null
           subtitle: string | null
           tags: string[]
+          third_party_note: string
           title: string
           tools: string[]
           updated_at: string
@@ -1278,20 +1284,26 @@ export type Database = {
           allow_collab?: boolean
           allow_hire?: boolean
           category: string
+          copyright_holder?: string
           cover_url?: string | null
           created_at?: string
           credited_user_ids?: string[]
           description?: string | null
           embedding?: string | null
           gallery_urls?: string[]
+          has_third_party_assets?: boolean
           id?: string
+          license_note?: string
+          license_type?: string
           likes?: number
           owner_id: string
           price_thb?: number | null
+          rights_attested_at?: string | null
           status?: string
           studio_id?: string | null
           subtitle?: string | null
           tags?: string[]
+          third_party_note?: string
           title: string
           tools?: string[]
           updated_at?: string
@@ -1301,20 +1313,26 @@ export type Database = {
           allow_collab?: boolean
           allow_hire?: boolean
           category?: string
+          copyright_holder?: string
           cover_url?: string | null
           created_at?: string
           credited_user_ids?: string[]
           description?: string | null
           embedding?: string | null
           gallery_urls?: string[]
+          has_third_party_assets?: boolean
           id?: string
+          license_note?: string
+          license_type?: string
           likes?: number
           owner_id?: string
           price_thb?: number | null
+          rights_attested_at?: string | null
           status?: string
           studio_id?: string | null
           subtitle?: string | null
           tags?: string[]
+          third_party_note?: string
           title?: string
           tools?: string[]
           updated_at?: string

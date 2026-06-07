@@ -22,6 +22,7 @@
     "db:fix-images": "node scripts/fix-demo-images.mjs",
     "db:apply-admin-features": "node scripts/apply-admin-features.mjs",
     "db:apply-feedback-fix": "node scripts/apply-feedback-fix.mjs",
+    "db:apply-license-fields": "node scripts/apply-license-fields.mjs",
     "db:push": "bash scripts/supabase-db-push.sh"
   },
   "dependencies": {

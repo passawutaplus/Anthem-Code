@@ -22,6 +22,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { isCategoryAllowed } from "@/lib/cookieConsent";
 import SeoHead from "@/components/SeoHead";
 import { truncateDescription } from "@/lib/seo";
+import LicenseDetailBlock from "@/components/license/LicenseDetailBlock";
 
 const ProjectDetailPage = () => {
   const { id } = useParams();
@@ -103,6 +104,11 @@ const ProjectDetailPage = () => {
         description: dbProject.description ?? "",
         allowHire: (dbProject as any).allow_hire ?? true,
         allowCollab: (dbProject as any).allow_collab ?? true,
+        licenseType: dbProject.license_type ?? "all_rights",
+        licenseNote: dbProject.license_note ?? "",
+        copyrightHolder: dbProject.copyright_holder ?? "",
+        hasThirdPartyAssets: dbProject.has_third_party_assets ?? false,
+        thirdPartyNote: dbProject.third_party_note ?? "",
       }
     : null;
 
@@ -234,6 +240,18 @@ const ProjectDetailPage = () => {
               allowHire={project.allowHire}
               allowCollab={project.allowCollab}
             />
+            <div className="mt-4">
+              <LicenseDetailBlock
+                licenseType={project.licenseType}
+                licenseNote={project.licenseNote}
+                copyrightHolder={project.copyrightHolder}
+                ownerName={project.owner}
+                hasThirdPartyAssets={project.hasThirdPartyAssets}
+                thirdPartyNote={project.thirdPartyNote}
+                allowHire={project.allowHire}
+                onHire={() => setHireOpen(true)}
+              />
+            </div>
           </div>
         </div>
 

@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { Download } from "lucide-react";
 import { toCsv, downloadCsv } from "@/lib/csv";
+import { getLicenseMeta } from "@/lib/licenses";
 
 type EvidenceFile = { url: string; type: string; name: string; size: number };
 type ReportRow = {
@@ -57,7 +58,24 @@ export default function AdminReportsPage() {
         .order("created_at", { ascending: false })
         .limit(200);
       if (error) throw error;
-      return (data ?? []) as unknown as ReportRow[];
+      const reports = (data ?? []) as unknown as ReportRow[];
+      const projectIds = [...new Set(
+        reports.filter((r) => r.target_type === "project" && r.reason === "copyright").map((r) => r.target_id),
+      )];
+      if (!projectIds.length) return reports;
+      const { data: projects } = await supabase
+        .from("projects")
+        .select("id, license_type, license_note, rights_attested_at")
+        .in("id", projectIds);
+      const licenseMap = new Map((projects ?? []).map((p) => [p.id, p]));
+      return reports.map((r) => {
+        if (r.target_type !== "project" || r.reason !== "copyright") return r;
+        const lic = licenseMap.get(r.target_id);
+        if (!lic) return r;
+        const meta = getLicenseMeta(lic.license_type);
+        const suffix = ` [ลิขสิทธิ์: ${meta.shortLabel}${lic.rights_attested_at ? "" : ", ไม่ยืนยันสิทธิ์"}]`;
+        return { ...r, details: (r.details || "") + suffix };
+      });
     },
   });
 

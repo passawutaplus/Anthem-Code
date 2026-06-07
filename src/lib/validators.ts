@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { LICENSE_TYPES } from "@/lib/licenses";
 
 export const thaiPhoneRegex = /^(0[6-9]\d{8}|\+66[6-9]\d{8})$/;
 
@@ -92,9 +93,30 @@ export const projectSchema = z.object({
   allow_collab: z.boolean().default(true),
   studio_id: z.string().uuid().nullable().optional(),
   credited_user_ids: z.array(z.string().uuid()).max(20).default([]),
+  license_type: z.enum(LICENSE_TYPES).default("all_rights"),
+  license_note: z.string().trim().max(500).optional().default(""),
+  has_third_party_assets: z.boolean().default(false),
+  third_party_note: z.string().trim().max(300).optional().default(""),
+  copyright_holder: z.string().trim().max(120).optional().default(""),
+  rights_attested_at: z.string().datetime().nullable().optional(),
 });
 
 export type ProjectInput = z.infer<typeof projectSchema>;
+
+/** Extra publish-time checks beyond base projectSchema */
+export function validateProjectPublish(input: ProjectInput): string | null {
+  if (input.status !== "Published") return null;
+  if (!input.rights_attested_at) {
+    return "กรุณายืนยันสิทธิ์ในผลงานก่อนเผยแพร่";
+  }
+  if (input.has_third_party_assets && !input.third_party_note?.trim()) {
+    return "กรุณาระบุแหล่งที่มาของ asset จากที่อื่น";
+  }
+  if (input.license_type === "custom" && !input.license_note?.trim()) {
+    return "กรุณากรอกเงื่อนไขการใช้งานเมื่อเลือก 'กำหนดเอง'";
+  }
+  return null;
+}
 
 export const commentSchema = z.object({
   content: z.string().trim().min(1, "พิมพ์ข้อความก่อนส่ง").max(800, "ไม่เกิน 800 ตัวอักษร"),

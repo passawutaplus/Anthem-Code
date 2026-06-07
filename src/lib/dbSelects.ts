@@ -1,10 +1,13 @@
 /** Shared Supabase column lists — avoids select("*") and heavy columns (e.g. embedding). */
 
+export const PROJECT_LICENSE_SELECT =
+  "license_type, license_note, has_third_party_assets, third_party_note, copyright_holder, rights_attested_at";
+
 export const PROJECT_FEED_SELECT =
-  "id, title, cover_url, gallery_urls, category, owner_id, likes, views, status, created_at, tools, tags, allow_hire, allow_collab";
+  `id, title, cover_url, gallery_urls, category, owner_id, likes, views, status, created_at, tools, tags, allow_hire, allow_collab, license_type`;
 
 export const PROJECT_DETAIL_SELECT =
-  `${PROJECT_FEED_SELECT}, description, price_thb, subtitle, studio_id, credited_user_ids, updated_at`;
+  `${PROJECT_FEED_SELECT}, description, price_thb, subtitle, studio_id, credited_user_ids, updated_at, license_note, has_third_party_assets, third_party_note, copyright_holder`;
 
 export const PROJECT_MANAGE_SELECT = PROJECT_DETAIL_SELECT;
 

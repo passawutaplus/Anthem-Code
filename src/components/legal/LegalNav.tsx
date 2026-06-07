@@ -5,6 +5,7 @@ const LINKS = [
   { to: "/legal/privacy", label: "ความเป็นส่วนตัว (PDPA)" },
   { to: "/legal/cookies", label: "คุกกี้" },
   { to: "/legal/terms", label: "ข้อกำหนด" },
+  { to: "/legal/ip", label: "ลิขสิทธิ์" },
   { to: "/legal/rights", label: "สิทธิเจ้าของข้อมูล" },
 ] as const;
 

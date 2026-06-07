@@ -37,6 +37,7 @@ export interface Project {
   price?: string;
   allowHire?: boolean;
   allowCollab?: boolean;
+  licenseType?: string;
 }
 
 export interface HiringRequest {

@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -18,8 +18,16 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import {
-  FileSignature, Sparkles, ArrowLeft, Save, Loader2, Wand2, Crown, Copy, Download,
+  FileSignature, Sparkles, ArrowLeft, Save, Loader2, Wand2, Crown, Copy, Download, Scale,
 } from "lucide-react";
+import { PROJECT_DETAIL_SELECT } from "@/lib/dbSelects";
+import {
+  isLicenseType,
+  licenseToContractNote,
+  suggestIpOwner,
+  getLicenseMeta,
+  type LicenseType,
+} from "@/lib/licenses";
 
 type ContractType = "project" | "fulltime";
 
@@ -73,11 +81,77 @@ const defaultForm: FormState = {
 
 const ContractEditorInner = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { user } = useAuth();
   const qc = useQueryClient();
   const [form, setForm] = useState<FormState>(defaultForm);
   const [draft, setDraft] = useState("");
   const [contractId, setContractId] = useState<string | null>(null);
+  const [linkedProjectId, setLinkedProjectId] = useState<string | null>(searchParams.get("project"));
+
+  const { data: myProjects = [] } = useQuery({
+    queryKey: ["my-projects-contract", user?.id],
+    enabled: !!user?.id,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("projects")
+        .select("id, title, license_type, license_note, copyright_holder")
+        .eq("owner_id", user!.id)
+        .order("created_at", { ascending: false })
+        .limit(50);
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+
+  const { data: linkedProject } = useQuery({
+    queryKey: ["contract-project", linkedProjectId],
+    enabled: !!linkedProjectId,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("projects")
+        .select(PROJECT_DETAIL_SELECT)
+        .eq("id", linkedProjectId!)
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  useEffect(() => {
+    const fromUrl = searchParams.get("project");
+    if (fromUrl) setLinkedProjectId(fromUrl);
+  }, [searchParams]);
+
+  useEffect(() => {
+    if (!linkedProject?.title) return;
+    setForm((f) => (f.job_title ? f : { ...f, job_title: linkedProject.title }));
+  }, [linkedProject?.id, linkedProject?.title]);
+
+  const applyLicenseFromProject = () => {
+    if (!linkedProject) {
+      toast.error("เลือกผลงานก่อน");
+      return;
+    }
+    const lt = isLicenseType(linkedProject.license_type ?? "")
+      ? (linkedProject.license_type as LicenseType)
+      : "all_rights";
+    const ipOwner = suggestIpOwner(lt);
+    const note = licenseToContractNote(
+      lt,
+      linkedProject.license_note ?? "",
+      linkedProject.copyright_holder ?? "",
+    );
+    const meta = getLicenseMeta(lt);
+    setForm((f) => ({
+      ...f,
+      ip_owner: ipOwner,
+      job_title: f.job_title || linkedProject.title,
+      extra_notes: f.extra_notes ? `${f.extra_notes}\n\n${note}` : note,
+      scope: f.scope || `งานอ้างอิงผลงาน: ${linkedProject.title} (${meta.shortLabel})`,
+    }));
+    toast.success("ดึงข้อมูลลิขสิทธิ์จากผลงานแล้ว");
+  };
 
   const set = <K extends keyof FormState>(k: K, v: FormState[K]) =>
     setForm((f) => ({ ...f, [k]: v }));
@@ -243,7 +317,33 @@ const ContractEditorInner = () => {
             <Textarea placeholder="เงื่อนไขการชำระเงิน / สวัสดิการ" value={form.payment_terms} onChange={(e) => set("payment_terms", e.target.value)} rows={2} />
           </Section>
 
-          <Section title="ข้อกำหนดเพิ่มเติม">
+          <Section title="ทรัพย์สินทางปัญญา (IP)">
+            <div>
+              <Label className="text-xs text-muted-foreground">อ้างอิงผลงาน (ถ้ามี)</Label>
+              <Select
+                value={linkedProjectId ?? "_none"}
+                onValueChange={(v) => setLinkedProjectId(v === "_none" ? null : v)}
+              >
+                <SelectTrigger><SelectValue placeholder="เลือกผลงานของคุณ" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="_none">— ไม่ระบุ —</SelectItem>
+                  {myProjects.map((p) => (
+                    <SelectItem key={p.id} value={p.id}>{p.title}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="w-full gap-2"
+              onClick={applyLicenseFromProject}
+              disabled={!linkedProjectId}
+            >
+              <Scale className="h-4 w-4" />
+              ดึงข้อมูลลิขสิทธิ์จากผลงาน
+            </Button>
             <div>
               <Label className="text-xs text-muted-foreground">ทรัพย์สินทางปัญญาเป็นของ</Label>
               <Select value={form.ip_owner} onValueChange={(v) => set("ip_owner", v as FormState["ip_owner"])}>

@@ -152,6 +152,7 @@ const FeedPage = (_props: { onMyPortClick: () => void }) => {
         tools: p.tools ?? [],
         allowHire: (p as any).allow_hire ?? true,
         allowCollab: (p as any).allow_collab ?? true,
+        licenseType: (p as { license_type?: string }).license_type ?? "all_rights",
       };
     });
     if (feedMode === "Newest") {

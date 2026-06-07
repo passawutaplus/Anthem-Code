@@ -8,6 +8,7 @@ import SaveToCollectionPopover from "@/components/collections/SaveToCollectionPo
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import SafeDemoImage from "@/components/SafeDemoImage";
+import LicenseBadge from "@/components/license/LicenseBadge";
 
 interface ProjectCardProps {
   project: Project;
@@ -88,6 +89,11 @@ const ProjectCard = ({ project, onHireClick, onCollabClick }: ProjectCardProps) 
             menuOpen ? "opacity-100" : "opacity-0 md:group-hover:opacity-100"
           )}
         />
+
+        {/* License badge — top-left */}
+        <div className="absolute top-2 left-2 z-10 pointer-events-auto" onClick={(e) => e.stopPropagation()}>
+          <LicenseBadge licenseType={project.licenseType ?? "all_rights"} size="sm" />
+        </div>
 
         {/* Project title — bottom-left, visible on hover or when menu open */}
         <div
