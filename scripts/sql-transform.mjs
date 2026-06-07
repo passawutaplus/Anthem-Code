@@ -24,6 +24,8 @@ export const ANTHEM_TABLES = [
   "inspire_items",
   "image_likes",
   "image_shares",
+  "app_feedback",
+  "user_reports",
 ];
 
 export const SHARED_TABLES = [

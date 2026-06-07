@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, ExternalLink, FileText, Flag, Share2 } from "lucide-react";
+import { ArrowLeft, Flag, Share2 } from "lucide-react";
 import ReportDialog from "@/components/report/ReportDialog";
-import { so1oUrl, trackCrossLink } from "@/lib/crossLink";
 import SaveToCollectionPopover from "@/components/collections/SaveToCollectionPopover";
 import { Layers3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -235,40 +234,6 @@ const ProjectDetailPage = () => {
               allowHire={project.allowHire}
               allowCollab={project.allowCollab}
             />
-          </div>
-        </div>
-
-        {/* Cross-link → So1o: draft a quote from this project */}
-        <div className="mt-10 lg:mt-14 max-w-3xl">
-          <div className="rounded-2xl border border-border bg-gradient-to-br from-primary/10 via-background to-background p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center gap-4">
-            <div className="w-10 h-10 rounded-xl bg-primary/15 text-primary flex items-center justify-center shrink-0">
-              <FileText className="w-5 h-5" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="font-semibold text-foreground">สนใจจ้างงานนี้?</p>
-              <p className="text-sm text-muted-foreground">
-                สร้างใบเสนอราคาทันทีบน So1o — ตัวช่วยจัดการงานสำหรับฟรีแลนซ์ของเรา
-              </p>
-            </div>
-            <a
-              href={so1oUrl("/quotes/new", {
-                project_id: project.id,
-                freelancer_id: project.ownerId,
-                project_title: project.title,
-              })}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={() =>
-                trackCrossLink({
-                  source: "project_detail",
-                  refId: project.id,
-                  meta: { freelancer_id: project.ownerId },
-                })
-              }
-              className="inline-flex items-center justify-center gap-2 rounded-full bg-primary text-primary-foreground px-5 py-2.5 text-sm font-medium hover:bg-primary/90 transition-colors shrink-0"
-            >
-              สร้างใบเสนอราคา <ExternalLink className="w-4 h-4" />
-            </a>
           </div>
         </div>
 

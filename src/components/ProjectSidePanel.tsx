@@ -124,7 +124,7 @@ const ProjectSidePanel = (p: Props) => {
 
         {p.price && (
           <p className="text-center text-sm">
-            <span className="text-muted-foreground">เริ่มต้น </span>
+            <span className="text-muted-foreground">งบประมาณงานนี้ : </span>
             <span className="text-primary font-semibold">{p.price}</span>
           </p>
         )}

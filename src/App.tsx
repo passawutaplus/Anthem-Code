@@ -56,6 +56,11 @@ const AdminGiftsPage = lazy(() => import("./pages/admin/AdminGiftsPage"));
 const AdminNotificationsPage = lazy(() => import("./pages/admin/AdminNotificationsPage"));
 const AdminStoragePage = lazy(() => import("./pages/admin/AdminStoragePage"));
 const AdminAuditPage = lazy(() => import("./pages/admin/AdminAuditPage"));
+const AdminActivityPage = lazy(() => import("./pages/admin/AdminActivityPage"));
+const AdminContractsPage = lazy(() => import("./pages/admin/AdminContractsPage"));
+const AdminWalletPage = lazy(() => import("./pages/admin/AdminWalletPage"));
+const AdminApplicationsPage = lazy(() => import("./pages/admin/AdminApplicationsPage"));
+const AdminAnalyticsPage = lazy(() => import("./pages/admin/AdminAnalyticsPage"));
 const AdminSystemPage = lazy(() => import("./pages/admin/AdminSystemPage"));
 const AdminAdsPage = lazy(() => import("./pages/admin/AdminAdsPage"));
 const AdminReportsPage = lazy(() => import("./pages/admin/AdminReportsPage"));
@@ -120,6 +125,11 @@ const App = () => (
               <Route path="/verify" element={<RequireAuth><VerificationPage /></RequireAuth>} />
               <Route path="/admin" element={<AdminLayout />}>
                 <Route index element={<OverviewPage />} />
+                <Route path="activity" element={<AdminActivityPage />} />
+                <Route path="analytics" element={<AdminAnalyticsPage />} />
+                <Route path="contracts" element={<AdminContractsPage />} />
+                <Route path="wallet" element={<AdminWalletPage />} />
+                <Route path="applications" element={<AdminApplicationsPage />} />
                 <Route path="users" element={<AdminUsersPage />} />
                 <Route path="studios" element={<AdminStudiosPage />} />
                 <Route path="projects" element={<AdminProjectsPage />} />

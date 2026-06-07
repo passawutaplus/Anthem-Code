@@ -12,7 +12,17 @@ export interface SubmitFeedbackInput {
 }
 
 function friendly(msg: string): string {
-  return msg.replace(/^(RATE_LIMIT|AUTH|INVALID):\s*/, "");
+  const stripped = msg.replace(/^(RATE_LIMIT|AUTH|INVALID):\s*/, "");
+  if (/could not find the function|function .* does not exist|PGRST202/i.test(msg)) {
+    return "ระบบฟีดแบ็กยังไม่พร้อม — กรุณาลองใหม่ภายหลัง";
+  }
+  if (/permission denied|42501/i.test(msg)) {
+    return "ไม่มีสิทธิ์ส่งฟีดแบ็ก — ลองเข้าสู่ระบบใหม่";
+  }
+  if (/relation .* does not exist|42P01/i.test(msg)) {
+    return "ระบบฟีดแบ็กกำลังอัปเดต — ลองใหม่อีกครั้งในไม่กี่นาที";
+  }
+  return stripped || "ส่งฟีดแบ็กไม่สำเร็จ — ลองใหม่อีกครั้ง";
 }
 
 export function useSubmitFeedback() {

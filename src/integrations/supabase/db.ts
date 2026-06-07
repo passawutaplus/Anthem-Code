@@ -35,6 +35,7 @@ const PUBLIC_TABLES = new Set([
   "user_credits",
   "ecosystem_notifications",
   "so1o_notifications",
+  "platform_events",
 ]);
 
 /** Cross-app wallet / chat / compliance. */

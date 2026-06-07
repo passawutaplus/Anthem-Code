@@ -69,6 +69,38 @@ export function useAdminRealtime() {
       .on("postgres_changes", { event: "*", schema: "public", table: "kyc_requests" }, () => {
         qc.invalidateQueries({ queryKey: ["kyc-requests"] });
       })
+      .on("postgres_changes", { event: "*", schema: "public", table: "project_likes" }, () => {
+        qc.invalidateQueries({ queryKey: ["admin-stats"] });
+        qc.invalidateQueries({ queryKey: ["admin-platform-activity"] });
+      })
+      .on("postgres_changes", { event: "*", schema: "public", table: "follows" }, () => {
+        qc.invalidateQueries({ queryKey: ["admin-stats"] });
+        qc.invalidateQueries({ queryKey: ["admin-platform-activity"] });
+      })
+      .on("postgres_changes", { event: "*", schema: "public", table: "gift_transactions" }, () => {
+        qc.invalidateQueries({ queryKey: ["admin-stats"] });
+        qc.invalidateQueries({ queryKey: ["admin-platform-activity"] });
+      })
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "messages" }, () => {
+        qc.invalidateQueries({ queryKey: ["admin-stats"] });
+        qc.invalidateQueries({ queryKey: ["admin-platform-activity"] });
+      })
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "platform_events" }, () => {
+        qc.invalidateQueries({ queryKey: ["admin-platform-activity"] });
+      })
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "user_reports" }, () => {
+        qc.invalidateQueries({ queryKey: ["admin-alert-counts"] });
+        qc.invalidateQueries({ queryKey: ["admin-stats"] });
+      })
+      .on("postgres_changes", { event: "*", schema: "public", table: "cashout_requests" }, () => {
+        qc.invalidateQueries({ queryKey: ["admin-alert-counts"] });
+        qc.invalidateQueries({ queryKey: ["admin-wallet-ledger"] });
+        qc.invalidateQueries({ queryKey: ["admin-stats"] });
+      })
+      .on("postgres_changes", { event: "*", schema: "public", table: "job_applications" }, () => {
+        qc.invalidateQueries({ queryKey: ["admin-applications"] });
+        qc.invalidateQueries({ queryKey: ["admin-analytics"] });
+      })
       .subscribe();
 
     return () => {

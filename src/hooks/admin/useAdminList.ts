@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 export type AdminListTable =
   | "profiles" | "studios" | "projects" | "job_posts" | "hiring_requests"
   | "collab_requests" | "conversations" | "project_comments" | "collections"
-  | "admin_audit_log" | "gifts" | "inspire_boards";
+  | "admin_audit_log" | "gifts" | "inspire_boards" | "contracts";
 
 export const adminListKey = (table: string, select = "*") => ["admin-list", table, select] as const;
 

@@ -4,16 +4,27 @@ import {
   LayoutDashboard, Users, Building2, FolderKanban,
   HandshakeIcon, HeartHandshake, MessageSquare, MessageCircle,
   Bookmark, Bell, HardDrive, ScrollText, Activity, Gift, Megaphone, Sparkles,
-  Flag, MessageSquareHeart, Shield, ShieldCheck,
+  Flag, MessageSquareHeart, Shield, ShieldCheck, FileText, Wallet, BarChart3, ClipboardList,
 } from "lucide-react";
 import { useAdminRealtime } from "@/hooks/admin/useAdminRealtime";
+import { useAdminAlertCounts } from "@/hooks/admin/useAdminAlerts";
 
-type Item = { to: string; label: string; icon: React.ComponentType<{ className?: string }>; end?: boolean };
+type Item = {
+  to: string;
+  label: string;
+  icon: React.ComponentType<{ className?: string }>;
+  end?: boolean;
+  badgeKey?: "reports" | "cashouts" | "kyc" | "aml";
+};
 
 const sections: { title: string; items: Item[] }[] = [
   {
     title: "ภาพรวม",
-    items: [{ to: "/admin", label: "Dashboard", icon: LayoutDashboard, end: true }],
+    items: [
+      { to: "/admin", label: "Dashboard", icon: LayoutDashboard, end: true },
+      { to: "/admin/activity", label: "กิจกรรมทั้งเว็บ", icon: Activity },
+      { to: "/admin/analytics", label: "Analytics", icon: BarChart3 },
+    ],
   },
   {
     title: "ผู้ใช้ & ชุมชน",
@@ -35,14 +46,17 @@ const sections: { title: string; items: Item[] }[] = [
     title: "ตลาดงาน",
     items: [
       { to: "/admin/jobs", label: "ประกาศงาน", icon: BriefcaseIcon },
+      { to: "/admin/applications", label: "ใบสมัครงาน", icon: ClipboardList },
       { to: "/admin/hiring", label: "คำขอจ้าง", icon: HandshakeIcon },
       { to: "/admin/collabs", label: "คอลแลป", icon: HeartHandshake },
+      { to: "/admin/contracts", label: "สัญญา", icon: FileText },
     ],
   },
   {
     title: "การเงิน & โฆษณา",
     items: [
-      { to: "/admin/gifts", label: "ของขวัญ & กระเป๋า", icon: Gift },
+      { to: "/admin/wallet", label: "กระเป๋า & Ledger", icon: Wallet, badgeKey: "cashouts" },
+      { to: "/admin/gifts", label: "ของขวัญ", icon: Gift },
       { to: "/admin/ads", label: "โฆษณา", icon: Megaphone },
     ],
   },
@@ -56,9 +70,9 @@ const sections: { title: string; items: Item[] }[] = [
   {
     title: "ความปลอดภัย & เสียงผู้ใช้",
     items: [
-      { to: "/admin/aml", label: "AML / ฟอกเงิน", icon: Shield },
-      { to: "/admin/kyc", label: "ยืนยันตัวตน (KYC)", icon: ShieldCheck },
-      { to: "/admin/reports", label: "รายงานเนื้อหา", icon: Flag },
+      { to: "/admin/aml", label: "AML / ฟอกเงิน", icon: Shield, badgeKey: "aml" },
+      { to: "/admin/kyc", label: "ยืนยันตัวตน (KYC)", icon: ShieldCheck, badgeKey: "kyc" },
+      { to: "/admin/reports", label: "รายงานเนื้อหา", icon: Flag, badgeKey: "reports" },
       { to: "/admin/feedback", label: "ฟีดแบ็กผู้ใช้", icon: MessageSquareHeart },
     ],
   },
@@ -72,9 +86,27 @@ const sections: { title: string; items: Item[] }[] = [
   },
 ];
 
+function NavBadge({ count }: { count: number }) {
+  if (count <= 0) return null;
+  return (
+    <span className="ml-auto min-w-[1.25rem] h-5 px-1 rounded-full bg-admin-accent text-admin-bg text-[10px] font-mono flex items-center justify-center">
+      {count > 99 ? "99+" : count}
+    </span>
+  );
+}
+
 export default function AdminSidebar() {
-  // Subscribe to realtime updates that invalidate admin queries app-wide
   useAdminRealtime();
+  const { data: alerts } = useAdminAlertCounts();
+
+  const badgeCount = (key?: Item["badgeKey"]) => {
+    if (!key || !alerts) return 0;
+    if (key === "reports") return alerts.openReports;
+    if (key === "cashouts") return alerts.pendingCashouts;
+    if (key === "kyc") return alerts.pendingKyc;
+    if (key === "aml") return alerts.openAml;
+    return 0;
+  };
 
   return (
     <aside className="hidden md:flex flex-col w-60 shrink-0 border-r border-admin-border bg-admin-surface min-h-screen sticky top-0">
@@ -109,8 +141,9 @@ export default function AdminSidebar() {
                     }`
                   }
                 >
-                  <it.icon className="w-4 h-4" />
-                  <span>{it.label}</span>
+                  <it.icon className="w-4 h-4 shrink-0" />
+                  <span className="truncate">{it.label}</span>
+                  <NavBadge count={badgeCount(it.badgeKey)} />
                 </NavLink>
               ))}
             </div>

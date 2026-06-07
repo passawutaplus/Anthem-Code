@@ -64,8 +64,8 @@ const FeedbackFab = () => {
         setOpen(false);
         reset();
       }, 1200);
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : "ส่งไม่สำเร็จ");
+    } catch {
+      // useSubmitFeedback onError shows the toast
     }
   };
 
