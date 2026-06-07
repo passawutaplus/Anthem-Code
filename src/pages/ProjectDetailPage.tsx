@@ -15,6 +15,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import ImageActionBar from "@/components/project/ImageActionBar";
 import ImageLightbox from "@/components/project/ImageLightbox";
+import SafeDemoImage from "@/components/SafeDemoImage";
 import { useQuery } from "@tanstack/react-query";
 
 import { useProject } from "@/hooks/useProjects";
@@ -302,12 +303,15 @@ const ProjectDetailPage = () => {
 type GalleryProject = { id: string; title: string };
 const GalleryWithLightbox = ({ images, project }: { images: string[]; project: GalleryProject }) => {
   const [lightboxSrc, setLightboxSrc] = useState<string | null>(null);
+  const imgIndex = (i: number) =>
+    project.id.split("").reduce((a, c) => a + c.charCodeAt(0), 0) + i;
   return (
     <>
       {images.map((src, i) => (
         <div key={src + i} className="relative group">
-          <img
+          <SafeDemoImage
             src={src}
+            index={imgIndex(i)}
             alt={`${project.title} ${i + 1}`}
             onClick={() => setLightboxSrc(src)}
             className="w-full rounded-2xl border border-border/60 bg-card object-contain cursor-zoom-in"

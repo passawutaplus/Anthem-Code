@@ -13,6 +13,12 @@ import { dirname, join } from "path";
 import { fileURLToPath } from "url";
 import { spawn } from "child_process";
 
+import {
+  sanitizeBundleSql,
+  transformSeedSql,
+  isBenignSqlError,
+} from "./sql-transform.mjs";
+
 const anthemRoot = join(dirname(fileURLToPath(import.meta.url)), "..");
 const monoRoot = join(anthemRoot, "..");
 const envPaths = [
@@ -46,72 +52,10 @@ const BUNDLE = join(monoRoot, "Solo-Code", "supabase", "manual", "apply-anthem-e
 const SCHEMAS_SQL = join(monoRoot, "Solo-Code", "supabase", "migrations", "20260606120000_ecosystem_schemas.sql");
 const FEED_STATS_SQL = join(anthemRoot, "supabase", "migrations", "20260604240000_public_feed_stats.sql");
 
-const ANTHEM_TABLES = [
-  "projects",
-  "project_likes",
-  "project_comments",
-  "project_views",
-  "project_bookmarks",
-  "follows",
-  "collab_requests",
-  "hiring_requests",
-  "studios",
-  "studio_members",
-  "job_posts",
-  "job_applications",
-  "collections",
-  "collection_items",
-  "ad_campaigns",
-  "ad_events",
-  "ad_applications",
-  "inspire_boards",
-  "inspire_items",
-  "image_likes",
-  "image_shares",
-];
-
-/** Fix known typos / schema drift in generated apply-anthem-ecosystem.sql bundle. */
-function sanitizeSql(sql) {
-  let s = sql;
-  if (s.includes("storage.buckets")) {
-    s = s.replace(
-      /(INSERT INTO storage\.buckets[\s\S]*?)ON CONFLICT \(user_id\) DO NOTHING/g,
-      "$1ON CONFLICT (id) DO NOTHING",
-    );
-  }
-  if (s.includes("INSERT INTO auth.users")) {
-    s = s.replace(
-      /(INSERT INTO auth\.users[\s\S]*?)ON CONFLICT \(user_id\) DO NOTHING/g,
-      "$1ON CONFLICT (id) DO NOTHING",
-    );
-  }
-  for (const t of ANTHEM_TABLES) {
-    s = s.replaceAll(`public.${t}`, `anthem.${t}`);
-  }
-  // Unified profiles use user_id (= auth uid), not row id
-  s = s.replace(
-    /VALUES \(NEW\.id, 'admin'::app_role\)/g,
-    "VALUES (COALESCE(NEW.user_id, NEW.id), 'admin'::app_role)",
-  );
-  s = s.replace(
-    /SELECT id, 'admin'::app_role FROM public\.profiles WHERE email = 'passawut\.a\.plus@gmail\.com'/g,
-    "SELECT COALESCE(user_id, id), 'admin'::app_role FROM public.profiles WHERE email = 'passawut.a.plus@gmail.com'",
-  );
-  return s;
-}
-
-function isBenignError(body, status) {
-  return (
-    /already exists|duplicate_object|duplicate key|does not exist|skipping/i.test(body) ||
-    /user_roles_user_id_fkey|violates foreign key constraint/i.test(body) ||
-    (status === 400 && /DROP TABLE.*does not exist/i.test(body))
-  );
-}
-
 async function runQuery(sql, label) {
   const token = process.env.SUPABASE_ACCESS_TOKEN;
   if (!token) throw new Error("SUPABASE_ACCESS_TOKEN missing");
-  sql = sanitizeSql(sql);
+  sql = sanitizeBundleSql(sql);
   const res = await fetch(API, {
     method: "POST",
     headers: {
@@ -122,7 +66,7 @@ async function runQuery(sql, label) {
   });
   const body = await res.text();
   if (!res.ok) {
-    if (isBenignError(body, res.status)) {
+    if (isBenignSqlError(body, res.status)) {
       console.log(`~ ${label} (benign: ${res.status})`);
       return;
     }
@@ -160,7 +104,7 @@ async function applyViaApi() {
       ok++;
     } catch (e) {
       const msg = String(e.message || e);
-      if (isBenignError(msg, 400)) {
+      if (isBenignSqlError(msg, 400)) {
         skip++;
         console.log(`~ [${i}] skip: ${title}`);
         continue;

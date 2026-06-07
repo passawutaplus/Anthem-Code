@@ -18,6 +18,8 @@
     "seed:demo": "node scripts/run-seed.mjs",
     "admin:create-user": "node scripts/create-admin-user.mjs",
     "db:apply-anthem": "node scripts/apply-anthem-remote.mjs",
+    "db:qa-full": "node scripts/seed-qa-full.mjs",
+    "db:fix-images": "node scripts/fix-demo-images.mjs",
     "db:push": "bash scripts/supabase-db-push.sh"
   },
   "dependencies": {

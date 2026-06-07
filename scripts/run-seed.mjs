@@ -8,6 +8,7 @@ import { dirname, join } from "path";
 import { fileURLToPath } from "url";
 import { createClient } from "@supabase/supabase-js";
 import ws from "ws";
+import { unsplashArt } from "./demo-images.mjs";
 
 const anthemRoot = join(dirname(fileURLToPath(import.meta.url)), "..");
 const repoRoot = join(anthemRoot, "..");
@@ -79,18 +80,6 @@ const catalogAdId = (i) => {
   const hex = i.toString(16).padStart(2, "0");
   return `00000000-0000-0000-0004-0000000000${hex}`;
 };
-
-const UNSPLASH_ART = [
-  "1618005182384-a83a8bd57fbe", "1561070791-2526d30994b5", "1558651710-f27954a53d5f",
-  "1586281380117-5a60661c0af1", "1614851913265-666d915bf4e1", "1579762715118-f6fbef7c6f06",
-  "1547658710-da2b506961c8", "1567095768270-ef49fcc95e5e", "1618004912476-29896cc0ceb2",
-  "1626785774575-2b0aaee2861b", "1555421683-6c7093642474", "1542744173-8e7e53410bb0",
-  "1513364777864-963864306e9c", "1503387762-592deb58ef4e", "1497366216543-37526070297c",
-  "1558590918-939da22a8ae0", "1526311050979-547222c2900b", "1557672208-6869b407e35f",
-  "1545235617-9465d758bab0", "1550740851-d711a55bb799",
-];
-const unsplashArt = (i, w = 1200, h = 900) =>
-  `https://images.unsplash.com/photo-${UNSPLASH_ART[i % UNSPLASH_ART.length]}?w=${w}&h=${h}&fit=crop&q=80&auto=format`;
 
 const names = [
   "ภัสวุฒิ ศรีวงค์", "นภัสรา ทองดี", "พิมพ์ชนก ใจดี", "วรรณกร พันธ์ทอง", "ธัญญา รัตนพร",

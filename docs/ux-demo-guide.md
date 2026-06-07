@@ -13,9 +13,11 @@ VITE_DEMO_MODE=true
 ## รัน seed (ข้อมูลจริงจำลอง 50 ครีเอเตอร์ + กิจกรรมครบ)
 
 ```bash
-npm run db:push
-# หรือรัน SQL ตาม scripts/sql/README.md
+export SUPABASE_ACCESS_TOKEN=sbp_...   # Dashboard → Account → Access Tokens
+npm run db:qa-full
 ```
+
+หรือขั้นตอนแยก: `npm run db:apply-anthem` แล้ว `npm run seed:demo`
 
 | อีเมล | รหัส |
 |--------|------|

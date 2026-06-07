@@ -7,6 +7,7 @@ import { useProjectLike } from "@/hooks/useProjectInteractions";
 import SaveToCollectionPopover from "@/components/collections/SaveToCollectionPopover";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import SafeDemoImage from "@/components/SafeDemoImage";
 
 interface ProjectCardProps {
   project: Project;
@@ -66,8 +67,9 @@ const ProjectCard = ({ project, onHireClick, onCollabClick }: ProjectCardProps) 
   return (
     <div className="group cursor-pointer" onClick={() => navigate(`/project/${project.id}`)}>
       <div ref={wrapRef} className="relative w-full aspect-[4/3] overflow-hidden rounded-sm bg-muted">
-        <img
+        <SafeDemoImage
           src={project.image}
+          index={project.id.split("").reduce((a, c) => a + c.charCodeAt(0), 0)}
           alt={project.title}
           className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
           loading="lazy"
