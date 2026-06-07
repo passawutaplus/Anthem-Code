@@ -1,11 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { ArrowLeft, ImagePlus, Loader2, Plus, Save, Trash2, Upload, X, ArrowUp, ArrowDown, GripVertical } from "lucide-react";
+import { ArrowLeft, Eye, ImagePlus, Loader2, Plus, Save, Trash2, Upload, X, ArrowUp, ArrowDown, GripVertical } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { useAuth } from "@/hooks/useAuth";
@@ -17,6 +16,8 @@ import { toast } from "sonner";
 import StudioCreditPicker from "@/components/profile/StudioCreditPicker";
 import LicensePicker from "@/components/license/LicensePicker";
 import TagPicker from "@/components/tags/TagPicker";
+import ToolPicker from "@/components/tools/ToolPicker";
+import ProjectPreviewDialog, { type ProjectPreviewData } from "@/components/project/ProjectPreviewDialog";
 import ThirdPartyAssetsToggle from "@/components/license/ThirdPartyAssetsToggle";
 import OriginalWorkAttestation from "@/components/license/OriginalWorkAttestation";
 import { type LicenseType, isLicenseType } from "@/lib/licenses";
@@ -59,6 +60,7 @@ const ProjectEditorPage = () => {
   const [tagInput, setTagInput] = useState("");
   const [uploadingCover, setUploadingCover] = useState(false);
   const [uploadingGallery, setUploadingGallery] = useState(false);
+  const [previewOpen, setPreviewOpen] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !user) navigate("/auth?redirect=/portfolio/new");
@@ -137,14 +139,6 @@ const ProjectEditorPage = () => {
     });
   };
 
-  const addChip = (value: string, list: string[], setList: (v: string[]) => void, setInput: (v: string) => void) => {
-    const v = value.trim();
-    if (!v) return;
-    if (list.includes(v)) return setInput("");
-    setList([...list, v]);
-    setInput("");
-  };
-
   const handleSubmit = async (publish?: boolean) => {
     if (!user) return;
     const targetStatus: Status = publish === undefined ? status : publish ? "Published" : "Draft";
@@ -211,6 +205,25 @@ const ProjectEditorPage = () => {
   const cats = categories.filter((c) => c !== "Explore");
   const saving = create.isPending || update.isPending;
 
+  const previewData: ProjectPreviewData = {
+    title,
+    subtitle,
+    description,
+    category,
+    cover,
+    gallery,
+    tools,
+    tags,
+    price: price ? `฿${Number(price).toLocaleString("th-TH")}` : undefined,
+    allowHire,
+    allowCollab,
+    licenseType,
+    licenseNote,
+    copyrightHolder,
+    hasThirdPartyAssets,
+    thirdPartyNote,
+  };
+
   return (
     <div className="min-h-screen bg-app-ambient">
       {/* Sticky header */}
@@ -221,6 +234,16 @@ const ProjectEditorPage = () => {
           </button>
           <h1 className="text-base font-semibold text-foreground ml-2">{editing ? "แก้ไขผลงาน" : "เพิ่มผลงานใหม่"}</h1>
           <div className="ml-auto flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="icon"
+              className="rounded-full shrink-0"
+              onClick={() => setPreviewOpen(true)}
+              aria-label="พรีวิวผลงาน"
+              title="พรีวิวผลงาน"
+            >
+              <Eye className="w-4 h-4" />
+            </Button>
             <Button variant="outline" size="sm" onClick={() => handleSubmit(false)} disabled={saving} className="rounded-full">
               {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4 mr-1" />}
               บันทึกฉบับร่าง
@@ -407,14 +430,12 @@ const ProjectEditorPage = () => {
 
 
 
-          <ChipBox
-            label="เครื่องมือที่ใช้"
-            placeholder="Figma, Photoshop, Procreate..."
-            items={tools}
+          <ToolPicker
+            userId={user?.id}
+            tools={tools}
+            onChange={setTools}
             input={toolInput}
             setInput={setToolInput}
-            onAdd={(v) => addChip(v, tools, setTools, setToolInput)}
-            onRemove={(i) => setTools(tools.filter((_, j) => j !== i))}
           />
           <TagPicker
             userId={user?.id}
@@ -425,6 +446,13 @@ const ProjectEditorPage = () => {
           />
         </aside>
       </div>
+
+      <ProjectPreviewDialog
+        open={previewOpen}
+        onOpenChange={setPreviewOpen}
+        data={previewData}
+        ownerId={user?.id}
+      />
     </div>
   );
 };
@@ -498,35 +526,5 @@ const GalleryAddButton = ({ disabled, onPick }: { disabled: boolean; onPick: (f:
     </>
   );
 };
-
-const ChipBox = ({
-  label, placeholder, items, input, setInput, onAdd, onRemove,
-}: {
-  label: string; placeholder: string; items: string[]; input: string;
-  setInput: (v: string) => void; onAdd: (v: string) => void; onRemove: (i: number) => void;
-}) => (
-  <div className="rounded-2xl border border-border bg-card p-4 space-y-3">
-    <Label className="text-xs font-semibold text-muted-foreground uppercase">{label}</Label>
-    <div className="flex gap-2">
-      <Input
-        value={input}
-        onChange={(e) => setInput(e.target.value)}
-        onKeyDown={(e) => { if (e.key === "Enter" || e.key === ",") { e.preventDefault(); onAdd(input); } }}
-        placeholder={placeholder}
-      />
-      <Button type="button" size="icon" variant="outline" onClick={() => onAdd(input)}><Plus className="w-4 h-4" /></Button>
-    </div>
-    {items.length > 0 && (
-      <div className="flex flex-wrap gap-1.5">
-        {items.map((t, i) => (
-          <Badge key={t + i} variant="secondary" className="rounded-full pl-3 pr-1 py-1 text-xs">
-            {t}
-            <button onClick={() => onRemove(i)} className="ml-1 hover:text-destructive"><X className="w-3 h-3" /></button>
-          </Badge>
-        ))}
-      </div>
-    )}
-  </div>
-);
 
 export default ProjectEditorPage;
