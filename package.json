@@ -23,7 +23,8 @@
     "db:apply-admin-features": "node scripts/apply-admin-features.mjs",
     "db:apply-feedback-fix": "node scripts/apply-feedback-fix.mjs",
     "db:apply-license-fields": "node scripts/apply-license-fields.mjs",
-    "db:push": "bash scripts/supabase-db-push.sh"
+    "db:push": "bash scripts/supabase-db-push.sh",
+    "docs:feature-pdf": "node scripts/generate-feature-pdf.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
@@ -94,6 +95,8 @@
     "eslint-plugin-react-refresh": "^0.4.20",
     "globals": "^15.15.0",
     "jsdom": "^20.0.3",
+    "pdfkit": "^0.19.0",
+    "playwright": "^1.60.0",
     "postcss": "^8.5.6",
     "tailwindcss": "^3.4.17",
     "typescript": "^5.8.3",
