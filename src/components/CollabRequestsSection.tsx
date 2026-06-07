@@ -49,7 +49,7 @@ const CollabRequestsSection = () => {
         .in("id", senderIds);
       const map: Record<string, { name: string; avatar: string; role: string }> = {};
       (data ?? []).forEach((p) => {
-        map[p.id] = { name: p.display_name || "ฟรีแลนซ์", avatar: p.avatar_url || "", role: p.role || "" };
+        map[p.user_id ?? p.id] = { name: p.display_name || "ฟรีแลนซ์", avatar: p.avatar_url || "", role: p.role || "" };
       });
       return map;
     },
@@ -65,7 +65,7 @@ const CollabRequestsSection = () => {
         .in("id", attachedIds);
       const map: Record<string, { title: string; cover: string }> = {};
       (data ?? []).forEach((p) => {
-        map[p.id] = { title: p.title, cover: p.cover_url || "" };
+        map[p.user_id ?? p.id] = { title: p.title, cover: p.cover_url || "" };
       });
       return map;
     },

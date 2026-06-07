@@ -25,7 +25,7 @@ const fetchProfiles = async (ids: string[]) => {
     .in("id", ids);
   const map: Record<string, { name: string; avatar: string }> = {};
   (data ?? []).forEach((p) => {
-    map[p.id] = { name: p.display_name || p.username || "ผู้ใช้", avatar: p.avatar_url ?? "" };
+    map[p.user_id ?? p.id] = { name: p.display_name || p.username || "ผู้ใช้", avatar: p.avatar_url ?? "" };
   });
   return map;
 };

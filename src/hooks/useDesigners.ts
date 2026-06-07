@@ -17,7 +17,7 @@ export const useDesigners = () =>
         .limit(60);
       if (error) throw error;
       const list = profiles ?? [];
-      const ids = list.map((p) => p.id);
+      const ids = list.map((p) => (p as { user_id?: string; id?: string }).user_id ?? p.id);
       if (!ids.length) return [];
 
       const { data: projects } = await supabase
@@ -36,7 +36,8 @@ export const useDesigners = () =>
 
       return list
         .map((profile) => {
-          const ownerProjects = grouped.get(profile.id) ?? [];
+          const pid = (profile as { user_id?: string; id?: string }).user_id ?? profile.id;
+          const ownerProjects = grouped.get(pid) ?? [];
           const parts: string[] = [
             profile.display_name ?? "",
             profile.username ?? "",

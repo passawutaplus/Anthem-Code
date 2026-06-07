@@ -10,7 +10,11 @@ import { createClient } from "@supabase/supabase-js";
 import ws from "ws";
 
 const anthemRoot = join(dirname(fileURLToPath(import.meta.url)), "..");
-const envPath = join(anthemRoot, "..", "scripts", "ecosystem", ".env.seed.local");
+const repoRoot = join(anthemRoot, "..");
+const envPaths = [
+  join(repoRoot, "scripts", "ecosystem", ".env.seed.local"),
+  join(repoRoot, "Solo-Code", ".env"),
+];
 
 function loadEnv(path) {
   if (!existsSync(path)) return;
@@ -25,7 +29,7 @@ function loadEnv(path) {
   }
 }
 
-loadEnv(envPath);
+for (const p of envPaths) loadEnv(p);
 
 const url = process.env.SUPABASE_URL;
 // Prefer legacy service_role JWT (eyJ...); sb_secret_* often fails Auth Admin via REST on Lovable-hosted projects.
@@ -47,10 +51,13 @@ if (key.startsWith("sb_secret_")) {
   );
 }
 
-const supabase = createClient(url, key, {
+const clientOpts = {
   auth: { autoRefreshToken: false, persistSession: false },
   realtime: { transport: ws },
-});
+};
+
+const publicDb = createClient(url, key, { ...clientOpts, db: { schema: "public" } });
+const anthemDb = createClient(url, key, { ...clientOpts, db: { schema: "anthem" } });
 
 const catalogUid = (i) => {
   const hex = i.toString(16).padStart(2, "0");
@@ -157,14 +164,14 @@ const jobTitles = [
   "Senior Designer เข้าทำงานประจำ Studio",
 ];
 
-/** Auth Admin with sb_secret_* — apikey only (no Bearer JWT). */
+/** Auth Admin — service_role JWT uses Bearer; sb_secret_* uses apikey-only. */
 async function authAdminFetch(path, init = {}) {
+  const authHeader = key.startsWith("eyJ") ? `Bearer ${key}` : key;
   const res = await fetch(`${url}/auth/v1${path}`, {
     ...init,
     headers: {
       apikey: key,
-      // Back-compat: some GoTrue builds accept secret key when Authorization matches apikey.
-      Authorization: key,
+      Authorization: authHeader,
       "Content-Type": "application/json",
       ...init.headers,
     },
@@ -211,7 +218,7 @@ async function ensureAuthUser(i) {
 async function main() {
   console.log("Connecting to", url.replace(/https?:\/\//, ""));
 
-  const { count: before } = await supabase
+  const { count: before } = await anthemDb
     .from("projects")
     .select("id", { count: "exact", head: true })
     .eq("status", "Published");
@@ -223,7 +230,7 @@ async function main() {
   console.log("Auth users OK (20)");
 
   const profiles = Array.from({ length: 20 }, (_, i) => ({
-    id: catalogUid(i),
+    user_id: catalogUid(i),
     display_name: names[i],
     username: usernames[i],
     email: `${usernames[i]}@demo.an1hem.app`,
@@ -241,7 +248,7 @@ async function main() {
     avatar_url: `https://api.dicebear.com/7.x/notionists/svg?seed=${usernames[i]}&backgroundColor=f5f0e8,e8dcc8`,
     cover_url: unsplashArt(i + 3, 1600, 500),
   }));
-  const { error: pErr } = await supabase.from("profiles").upsert(profiles, { onConflict: "id" });
+  const { error: pErr } = await publicDb.from("profiles").upsert(profiles, { onConflict: "user_id" });
   if (pErr) throw new Error(`profiles: ${pErr.message}`);
   console.log("Profiles upserted:", profiles.length);
 
@@ -284,7 +291,7 @@ async function main() {
       description: projDescriptions[i],
     };
   });
-  const { error: projErr } = await supabase.from("projects").upsert(projects, { onConflict: "id" });
+  const { error: projErr } = await anthemDb.from("projects").upsert(projects, { onConflict: "id" });
   if (projErr) throw new Error(`projects: ${projErr.message}`);
   console.log("Projects upserted:", projects.length);
 
@@ -301,7 +308,7 @@ async function main() {
     created_by: catalogUid(i),
     member_count: 1,
   }));
-  const { error: stErr } = await supabase.from("studios").upsert(studios, { onConflict: "id" });
+  const { error: stErr } = await anthemDb.from("studios").upsert(studios, { onConflict: "id" });
   if (stErr) throw new Error(`studios: ${stErr.message}`);
   console.log("Studios upserted:", studios.length);
 
@@ -310,7 +317,7 @@ async function main() {
     user_id: catalogUid(i),
     role: "owner",
   }));
-  const { error: memErr } = await supabase.from("studio_members").upsert(members, {
+  const { error: memErr } = await anthemDb.from("studio_members").upsert(members, {
     onConflict: "studio_id,user_id",
   });
   if (memErr) throw new Error(`studio_members: ${memErr.message}`);
@@ -334,7 +341,7 @@ async function main() {
     poster_role: "studio",
     employment_type: "project",
   }));
-  const { error: jobErr } = await supabase.from("job_posts").upsert(jobs, { onConflict: "id" });
+  const { error: jobErr } = await anthemDb.from("job_posts").upsert(jobs, { onConflict: "id" });
   if (jobErr) throw new Error(`job_posts: ${jobErr.message}`);
   console.log("Job posts upserted:", jobs.length);
 
@@ -345,7 +352,7 @@ async function main() {
       follows.push({ follower_id: catalogUid(i), following_id: catalogUid((i + 7) % 20) });
     }
   }
-  const { error: folErr } = await supabase.from("follows").upsert(follows, {
+  const { error: folErr } = await anthemDb.from("follows").upsert(follows, {
     onConflict: "follower_id,following_id",
     ignoreDuplicates: true,
   });
@@ -358,7 +365,7 @@ async function main() {
       likes.push({ project_id: catalogProjectId(i), user_id: catalogUid((i + j) % 20) });
     }
   }
-  const { error: likeErr } = await supabase.from("project_likes").upsert(likes, {
+  const { error: likeErr } = await anthemDb.from("project_likes").upsert(likes, {
     onConflict: "project_id,user_id",
     ignoreDuplicates: true,
   });
@@ -398,11 +405,11 @@ async function main() {
     clicks: 12 + i * 3,
     promotion_text: "โฆษณาตัวอย่าง — ข้อมูล demo",
   }));
-  const { error: adErr } = await supabase.from("ad_campaigns").upsert(ads, { onConflict: "id" });
+  const { error: adErr } = await anthemDb.from("ad_campaigns").upsert(ads, { onConflict: "id" });
   if (adErr) console.warn("ad_campaigns:", adErr.message);
   else console.log("Active ad campaigns upserted:", ads.length);
 
-  const { count: after } = await supabase
+  const { count: after } = await anthemDb
     .from("projects")
     .select("id", { count: "exact", head: true })
     .eq("status", "Published");

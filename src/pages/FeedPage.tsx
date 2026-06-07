@@ -1,7 +1,9 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { LogIn } from "lucide-react";
+import { LogIn, SearchX } from "lucide-react";
+import EmptyState from "@/components/ui/EmptyState";
+import ProjectGridSkeleton from "@/components/ui/ProjectGridSkeleton";
 import { useProfilesByIds } from "@/core/profiles";
 
 
@@ -93,6 +95,15 @@ const FeedPage = (_props: { onMyPortClick: () => void }) => {
   const following = useFollowingProjects(feedMode === "Following" ? user?.id : undefined);
   const forYou = useForYouProjects(feedMode === "For You" ? user?.id : undefined);
 
+  const projectsLoading =
+    feedMode === "Top 1"
+      ? top.isLoading
+      : feedMode === "Following"
+        ? following.isLoading
+        : feedMode === "For You"
+          ? forYou.isLoading
+          : published.isLoading;
+
   const sourceData: DBProject[] = useMemo(() => {
     switch (feedMode) {
       case "Top 1":      return (top.data ?? []) as DBProject[];
@@ -112,7 +123,7 @@ const FeedPage = (_props: { onMyPortClick: () => void }) => {
   const ownersMap = useMemo(() => {
     const map: Record<string, { name: string; avatar: string }> = {};
     (ownersData?.list ?? []).forEach((p) => {
-      map[p.id] = {
+      map[p.user_id ?? p.id] = {
         name: p.display_name || p.username || "ฟรีแลนซ์",
         avatar: p.avatar_url || "",
       };
@@ -201,7 +212,7 @@ const FeedPage = (_props: { onMyPortClick: () => void }) => {
                 }
               />
             </div>
-            <div className="hidden lg:block">
+            <div className="shrink-0">
               <ProfileButton />
             </div>
           </div>
@@ -248,6 +259,8 @@ const FeedPage = (_props: { onMyPortClick: () => void }) => {
             />
           ) : mode === "studios" ? (
             <StudioGrid search={search} />
+          ) : projectsLoading ? (
+            <ProjectGridSkeleton />
           ) : (
             <>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 2xl:grid-cols-5 gap-2 sm:gap-3 lg:gap-4">
@@ -277,13 +290,32 @@ const FeedPage = (_props: { onMyPortClick: () => void }) => {
                 )}
               </div>
 
-              {filtered.length === 0 && (
-                <div className="text-center py-12 text-muted-foreground glass-panel rounded-2xl">
-                  <p className="text-lg">ไม่พบผลงาน</p>
-                  <p className="text-sm mt-1">
-                    {feedMode === "Following" ? "ลองกดติดตามฟรีแลนซ์เพื่อดูผลงานล่าสุด" : "ลองค้นหาด้วยคำอื่น"}
-                  </p>
-                </div>
+              {!projectsLoading && filtered.length === 0 && (
+                <EmptyState
+                  icon={SearchX}
+                  title="ไม่พบผลงานที่ตรงกับตัวกรอง"
+                  description={
+                    feedMode === "Following"
+                      ? "ติดตามดีไซเนอร์ที่ชอบ แล้วกลับมาดูผลงานล่าสุดของพวกเขาที่นี่"
+                      : search
+                        ? `ลองคำอื่น หรือเปลี่ยนหมวดหมู่ — ไม่มีผลลัพธ์สำหรับ "${search}"`
+                        : "ลองเปลี่ยนหมวดหมู่หรือโหมดฟีด (เช่น Top 1 / Newest)"
+                  }
+                  action={
+                    search || category !== "All" ? (
+                      <Button
+                        variant="outline"
+                        className="rounded-full"
+                        onClick={() => {
+                          setSearch("");
+                          setCategory("All");
+                        }}
+                      >
+                        ล้างตัวกรอง
+                      </Button>
+                    ) : undefined
+                  }
+                />
               )}
             </>
           )}

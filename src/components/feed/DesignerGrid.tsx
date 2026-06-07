@@ -1,8 +1,10 @@
 import { useMemo } from "react";
+import { SearchX } from "lucide-react";
 import { useDesigners, type DesignerCardData } from "@/hooks/useDesigners";
 import DesignerCard from "./DesignerCard";
 import { fuzzyMatchAll } from "@/lib/fuzzyMatch";
 import type { DesignerSort } from "./DesignerToolbar";
+import EmptyState from "@/components/ui/EmptyState";
 
 interface Props {
   onHire: (recipientId: string, recipientName: string) => void;
@@ -65,9 +67,15 @@ const DesignerGrid = ({
 
   if (!filtered.length) {
     return (
-      <div className="text-center py-12 text-muted-foreground glass-panel rounded-2xl">
-        <p className="text-lg">{search ? `ไม่พบดีไซเนอร์สำหรับ "${search}"` : "ยังไม่มีดีไซเนอร์ที่มีผลงาน"}</p>
-      </div>
+      <EmptyState
+        icon={SearchX}
+        title={search ? "ไม่พบดีไซเนอร์" : "ยังไม่มีดีไซเนอร์ในฟีด"}
+        description={
+          search
+            ? `ลองคำอื่น เช่น logo, ux, branding — ไม่มีผลลัพธ์สำหรับ "${search}"`
+            : "เมื่อมีครีเอเตอร์เผยแพร่ผลงาน รายชื่อจะปรากฏที่นี่"
+        }
+      />
     );
   }
 

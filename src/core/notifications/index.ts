@@ -8,7 +8,19 @@ import type { Database } from "@/integrations/supabase/types";
 
 export type AppKey = "anthem" | "so1o" | "shared";
 
-type NotificationRow = Database["public"]["Views"]["notifications"]["Row"];
+type NotificationRow = {
+  id: string | null;
+  user_id: string | null;
+  app: string | null;
+  kind: string | null;
+  title: string | null;
+  body: string | null;
+  link: string | null;
+  metadata: unknown;
+  is_read: boolean | null;
+  is_dismissed: boolean | null;
+  created_at: string | null;
+};
 
 export interface Notification {
   id: string;
@@ -49,7 +61,7 @@ export function useNotifications(userId: string | null | undefined) {
     if (!userId) return;
     setLoading(true);
     const { data, error } = await supabase
-      .from("notifications")
+      .from("ecosystem_notifications")
       .select("*")
       .eq("is_dismissed", false)
       .order("created_at", { ascending: false })

@@ -1,7 +1,9 @@
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
-import { ArrowLeft, Globe, Instagram, Facebook, MessageSquare, Flag } from "lucide-react";
+import { ArrowLeft, Globe, Instagram, Facebook, MessageSquare, Flag, UserX } from "lucide-react";
+import PageLoader from "@/components/ui/PageLoader";
+import EmptyState from "@/components/ui/EmptyState";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -36,7 +38,7 @@ const PublicProfilePage = () => {
       const { data, error } = await supabase
         .from("profiles")
         .select(PUBLIC_PROFILE_SELECT)
-        .eq("id", userId!)
+        .eq("user_id", userId!)
         .maybeSingle();
       if (error) throw error;
       return data;
@@ -69,15 +71,21 @@ const PublicProfilePage = () => {
   const recentProjects = useMemo(() => (projects as any[]).slice(0, 6), [projects]);
 
   if (isLoading) {
-    return <div className="min-h-screen bg-background flex items-center justify-center text-muted-foreground">กำลังโหลด...</div>;
+    return <PageLoader label="กำลังโหลดโปรไฟล์..." />;
   }
   if (!profile) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-muted-foreground mb-4">ไม่พบโปรไฟล์นี้</p>
-          <Button onClick={() => navigate("/")}>กลับหน้าหลัก</Button>
-        </div>
+      <div className="min-h-screen bg-background flex items-center justify-center px-4">
+        <EmptyState
+          icon={UserX}
+          title="ไม่พบโปรไฟล์นี้"
+          description="ลิงก์อาจหมดอายุ หรือผู้ใช้ปิดการแสดงผลแล้ว"
+          action={
+            <Button onClick={() => navigate("/")} className="rounded-full">
+              กลับหน้าหลัก
+            </Button>
+          }
+        />
       </div>
     );
   }

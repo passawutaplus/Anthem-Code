@@ -91,7 +91,7 @@ export function useLiveActivity() {
         supabase.from("hiring_requests").select("id,project_title,client_name,created_at").order("created_at", { ascending: false }).limit(10),
         supabase.from("collab_requests").select("id,message,created_at").order("created_at", { ascending: false }).limit(10),
         supabase.from("studios").select("id,name,created_at").order("created_at", { ascending: false }).limit(10),
-        supabase.from("profiles").select("id,display_name,created_at").order("created_at", { ascending: false }).limit(10),
+        supabase.from("profiles").select("user_id,display_name,created_at").order("created_at", { ascending: false }).limit(10),
       ]);
       const evs: ActivityEvent[] = [
         ...(p.data ?? []).map((r): ActivityEvent => ({ id: `p-${r.id}`, type: "project", title: "ผลงานใหม่", subtitle: r.title, at: r.created_at })),

@@ -8,7 +8,7 @@ export const useProfile = (userId: string | undefined) =>
     queryKey: ["profile", userId],
     enabled: !!userId,
     queryFn: async () => {
-      const { data, error } = await supabase.from("profiles").select("*").eq("id", userId!).maybeSingle();
+      const { data, error } = await supabase.from("profiles").select("*").eq("user_id", userId!).maybeSingle();
       if (error) throw error;
       return data;
     },
@@ -39,7 +39,7 @@ export const useUpdateProfile = (userId: string | undefined) => {
       } as any;
       if (p.skills !== undefined) payload.skills = p.skills;
       if (p.experience !== undefined) payload.experience = p.experience as unknown as Json;
-      const { error } = await supabase.from("profiles").update(payload).eq("id", userId);
+      const { error } = await supabase.from("profiles").update(payload).eq("user_id", userId);
       if (error) throw error;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["profile", userId] }),

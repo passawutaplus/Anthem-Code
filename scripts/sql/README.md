@@ -9,7 +9,10 @@
 1. `supabase/migrations/20260604180000_notifications_cashout_prep.sql`
 2. `supabase/migrations/20260604220000_admin_operations.sql`
 3. `supabase/migrations/20260604230000_fix_cashout_paid_status.sql`
-4. *(optional demo)* `20260604130100_seed_community_catalog.sql` แล้ว `20260604200000_seed_art_design_enriched.sql`
+4. `supabase/migrations/20260604240000_public_feed_stats.sql`
+5. *(demo สำหรับทดสอบ UX)* `20260604130100_seed_community_catalog.sql` แล้ว `20260604200000_seed_art_design_enriched.sql`
+
+ลบ demo ภายหลัง: `purge-demo-users.sql`
 
 ## ตั้ง admin
 

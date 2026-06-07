@@ -27,7 +27,7 @@ export function getStripeEnvironment(): "sandbox" | "live" {
 
 /**
  * Reads the same subscription_tier / subscriptions row as So1o My Desk.
- * profiles.id === auth user id on the unified backend.
+ * profiles.user_id === auth user id on the unified backend.
  */
 export function useSubscription() {
   const { user } = useAuth();
@@ -51,7 +51,7 @@ export function useSubscription() {
         supabase
           .from("profiles")
           .select("subscription_tier, subscription_seats")
-          .eq("id", userId!)
+          .eq("user_id", userId!)
           .maybeSingle(),
         supabase
           .from("user_credits")

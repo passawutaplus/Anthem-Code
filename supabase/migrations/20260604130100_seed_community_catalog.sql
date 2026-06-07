@@ -55,14 +55,6 @@ DECLARE
     'Graphic','Graphic','Illustration','Craft','Craft','Web/UI','Web/UI','Web/UI','Content','Content',
     'Photography','Photography','Video','Video','Music/Audio','Music/Audio','Illustration','Craft','Graphic','Web/UI'
   ];
-  proj_tools text[][] := ARRAY[
-    ARRAY['Illustrator','Photoshop'],ARRAY['Illustrator','Figma'],ARRAY['Procreate','Photoshop'],
-    ARRAY['Illustrator','Procreate'],ARRAY['Lightroom','Photoshop'],ARRAY['Figma','Webflow'],
-    ARRAY['Figma','Notion'],ARRAY['Figma','Webflow'],ARRAY['Premiere','CapCut'],ARRAY['Lightroom','Canva'],
-    ARRAY['Lightroom','Photoshop'],ARRAY['Lightroom'],ARRAY['Premiere','After Effects'],
-    ARRAY['After Effects','Illustrator'],ARRAY['Audition','Logic Pro'],ARRAY['Logic Pro','Ableton'],
-    ARRAY['Procreate','Illustrator'],ARRAY['Lightroom'],ARRAY['Photoshop','Illustrator'],ARRAY['Figma','Webflow']
-  ];
   proj_prices int[] := ARRAY[3500,8000,12000,6500,4800,18000,22000,9500,3200,2500,7500,15000,8000,12500,4000,18000,9000,2800,5500,35000];
   studio_names text[] := ARRAY[
     'Doi Studio','Lotus Lab','Mango Pixel','Inkwell Co.','Frame & Field',
@@ -74,8 +66,17 @@ DECLARE
   ];
   demo_email text;
 BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.tables
+    WHERE table_schema = 'anthem' AND table_name = 'projects'
+  ) THEN
+    RAISE NOTICE 'seed-catalog: skip — apply supabase/manual/apply-anthem-ecosystem.sql first';
+    RETURN;
+  END IF;
+
   CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
+  -- public.profiles.user_id → auth.users(id); create demo auth rows first (SQL Editor / postgres only).
   FOR i IN 0..19 LOOP
     uid := public._catalog_demo_uid(i);
     demo_email := usernames[i + 1] || '@demo.an1hem.app';
@@ -115,7 +116,7 @@ BEGIN
 
   FOR i IN 0..19 LOOP
     uid := public._catalog_demo_uid(i);
-    INSERT INTO public.profiles (id, display_name, username, email, role, bio, skills, location, avatar_url)
+    INSERT INTO public.profiles (user_id, display_name, username, email, role, bio, skills, location, avatar_url)
     VALUES (
       uid,
       names[i + 1],
@@ -132,7 +133,7 @@ BEGIN
       CASE WHEN i % 3 = 0 THEN 'Bangkok' WHEN i % 3 = 1 THEN 'Chiang Mai' ELSE 'Phuket' END,
       'https://api.dicebear.com/7.x/shapes/svg?seed=' || usernames[i + 1] || '&backgroundColor=fff4e6,ffe8cc'
     )
-    ON CONFLICT (id) DO UPDATE SET
+    ON CONFLICT (user_id) DO UPDATE SET
       display_name = EXCLUDED.display_name,
       username = EXCLUDED.username,
       role = EXCLUDED.role,
@@ -145,7 +146,7 @@ BEGIN
   FOR i IN 0..19 LOOP
     uid := public._catalog_demo_uid(i);
     cover := 'https://picsum.photos/seed/an1hem-proj-' || i::text || '/800/600';
-    INSERT INTO public.projects (
+    INSERT INTO anthem.projects (
       id, owner_id, title, category, cover_url, gallery_urls, tools, status, views, likes, price_thb, description
     ) VALUES (
       ('00000000-0000-0000-0002-0000000000' || lpad(to_hex(i), 2, '0'))::uuid,
@@ -154,7 +155,28 @@ BEGIN
       proj_cats[i + 1],
       cover,
       ARRAY[cover],
-      proj_tools[i + 1],
+      CASE i
+        WHEN 0 THEN ARRAY['Illustrator','Photoshop']
+        WHEN 1 THEN ARRAY['Illustrator','Figma']
+        WHEN 2 THEN ARRAY['Procreate','Photoshop']
+        WHEN 3 THEN ARRAY['Illustrator','Procreate']
+        WHEN 4 THEN ARRAY['Lightroom','Photoshop']
+        WHEN 5 THEN ARRAY['Figma','Webflow']
+        WHEN 6 THEN ARRAY['Figma','Notion']
+        WHEN 7 THEN ARRAY['Figma','Webflow']
+        WHEN 8 THEN ARRAY['Premiere','CapCut']
+        WHEN 9 THEN ARRAY['Lightroom','Canva']
+        WHEN 10 THEN ARRAY['Lightroom','Photoshop']
+        WHEN 11 THEN ARRAY['Lightroom']
+        WHEN 12 THEN ARRAY['Premiere','After Effects']
+        WHEN 13 THEN ARRAY['After Effects','Illustrator']
+        WHEN 14 THEN ARRAY['Audition','Logic Pro']
+        WHEN 15 THEN ARRAY['Logic Pro','Ableton']
+        WHEN 16 THEN ARRAY['Procreate','Illustrator']
+        WHEN 17 THEN ARRAY['Lightroom']
+        WHEN 18 THEN ARRAY['Photoshop','Illustrator']
+        ELSE ARRAY['Figma','Webflow']
+      END,
       'Published',
       120 + (i * 37) % 900,
       8 + (i * 11) % 120,
@@ -167,7 +189,7 @@ BEGIN
   FOR i IN 0..9 LOOP
     uid := public._catalog_demo_uid(i);
     sid := ('00000000-0000-0000-0001-0000000000' || lpad(to_hex(i), 2, '0'))::uuid;
-    INSERT INTO public.studios (
+    INSERT INTO anthem.studios (
       id, slug, name, tagline, bio, avatar_url, cover_url, location, verified, created_by, member_count
     ) VALUES (
       sid,
@@ -184,15 +206,15 @@ BEGIN
     )
     ON CONFLICT (id) DO NOTHING;
 
-    INSERT INTO public.studio_members (studio_id, user_id, role)
-    VALUES (sid, uid, 'owner')
+    INSERT INTO anthem.studio_members (studio_id, user_id, role)
+    VALUES (sid, uid, 'owner'::public.studio_member_role)
     ON CONFLICT DO NOTHING;
   END LOOP;
 
   FOR i IN 0..11 LOOP
     sid := ('00000000-0000-0000-0001-0000000000' || lpad(to_hex(i % 10), 2, '0'))::uuid;
     uid := public._catalog_demo_uid(i % 10);
-    INSERT INTO public.job_posts (
+    INSERT INTO anthem.job_posts (
       id, studio_id, posted_by, title, role_category, description, skills,
       budget_min, budget_max, budget_type, location_type, location, status, post_type, poster_role, employment_type
     ) VALUES (

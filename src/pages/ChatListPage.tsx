@@ -40,9 +40,9 @@ const ChatListPage = () => {
     queryKey: ["chat-list-profiles", otherIds],
     enabled: otherIds.length > 0,
     queryFn: async () => {
-      const { data } = await supabase.from("profiles").select("id, display_name, avatar_url").in("id", otherIds);
+      const { data } = await supabase.from("profiles").select("user_id, display_name, avatar_url").in("user_id", otherIds);
       const map: Record<string, { name: string; avatar: string }> = {};
-      (data ?? []).forEach((p) => (map[p.id] = { name: p.display_name || "ผู้ใช้", avatar: p.avatar_url || "" }));
+      (data ?? []).forEach((p) => (map[p.user_id ?? p.id] = { name: p.display_name || "ผู้ใช้", avatar: p.avatar_url || "" }));
       return map;
     },
   });

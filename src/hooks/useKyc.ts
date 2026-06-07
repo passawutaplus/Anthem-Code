@@ -62,7 +62,7 @@ export const useAdminKycList = (status: "pending" | "approved" | "rejected" | "a
       if (status !== "all") rows = rows.filter((r) => r.status === status);
       const userIds = Array.from(new Set(rows.map((r) => r.user_id)));
       if (userIds.length === 0) return rows.map((r) => ({ ...r, profile: null as any }));
-      const { data: profs } = await supabase.from("profiles").select("id, display_name, username, avatar_url, email").in("id", userIds);
+      const { data: profs } = await supabase.from("profiles").select("user_id, display_name, username, avatar_url, email").in("user_id", userIds);
       const byId = new Map((profs ?? []).map((p: any) => [p.id, p]));
       return rows.map((r) => ({ ...r, profile: byId.get(r.user_id) ?? null }));
     },

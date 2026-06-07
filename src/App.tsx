@@ -13,6 +13,8 @@ import RequireAuth from "./components/RequireAuth.tsx";
 import AuthDialog from "./components/AuthDialog.tsx";
 import FeedbackFab from "./components/feedback/FeedbackFab.tsx";
 import RedirectTo from "./components/RedirectTo.tsx";
+import RouteFallback from "./components/RouteFallback.tsx";
+import DemoModeBanner from "./components/DemoModeBanner.tsx";
 
 // Code-split routes — only the home feed stays in the main chunk.
 const AuthPage = lazy(() => import("./pages/AuthPage.tsx"));
@@ -81,12 +83,6 @@ const queryClient = new QueryClient({
   },
 });
 
-const RouteFallback = () => (
-  <div className="min-h-[40vh] flex items-center justify-center text-muted-foreground">
-    กำลังโหลด...
-  </div>
-);
-
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider>
@@ -94,6 +90,7 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
+          <DemoModeBanner />
           <Suspense fallback={<RouteFallback />}>
             <Routes>
               <Route path="/" element={<Index />} />
