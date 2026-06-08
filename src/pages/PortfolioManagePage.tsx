@@ -13,11 +13,16 @@ import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { useHiringRequests, type HiringStatusDB } from "@/hooks/useHiringRequests";
 import { useAcceptRequest, useRejectRequest, useFindConversationByRequest } from "@/hooks/useChat";
-import { useDeleteProject, useMyProjects } from "@/hooks/useProjects";
+import { useDeleteProject, useMyProjects, type DBProject } from "@/hooks/useProjects";
+import { usePortfolioOrder } from "@/hooks/usePortfolioOrder";
 import { useEffect, useMemo, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { timeAgoTH } from "@/lib/format";
 import SeoHead from "@/components/SeoHead";
+import { sortPortfolioProjects } from "@/lib/portfolioSort";
+import OnboardingChecklist from "@/components/onboarding/OnboardingChecklist";
 
 type ProjectTab = "ทั้งหมด" | "Published" | "Draft" | "Private";
 type HiringTab = HiringStatusDB | "ทั้งหมด";
@@ -36,6 +41,25 @@ const PortfolioManagePage = () => {
   const findConv = useFindConversationByRequest();
   const { data: dbProjects = [] } = useMyProjects(user?.id);
   const deleteProject = useDeleteProject();
+  const { pin, unpin, reorder } = usePortfolioOrder(user?.id);
+
+  const { data: hireByProject = {} } = useQuery({
+    queryKey: ["hire-by-project", user?.id],
+    enabled: !!user?.id,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("hiring_requests")
+        .select("project_id")
+        .eq("freelancer_id", user!.id)
+        .not("project_id", "is", null);
+      if (error) throw error;
+      const map: Record<string, number> = {};
+      (data ?? []).forEach((r) => {
+        if (r.project_id) map[r.project_id] = (map[r.project_id] ?? 0) + 1;
+      });
+      return map;
+    },
+  });
 
   const [projectSearch, setProjectSearch] = useState("");
   const [projectTab, setProjectTab] = useState<ProjectTab>("ทั้งหมด");
@@ -78,11 +102,38 @@ const PortfolioManagePage = () => {
   const totalLikes = myProjects.reduce((s, p) => s + p.likes, 0);
   const publishedCount = myProjects.filter((p) => p.status === "Published").length;
 
-  const filteredProjects = myProjects.filter((p) => {
-    const matchTab = projectTab === "ทั้งหมด" || p.status === projectTab;
-    const matchSearch = !projectSearch || p.title.toLowerCase().includes(projectSearch.toLowerCase());
-    return matchTab && matchSearch;
-  });
+  const orderedDbProjects = useMemo(
+    () => sortPortfolioProjects(dbProjects),
+    [dbProjects],
+  );
+
+  const filteredProjects = useMemo(() => {
+    const orderMap = new Map(orderedDbProjects.map((p, i) => [p.id, i]));
+    return myProjects
+      .filter((p) => {
+        const matchTab = projectTab === "ทั้งหมด" || p.status === projectTab;
+        const matchSearch =
+          !projectSearch || p.title.toLowerCase().includes(projectSearch.toLowerCase());
+        return matchTab && matchSearch;
+      })
+      .sort((a, b) => (orderMap.get(a.id) ?? 0) - (orderMap.get(b.id) ?? 0));
+  }, [myProjects, orderedDbProjects, projectTab, projectSearch]);
+
+  const orderBusy = pin.isPending || unpin.isPending || reorder.isPending;
+
+  const moveProject = (id: string, direction: -1 | 1) => {
+    const ids = orderedDbProjects.map((p) => p.id);
+    const idx = ids.indexOf(id);
+    const swap = idx + direction;
+    if (idx < 0 || swap < 0 || swap >= ids.length) return;
+    [ids[idx], ids[swap]] = [ids[swap], ids[idx]];
+    reorder.mutate(ids, {
+      onSuccess: () => toast.success("จัดลำดับผลงานแล้ว"),
+      onError: (e) => toast.error(e instanceof Error ? e.message : "จัดลำดับไม่สำเร็จ"),
+    });
+  };
+
+  const dbById = useMemo(() => new Map(dbProjects.map((p) => [p.id, p])), [dbProjects]);
 
   const filteredHiring = hiringTab === "ทั้งหมด" ? requests : requests.filter((r) => r.status === hiringTab);
   const counts = STATUSES.reduce((acc, s) => ({ ...acc, [s]: requests.filter((r) => r.status === s).length }), {} as Record<HiringStatusDB, number>);
@@ -118,7 +169,9 @@ const PortfolioManagePage = () => {
               </Button>
             </div>
           </div>
-          <p className="text-sm text-muted-foreground mt-1">จัดการผลงานและคำขอจ้างงานจากลูกค้า</p>
+          <p className="text-sm text-muted-foreground mt-1">
+            จัดการผลงานและคำขอจ้างงาน — ปักหมุดสูงสุด 3 ชิ้น · ลูกศรเลื่อนลำดับบนโปรไฟล์
+          </p>
           <Button className="mt-4 bg-primary text-primary-foreground hover:bg-primary/90 rounded-xl h-11 px-6"
             onClick={() => navigate("/portfolio/new")}>
             <Plus className="w-4 h-4 mr-2" /> เพิ่มผลงาน
@@ -127,6 +180,8 @@ const PortfolioManagePage = () => {
       </div>
 
       <div className="max-w-5xl mx-auto px-4 space-y-6 pb-8">
+        <OnboardingChecklist variant="compact" />
+
         <div className="grid grid-cols-2 gap-3">
           <StatsCard label="ทั้งหมด" value={myProjects.length} icon={LayoutGrid} />
           <StatsCard label="เผยแพร่" value={publishedCount} icon={Globe} accent />
@@ -260,10 +315,48 @@ const PortfolioManagePage = () => {
           <div className="space-y-4">
             {filteredProjects.map((p) => {
               const isDb = dbProjects.some((d) => d.id === p.id);
+              const db = dbById.get(p.id) as DBProject | undefined;
+              const listIdx = orderedDbProjects.findIndex((d) => d.id === p.id);
               return (
-                <ManageProjectCard key={p.id} project={p} editable={isDb}
+                <ManageProjectCard
+                  key={p.id}
+                  project={p}
+                  editable={isDb}
+                  isPinned={!!db?.is_pinned}
+                  hireCount={hireByProject[p.id] ?? 0}
+                  canMoveUp={listIdx > 0}
+                  canMoveDown={listIdx >= 0 && listIdx < orderedDbProjects.length - 1}
+                  orderBusy={orderBusy}
+                  onPin={
+                    isDb
+                      ? () =>
+                          pin.mutate(
+                            { id: p.id, projects: dbProjects },
+                            {
+                              onSuccess: () => toast.success("ปักหมุดผลงานแล้ว"),
+                              onError: (e) =>
+                                toast.error(e instanceof Error ? e.message : "ปักหมุดไม่สำเร็จ"),
+                            },
+                          )
+                      : undefined
+                  }
+                  onUnpin={
+                    isDb
+                      ? () =>
+                          unpin.mutate(p.id, {
+                            onSuccess: () => toast.success("ยกเลิกปักหมุดแล้ว"),
+                            onError: (e) =>
+                              toast.error(e instanceof Error ? e.message : "ดำเนินการไม่สำเร็จ"),
+                          })
+                      : undefined
+                  }
+                  onMoveUp={isDb ? () => moveProject(p.id, -1) : undefined}
+                  onMoveDown={isDb ? () => moveProject(p.id, 1) : undefined}
                   onDelete={(id) => {
-                    if (!isDb) { toast.info("ลบได้เฉพาะผลงานที่บันทึกในระบบ"); return; }
+                    if (!isDb) {
+                      toast.info("ลบได้เฉพาะผลงานที่บันทึกในระบบ");
+                      return;
+                    }
                     deleteProject.mutate(id, {
                       onSuccess: () => toast.success("ลบผลงานแล้ว"),
                       onError: (e) => toast.error(e instanceof Error ? e.message : "ลบไม่สำเร็จ"),

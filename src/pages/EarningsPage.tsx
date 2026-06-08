@@ -5,7 +5,7 @@ import { ArrowLeft, Sparkles, Banknote, Gift as GiftIcon, Coins, Pencil, Coffee,
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { useWallet, useAvailablePx } from "@/hooks/useWallet";
+import { useWallet, useAvailablePurchasedPx } from "@/hooks/useWallet";
 import { useReceivedGifts, useGifts } from "@/hooks/useGifting";
 import { useCashoutHistory, MIN_CASHOUT_PX, PLATFORM_FEE_RATE } from "@/hooks/useCashout";
 import CashoutDialog from "@/components/gifting/CashoutDialog";
@@ -20,7 +20,7 @@ const EarningsPage = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { data: wallet } = useWallet();
-  const { data: availablePurchased = 0 } = useAvailablePx();
+  const { data: availablePurchased = 0 } = useAvailablePurchasedPx();
   const { data: gifts = [] } = useGifts();
   const { data: received = [] } = useReceivedGifts(user?.id);
   const { data: cashouts = [] } = useCashoutHistory();

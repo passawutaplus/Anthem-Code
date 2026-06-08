@@ -10,6 +10,10 @@ export const friendlyAmlError = (e: unknown): string => {
   if (msg.startsWith("VELOCITY:")) return "ส่งของขวัญถี่เกินไป — กรุณารอสักครู่";
   if (msg.startsWith("KYC_REQUIRED:")) return "ต้องยืนยันตัวตนก่อนถอนเงิน — ไปที่หน้า /verify";
   if (msg.startsWith("INSUFFICIENT_EARNED:")) return msg.replace("INSUFFICIENT_EARNED: ", "");
+  if (msg.startsWith("INSUFFICIENT:")) return msg.replace("INSUFFICIENT: ", "");
+  if (msg.startsWith("ALREADY_CLAIMED:")) return "รับรางวัลภารกิจนี้แล้ว";
+  if (msg.startsWith("NOT_COMPLETE:")) return "ยังทำภารกิจไม่ครบ — ทำให้เสร็จก่อนรับ PX";
+  if (msg.startsWith("CAP_EXCEEDED:")) return msg.replace("CAP_EXCEEDED: ", "");
   if (msg.startsWith("INVALID:")) return msg.replace("INVALID: ", "");
   return msg;
 };

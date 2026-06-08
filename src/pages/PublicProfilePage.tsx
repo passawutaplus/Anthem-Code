@@ -21,39 +21,50 @@ import { highlight } from "@/lib/highlight";
 import { PROJECT_FEED_SELECT, PUBLIC_PROFILE_SELECT } from "@/lib/dbSelects";
 import SeoHead from "@/components/SeoHead";
 import { truncateDescription } from "@/lib/seo";
+import { isUuid, profilePublicPath } from "@/lib/profileRoutes";
+import { sortPortfolioProjects } from "@/lib/portfolioSort";
+import { Navigate } from "react-router-dom";
 
 
 const PublicProfilePage = () => {
-  const { userId } = useParams();
+  const { userId, username: usernameParam } = useParams();
+  const vanityRedirect = userId?.startsWith("@") && !usernameParam ? `/${userId}` : null;
+  const slug = usernameParam ?? userId ?? "";
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const q = params.get("q") ?? "";
-  const { followers, following } = useFollowState(userId);
-  const { data: collections = [] } = usePublicCollections(userId);
 
   const { data: profile, isLoading } = useQuery({
-    queryKey: ["public-profile", userId],
-    enabled: !!userId,
+    queryKey: ["public-profile", slug],
+    enabled: !!slug && !vanityRedirect,
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("profiles")
-        .select(PUBLIC_PROFILE_SELECT)
-        .eq("user_id", userId!)
-        .maybeSingle();
+      let query = supabase.from("profiles").select(PUBLIC_PROFILE_SELECT);
+      if (isUuid(slug)) {
+        query = query.eq("user_id", slug);
+      } else {
+        query = query.eq("username", slug.toLowerCase());
+      }
+      const { data, error } = await query.maybeSingle();
       if (error) throw error;
       return data;
     },
   });
 
+  const resolvedUserId = profile?.user_id;
+  const { followers, following } = useFollowState(resolvedUserId);
+  const { data: collections = [] } = usePublicCollections(resolvedUserId);
+
   const { data: projects = [] } = useQuery({
-    queryKey: ["public-projects", userId],
-    enabled: !!userId,
+    queryKey: ["public-projects", resolvedUserId],
+    enabled: !!resolvedUserId,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("projects")
         .select(PROJECT_FEED_SELECT)
-        .eq("owner_id", userId!)
+        .eq("owner_id", resolvedUserId!)
         .eq("status", "Published")
+        .order("is_pinned", { ascending: false })
+        .order("sort_order", { ascending: true })
         .order("created_at", { ascending: false })
         .limit(60);
       if (error) throw error;
@@ -61,18 +72,38 @@ const PublicProfilePage = () => {
     },
   });
 
+  const orderedProjects = useMemo(
+    () => sortPortfolioProjects(projects as Parameters<typeof sortPortfolioProjects>[0]),
+    [projects],
+  );
+
   const topCategories = useMemo(() => {
     const counts = new Map<string, number>();
-    (projects as any[]).forEach((p) => {
+    orderedProjects.forEach((p) => {
       if (p.category) counts.set(p.category, (counts.get(p.category) ?? 0) + 1);
     });
     return Array.from(counts.entries()).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([c]) => c);
-  }, [projects]);
-  const recentProjects = useMemo(() => (projects as any[]).slice(0, 6), [projects]);
+  }, [orderedProjects]);
+  const recentProjects = useMemo(() => orderedProjects.slice(0, 6), [orderedProjects]);
+
+  if (vanityRedirect) {
+    return <Navigate to={vanityRedirect} replace />;
+  }
 
   if (isLoading) {
     return <PageLoader label="กำลังโหลดโปรไฟล์..." />;
   }
+
+  if (
+    profile?.username &&
+    userId &&
+    isUuid(userId) &&
+    !usernameParam &&
+    profile.user_id === userId
+  ) {
+    return <Navigate to={`/@${profile.username}`} replace />;
+  }
+
   if (!profile) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center px-4">
@@ -100,7 +131,7 @@ const PublicProfilePage = () => {
       <SeoHead
         title={displayName}
         description={seoDesc}
-        path={`/u/${userId}`}
+        path={profilePublicPath(profile)}
         image={profile.avatar_url ?? undefined}
         type="profile"
         jsonLd={{

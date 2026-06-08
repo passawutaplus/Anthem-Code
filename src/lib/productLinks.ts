@@ -4,3 +4,7 @@ export const SO1O_APP_URL =
 
 /** Subscribe / manage Pro on So1o (canonical billing). */
 export const SO1O_PRICING_URL = `${SO1O_APP_URL.replace(/\/$/, "")}/pricing`;
+
+/** So1o Ops Hub — monitor So1o + an1hem (admin only). */
+export const OPS_HUB_URL =
+  (import.meta.env.VITE_OPS_HUB_URL as string | undefined) ?? "http://localhost:3090";

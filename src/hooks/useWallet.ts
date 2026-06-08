@@ -7,6 +7,8 @@ export interface Wallet {
   balance_px: number;
   purchased_px: number;
   earned_px: number;
+  welcome_px: number;
+  lifetime_welcome_px: number;
   lifetime_earned_px: number;
   lifetime_spent_px: number;
   updated_at: string;
@@ -35,15 +37,30 @@ export const useWallet = () => {
   });
 };
 
-/** Purchased px ที่ผ่าน holding period แล้ว (ใช้ส่ง gift ได้) */
-export const useAvailablePx = () => {
+/** Purchased px ที่ผ่าน holding period แล้ว */
+export const useAvailablePurchasedPx = () => {
   const { user } = useAuth();
   return useQuery({
-    queryKey: ["wallet-available", user?.id],
+    queryKey: ["wallet-available-purchased", user?.id],
     enabled: !!user?.id,
     refetchInterval: 60_000,
     queryFn: async () => {
       const { data, error } = await supabase.rpc("available_purchased_px", { _uid: user!.id });
+      if (error) throw error;
+      return (data ?? 0) as number;
+    },
+  });
+};
+
+/** Welcome + purchased px พร้อมส่งของขวัญ (welcome ไม่มี holding) */
+export const useAvailablePx = () => {
+  const { user } = useAuth();
+  return useQuery({
+    queryKey: ["wallet-available-gift", user?.id],
+    enabled: !!user?.id,
+    refetchInterval: 60_000,
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc("available_gift_px", { _uid: user!.id });
       if (error) throw error;
       return (data ?? 0) as number;
     },
@@ -76,7 +93,8 @@ export const useTopUp = () => {
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["wallet", user?.id] });
-      qc.invalidateQueries({ queryKey: ["wallet-available", user?.id] });
+      qc.invalidateQueries({ queryKey: ["wallet-available-gift", user?.id] });
+      qc.invalidateQueries({ queryKey: ["wallet-available-purchased", user?.id] });
       qc.invalidateQueries({ queryKey: ["topups", user?.id] });
     },
   });

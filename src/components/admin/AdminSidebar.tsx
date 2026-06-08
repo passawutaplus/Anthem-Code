@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { useAdminRealtime } from "@/hooks/admin/useAdminRealtime";
 import { useAdminAlertCounts } from "@/hooks/admin/useAdminAlerts";
+import { OPS_HUB_URL } from "@/lib/productLinks";
 
 type Item = {
   to: string;
@@ -150,8 +151,16 @@ export default function AdminSidebar() {
           </div>
         ))}
       </nav>
-      <div className="px-4 py-3 border-t border-admin-border">
-        <NavLink to="/" className="text-xs font-mono uppercase tracking-wider text-admin-muted hover:text-admin-accent">
+      <div className="px-4 py-3 border-t border-admin-border space-y-2">
+        <a
+          href={OPS_HUB_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block text-xs font-mono uppercase tracking-wider text-admin-accent hover:underline"
+        >
+          Ops Hub ↗
+        </a>
+        <NavLink to="/" className="block text-xs font-mono uppercase tracking-wider text-admin-muted hover:text-admin-accent">
           ← กลับสู่เว็บไซต์
         </NavLink>
       </div>

@@ -114,6 +114,7 @@ const App = () => (
               <Route path="/explore/:kind/:value" element={<ExploreProjectsPage />} />
               <Route path="/similar/:projectId" element={<SimilarImagesPage />} />
               <Route path="/inspire/:boardId" element={<InspireBoardDetailPage />} />
+              <Route path="/@:username" element={<PublicProfilePage />} />
               <Route path="/u/:userId" element={<PublicProfilePage />} />
               <Route path="/earnings" element={<RequireAuth><EarningsPage /></RequireAuth>} />
 

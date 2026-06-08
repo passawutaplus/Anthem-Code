@@ -1,5 +1,5 @@
 import BriefcaseIcon from "../components/icons/BriefcaseIcon";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useOpenJobs } from "@/hooks/useJobs";
 import { useAuth } from "@/hooks/useAuth";
@@ -13,6 +13,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import Footer from "@/components/Footer";
 import { cn } from "@/lib/utils";
 import SeoHead from "@/components/SeoHead";
+import { markOnboardingVisit } from "@/lib/onboardingStorage";
 
 const LOCATION_CHIPS = [
   { v: "all", label: "ทั้งหมด" },
@@ -47,6 +48,10 @@ const JobsPage = () => {
   const [poster, setPoster] = useState("all");
   const [roleCat, setRoleCat] = useState("all");
   const [dialogOpen, setDialogOpen] = useState(false);
+
+  useEffect(() => {
+    if (user?.id) markOnboardingVisit(user.id, "jobs");
+  }, [user?.id]);
 
   const roleCategories = useMemo(() => {
     const set = new Set<string>();

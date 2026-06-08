@@ -37,6 +37,10 @@ npm run db:qa-full
 - [ ] Login demo → `/portfolio`, `/notifications`, `/chat`, `/collections`
 - [ ] ตรวจคอมเมนต์/ไลค์/จ้าง/คอลแลปบนผลงาน
 - [ ] Admin: users 50, projects, comments, gifts (ถ้ามี role admin)
+- [ ] `/portfolio` — เช็กลิสต์ Welcome Bonus 0/500 PX แสดงบนโปรไฟล์
+- [ ] ทำภารกิจ (เช่น ตั้งโปรไฟล์) → ปุ่ม **รับ PX** → `welcome_px` เพิ่มตามรางวัล
+- [ ] ส่งของขวัญจากผลงาน — หัก `welcome_px` ก่อน purchased (ดูยอดพร้อมใช้ใน DonationModal)
+- [ ] `/earnings` — ถอนได้เฉพาะ `earned_px` ไม่รวม welcome_px
 
 ## ลบ demo ก่อน production
 

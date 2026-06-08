@@ -2,7 +2,7 @@ import BriefcaseIcon from "../components/icons/BriefcaseIcon";
 import { useMemo, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, MapPin, Share2, Settings, ExternalLink, LayoutGrid, Sparkles, Phone, UserPlus, FileCheck, Plus, Layers3, ArrowDownUp, Eye, Heart, Clock, ChevronDown, ChevronUp, Gift as GiftIcon } from "lucide-react";
+import { ArrowLeft, Settings, ExternalLink, LayoutGrid, Sparkles, Phone, UserPlus, FileCheck, Plus, Layers3, ArrowDownUp, Eye, Heart, Clock, ChevronDown, ChevronUp, Gift as GiftIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -19,7 +19,13 @@ import SkillsList from "@/components/profile/SkillsList";
 import ContactCards from "@/components/profile/ContactCards";
 import PortfolioGrid from "@/components/profile/PortfolioGrid";
 import ProfileMenuCard from "@/components/profile/ProfileMenuCard";
+import ProfileCoverHeader from "@/components/profile/ProfileCoverHeader";
 import ReceivedGiftsSummary from "@/components/profile/ReceivedGiftsSummary";
+import OnboardingChecklist from "@/components/onboarding/OnboardingChecklist";
+import { markOnboardingVisit } from "@/lib/onboardingStorage";
+import { profilePublicUrl } from "@/lib/profileRoutes";
+import { sortPortfolioProjects, type PortfolioSortMode } from "@/lib/portfolioSort";
+import { Pin } from "lucide-react";
 
 
 const SOLO_URL = "https://solofreelancer.com";
@@ -33,7 +39,7 @@ const PortfolioProfilePage = () => {
   const { data: collections = [] } = useCollections(user?.id);
   const { data: inspireBoards = [] } = useInspireBoards(user?.id);
 
-  const [portfolioSort, setPortfolioSort] = useState<"newest" | "views" | "likes">("newest");
+  const [portfolioSort, setPortfolioSort] = useState<PortfolioSortMode>("portfolio");
   const [showAllPortfolio, setShowAllPortfolio] = useState(false);
 
 
@@ -55,26 +61,20 @@ const PortfolioProfilePage = () => {
 
   const published = useMemo(() => myProjects.filter((p) => p.status === "Published"), [myProjects]);
   const totalViews = useMemo(() => published.reduce((s, p) => s + (p.views ?? 0), 0), [published]);
-  const sortedPublished = useMemo(() => {
-    const arr = [...published];
-    if (portfolioSort === "views") {
-      arr.sort((a, b) => (b.views ?? 0) - (a.views ?? 0));
-    } else if (portfolioSort === "likes") {
-      arr.sort((a, b) => (b.likes ?? 0) - (a.likes ?? 0));
-    } else {
-      arr.sort((a, b) => new Date(b.created_at ?? 0).getTime() - new Date(a.created_at ?? 0).getTime());
-    }
-    return arr;
-  }, [published, portfolioSort]);
+  const sortedPublished = useMemo(
+    () => sortPortfolioProjects(published, portfolioSort),
+    [published, portfolioSort],
+  );
   const visiblePortfolio = showAllPortfolio ? sortedPublished : sortedPublished.slice(0, 6);
   const experience = (profile?.experience as unknown as ExperienceItem[]) ?? [];
   const skills = profile?.skills ?? [];
 
   const sharePublic = async () => {
-    if (!profile) return;
-    const url = `${window.location.origin}/u/${profile.id}`;
+    if (!profile || !user) return;
+    const url = profilePublicUrl({ user_id: user.id, username: profile.username });
     try {
       await navigator.clipboard.writeText(url);
+      markOnboardingVisit(user.id, "share_profile");
       toast.success("คัดลอกลิงก์โปรไฟล์แล้ว", { description: url });
     } catch {
       toast.error("คัดลอกไม่สำเร็จ");
@@ -110,53 +110,18 @@ const PortfolioProfilePage = () => {
         </div>
       </div>
 
-      {/* Hero gradient backdrop */}
-      <div className="relative h-40 md:h-56">
-        <div className="absolute inset-0 bg-gradient-brand opacity-70" />
-        <div className="absolute inset-0 bg-gradient-to-t from-transparent via-transparent to-white/20" />
+      <div className="max-w-6xl mx-auto">
+        <ProfileCoverHeader
+          userId={user!.id}
+          profile={profile}
+          stats={{ works: published.length, followers, following }}
+          onManage={() => navigate("/portfolio/manage")}
+          onShare={sharePublic}
+        />
       </div>
 
-
-      <div className="max-w-6xl mx-auto px-4 -mt-20 md:-mt-24 pb-16 grid grid-cols-1 md:grid-cols-[300px_1fr] gap-6 md:gap-8">
-        {/* LEFT: Profile card */}
+      <div className="max-w-6xl mx-auto px-4 pt-2 pb-16 grid grid-cols-1 md:grid-cols-[300px_1fr] gap-6 md:gap-8">
         <aside className="md:sticky md:top-20 md:self-start space-y-4">
-          <div className="rounded-3xl glass-panel p-6 text-center">
-            <div className="flex justify-center">
-              {profile.avatar_url ? (
-                <img src={profile.avatar_url} alt="" className="w-24 h-24 rounded-full object-cover ring-4 ring-primary/30 shadow-md" />
-              ) : (
-                <div className="w-24 h-24 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-3xl font-medium ring-4 ring-primary/30 shadow-md">
-                  {(profile.display_name || "?")[0]}
-                </div>
-              )}
-            </div>
-            <h1 className="mt-4 text-xl font-medium text-foreground leading-tight">{profile.display_name || "ยังไม่ได้ตั้งชื่อ"}</h1>
-            {profile.username && <p className="text-xs text-muted-foreground">@{profile.username}</p>}
-            {profile.role && (
-              <p className="mt-2 text-sm text-primary font-medium">{profile.role}</p>
-            )}
-            {profile.location && (
-              <p className="mt-1 inline-flex items-center gap-1 text-xs text-muted-foreground">
-                <MapPin className="w-3 h-3" /> {profile.location}
-              </p>
-            )}
-
-            <div className="mt-5 grid grid-cols-3 gap-1 py-3 border-y border-border">
-              <Stat value={published.length} label="ผลงาน" />
-              <Stat value={followers} label="ผู้ติดตาม" />
-              <Stat value={following} label="ติดตาม" />
-            </div>
-
-            <div className="mt-4 space-y-2">
-              <Button onClick={() => navigate("/portfolio/manage")} className="w-full rounded-full bg-primary text-primary-foreground hover:bg-primary/90">
-                <LayoutGrid className="w-4 h-4 mr-1" /> จัดการผลงาน
-              </Button>
-              <Button onClick={sharePublic} variant="outline" className="w-full rounded-full">
-                <Share2 className="w-4 h-4 mr-1" /> แชร์โปรไฟล์
-              </Button>
-            </div>
-          </div>
-
           <div className="rounded-3xl glass-panel p-5 grid grid-cols-3 gap-3">
             <MiniStat icon={UserPlus} label="คำขอจ้าง" value={hireCount} />
             <MiniStat icon={FileCheck} label="เผยแพร่" value={published.length} />
@@ -168,6 +133,8 @@ const PortfolioProfilePage = () => {
 
         {/* RIGHT: Sections */}
         <main className="space-y-6 min-w-0">
+          <OnboardingChecklist variant="full" />
+
           {/* About */}
           <Section icon={Sparkles} title="เกี่ยวกับฉัน" action={<EditLink to="/settings" />}>
             {profile.bio ? (
@@ -195,6 +162,7 @@ const PortfolioProfilePage = () => {
                     <ArrowDownUp className="w-3 h-3" /> เรียง
                   </span>
                   {([
+                    { key: "portfolio", label: "ลำดับของฉัน", Icon: Pin },
                     { key: "newest", label: "ล่าสุด", Icon: Clock },
                     { key: "views", label: "วิวมากสุด", Icon: Eye },
                     { key: "likes", label: "หัวใจมากสุด", Icon: Heart },
@@ -349,13 +317,6 @@ const PortfolioProfilePage = () => {
     </div>
   );
 };
-
-const Stat = ({ value, label }: { value: number; label: string }) => (
-  <div>
-    <p className="text-lg font-medium text-foreground leading-none">{value}</p>
-    <p className="text-[11px] text-muted-foreground mt-1 uppercase tracking-wider">{label}</p>
-  </div>
-);
 
 const MiniStat = ({ icon: Icon, label, value }: { icon: React.ComponentType<{ className?: string }>; label: string; value: number }) => (
   <div className="flex items-center gap-2.5">

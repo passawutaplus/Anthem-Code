@@ -1,12 +1,13 @@
 import BriefcaseIcon from "../components/icons/BriefcaseIcon";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, User, Mail, Link2, Camera, Save, Bell, MessageCircle, Sparkles, MapPin, Moon, Sun, LogOut, Palette, Shield, Flag, MessageSquare, ChevronRight } from "lucide-react";
 import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
-import { useProfile, useUpdateProfile } from "@/hooks/useProfile";
+import { useProfile, useUpdateProfile, useUpdateProfileMedia } from "@/hooks/useProfile";
+import { uploadProjectImage } from "@/lib/uploadImage";
 import { profileSchema, type ExperienceItem, type ProfileInput } from "@/lib/validators";
 import { supabase } from "@/integrations/supabase/client";
 import SkillsEditor from "@/components/profile/SkillsEditor";
@@ -42,6 +43,9 @@ const SettingsPage = () => {
   const { user, loading: authLoading } = useAuth();
   const { data: profile, isLoading } = useProfile(user?.id);
   const updateMut = useUpdateProfile(user?.id);
+  const updateMedia = useUpdateProfileMedia(user?.id);
+  const avatarInput = useRef<HTMLInputElement>(null);
+  const [avatarBusy, setAvatarBusy] = useState(false);
   const { theme, setTheme } = useTheme();
   const isDark = theme === "dark";
   const { data: isAdmin } = useIsAdmin();
@@ -85,6 +89,20 @@ const SettingsPage = () => {
 
   const update = <K extends keyof ProfileInput>(k: K, v: ProfileInput[K]) =>
     setForm((f) => ({ ...f, [k]: v }));
+
+  const handleAvatarPick = async (file?: File) => {
+    if (!file || !user) return;
+    setAvatarBusy(true);
+    try {
+      const url = await uploadProjectImage(file, user.id, "avatar");
+      await updateMedia.mutateAsync({ avatar_url: url });
+      toast.success("อัปเดตรูปโปรไฟล์แล้ว");
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "อัปโหลดไม่สำเร็จ");
+    } finally {
+      setAvatarBusy(false);
+    }
+  };
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -132,13 +150,31 @@ const SettingsPage = () => {
         <section className="rounded-2xl glass-panel p-6">
           <div className="flex items-center gap-4">
             <div className="relative">
-              <div className="w-20 h-20 rounded-full bg-primary flex items-center justify-center text-3xl font-medium text-primary-foreground">
-                {(form.displayName || "?")[0]}
-              </div>
-              <button type="button" className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full glass-panel flex items-center justify-center hover:bg-secondary"
-                onClick={() => toast.info("เร็วๆ นี้", { description: "อัปโหลดรูปกำลังพัฒนา" })}>
+              {profile?.avatar_url ? (
+                <img src={profile.avatar_url} alt="" className="w-20 h-20 rounded-full object-cover ring-2 ring-primary/20" />
+              ) : (
+                <div className="w-20 h-20 rounded-full bg-primary flex items-center justify-center text-3xl font-medium text-primary-foreground">
+                  {(form.displayName || "?")[0]}
+                </div>
+              )}
+              <button
+                type="button"
+                disabled={avatarBusy}
+                className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full glass-panel flex items-center justify-center hover:bg-secondary disabled:opacity-60"
+                onClick={() => avatarInput.current?.click()}
+              >
                 <Camera className="w-4 h-4" />
               </button>
+              <input
+                ref={avatarInput}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => {
+                  handleAvatarPick(e.target.files?.[0]);
+                  e.target.value = "";
+                }}
+              />
             </div>
             <div className="flex-1">
               <p className="font-semibold text-foreground">{form.displayName || "ยังไม่ได้ตั้งชื่อ"}</p>
@@ -152,6 +188,12 @@ const SettingsPage = () => {
           <SectionTitle icon={User} title="ข้อมูลส่วนตัว" />
           <Field label="ชื่อที่แสดง" value={form.displayName} onChange={(v) => update("displayName", v)} />
           <Field label="ชื่อผู้ใช้ (username)" value={form.username} onChange={(v) => update("username", v)} prefix="@" />
+          {form.username.trim() && (
+            <p className="text-xs text-muted-foreground -mt-2">
+              ลิงก์โปรไฟล์สาธารณะ:{" "}
+              <span className="text-primary font-medium">/@{form.username.trim().toLowerCase()}</span>
+            </p>
+          )}
           <Field label="ตำแหน่ง / สาขา" value={form.role ?? ""} onChange={(v) => update("role", v)} icon={BriefcaseIcon} />
           <Field label="เมือง / ที่อยู่" value={form.location ?? ""} onChange={(v) => update("location", v)} icon={MapPin} placeholder="กรุงเทพฯ, ประเทศไทย" />
           <div>

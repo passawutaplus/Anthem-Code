@@ -18,6 +18,8 @@ export const useMyProjects = (userId: string | undefined) =>
         .from("projects")
         .select(PROJECT_MANAGE_SELECT)
         .eq("owner_id", userId)
+        .order("is_pinned", { ascending: false })
+        .order("sort_order", { ascending: true })
         .order("created_at", { ascending: false });
       if (error) throw error;
       return data ?? [];

@@ -1089,6 +1089,7 @@ export type Database = {
           notify_email: boolean
           notify_hire: boolean
           notify_job_match: boolean
+          onboarding_visits: Json
           phone: string | null
           preferred_categories: string[]
           preferred_employment_types: string[]
@@ -1264,12 +1265,14 @@ export type Database = {
           gallery_urls: string[]
           has_third_party_assets: boolean
           id: string
+          is_pinned: boolean
           license_note: string
           license_type: string
           likes: number
           owner_id: string
           price_thb: number | null
           rights_attested_at: string | null
+          sort_order: number
           status: string
           studio_id: string | null
           subtitle: string | null
@@ -1293,12 +1296,14 @@ export type Database = {
           gallery_urls?: string[]
           has_third_party_assets?: boolean
           id?: string
+          is_pinned?: boolean
           license_note?: string
           license_type?: string
           likes?: number
           owner_id: string
           price_thb?: number | null
           rights_attested_at?: string | null
+          sort_order?: number
           status?: string
           studio_id?: string | null
           subtitle?: string | null
@@ -1322,12 +1327,14 @@ export type Database = {
           gallery_urls?: string[]
           has_third_party_assets?: boolean
           id?: string
+          is_pinned?: boolean
           license_note?: string
           license_type?: string
           likes?: number
           owner_id?: string
           price_thb?: number | null
           rights_attested_at?: string | null
+          sort_order?: number
           status?: string
           studio_id?: string | null
           subtitle?: string | null
@@ -1625,33 +1632,128 @@ export type Database = {
         }
         Relationships: []
       }
+      welcome_mission_catalog: {
+        Row: {
+          active: boolean
+          description_th: string
+          difficulty: string
+          id: string
+          reward_px: number
+          sort_order: number
+          title_th: string
+        }
+        Insert: {
+          active?: boolean
+          description_th?: string
+          difficulty?: string
+          id: string
+          reward_px: number
+          sort_order?: number
+          title_th: string
+        }
+        Update: {
+          active?: boolean
+          description_th?: string
+          difficulty?: string
+          id?: string
+          reward_px?: number
+          sort_order?: number
+          title_th?: string
+        }
+        Relationships: []
+      }
+      welcome_mission_claims: {
+        Row: {
+          claimed_at: string
+          id: string
+          mission_id: string
+          reward_px: number
+          user_id: string
+        }
+        Insert: {
+          claimed_at?: string
+          id?: string
+          mission_id: string
+          reward_px: number
+          user_id: string
+        }
+        Update: {
+          claimed_at?: string
+          id?: string
+          mission_id?: string
+          reward_px?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "welcome_mission_claims_mission_id_fkey"
+            columns: ["mission_id"]
+            isOneToOne: false
+            referencedRelation: "welcome_mission_catalog"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      welcome_px_ledger: {
+        Row: {
+          created_at: string
+          delta: number
+          id: string
+          mission_id: string | null
+          reason: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          delta: number
+          id?: string
+          mission_id?: string | null
+          reason: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          delta?: number
+          id?: string
+          mission_id?: string | null
+          reason?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       wallets: {
         Row: {
           balance_px: number | null
           earned_px: number
           lifetime_earned_px: number
           lifetime_spent_px: number
+          lifetime_welcome_px: number
           purchased_px: number
           updated_at: string
           user_id: string
+          welcome_px: number
         }
         Insert: {
           balance_px?: number | null
           earned_px?: number
           lifetime_earned_px?: number
           lifetime_spent_px?: number
+          lifetime_welcome_px?: number
           purchased_px?: number
           updated_at?: string
           user_id: string
+          welcome_px?: number
         }
         Update: {
           balance_px?: number | null
           earned_px?: number
           lifetime_earned_px?: number
           lifetime_spent_px?: number
+          lifetime_welcome_px?: number
           purchased_px?: number
           updated_at?: string
           user_id?: string
+          welcome_px?: number
         }
         Relationships: []
       }
@@ -1784,6 +1886,7 @@ export type Database = {
           notify_email: boolean
           notify_hire: boolean
           notify_job_match: boolean
+          onboarding_visits: Json
           phone: string | null
           preferred_categories: string[]
           preferred_employment_types: string[]
@@ -2005,6 +2108,7 @@ export type Database = {
           notify_email: boolean
           notify_hire: boolean
           notify_job_match: boolean
+          onboarding_visits: Json
           phone: string | null
           preferred_categories: string[]
           preferred_employment_types: string[]
@@ -2024,7 +2128,10 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      available_gift_px: { Args: { _uid: string }; Returns: number }
       available_purchased_px: { Args: { _uid: string }; Returns: number }
+      claim_welcome_mission: { Args: { _mission_id: string }; Returns: Json }
+      mark_onboarding_visit: { Args: { _visit_id: string }; Returns: Json }
       calculate_risk_score: { Args: { _uid: string }; Returns: number }
       create_report: {
         Args: {

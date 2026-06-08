@@ -1,5 +1,5 @@
-import { useState, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useMemo, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { LogIn, Plus, SearchX } from "lucide-react";
 import EmptyState from "@/components/ui/EmptyState";
@@ -44,6 +44,7 @@ const CATEGORY_CHIPS: Category[] = allCategories.filter((c) => c !== "Explore");
 
 const FeedPage = (_props: { onMyPortClick: () => void }) => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { user } = useAuth();
   const [search, setSearch] = useState("");
   const [feedMode, setFeedModeRaw] = useState<FeedMode2>("Explore");
@@ -80,6 +81,14 @@ const FeedPage = (_props: { onMyPortClick: () => void }) => {
     setMode(m);
     if (isCategoryAllowed("functional")) localStorage.setItem("feed-mode", m);
   };
+
+  useEffect(() => {
+    const view = searchParams.get("mode");
+    if (view === "designers" || view === "studios" || view === "projects") {
+      setMode(view);
+      if (isCategoryAllowed("functional")) localStorage.setItem("feed-mode", view);
+    }
+  }, [searchParams]);
 
   const setFeedMode = (m: FeedMode2) => {
     if (m === "Collections") {

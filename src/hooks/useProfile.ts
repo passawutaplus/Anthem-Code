@@ -45,3 +45,18 @@ export const useUpdateProfile = (userId: string | undefined) => {
     onSuccess: () => qc.invalidateQueries({ queryKey: ["profile", userId] }),
   });
 };
+
+export const useUpdateProfileMedia = (userId: string | undefined) => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (media: { avatar_url?: string; cover_url?: string }) => {
+      if (!userId) throw new Error("ยังไม่ได้เข้าสู่ระบบ");
+      const { error } = await supabase.from("profiles").update(media).eq("user_id", userId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["profile", userId] });
+      qc.invalidateQueries({ queryKey: ["onboarding-checklist", userId] });
+    },
+  });
+};

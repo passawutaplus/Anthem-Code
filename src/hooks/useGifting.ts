@@ -60,6 +60,8 @@ export const useSendGift = () => {
     },
     onSuccess: (_d, vars) => {
       qc.invalidateQueries({ queryKey: ["wallet", user?.id] });
+      qc.invalidateQueries({ queryKey: ["wallet-available-gift", user?.id] });
+      qc.invalidateQueries({ queryKey: ["wallet-available-purchased", user?.id] });
       qc.invalidateQueries({ queryKey: ["received-gifts", vars.recipientId] });
       qc.invalidateQueries({ queryKey: ["sent-gifts", user?.id] });
     },

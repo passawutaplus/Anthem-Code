@@ -6,11 +6,14 @@
 
 | ช่อง wallet | ที่มา | ใช้ทำอะไร | Cashout |
 |-------------|--------|-----------|---------|
+| `welcome_px` | ภารกิจ Welcome Bonus (สูงสุด 500 px) | ส่งของขวัญ | ไม่ได้ |
 | `purchased_px` | เติมเงิน (mock / Stripe ในอนาคต) | ส่งของขวัญ | ไม่ได้ |
-| `earned_px` | รับของขวัญ | ถอนเป็นบาท | ได้ (หลัง KYC) |
+| `earned_px` | รับของขวัญ | ถอนเป็นบาท | ได้ (หลัง KYC, ขั้นต่ำ 1,000 px) |
 
-- ยอด top-up มี **holding 24 ชม.** ก่อนใช้ส่ง gift (`available_purchased_px`)
-- `balance_px` = `purchased_px + earned_px` (generated)
+- Welcome Bonus ปลดล็อกทีละภารกิจ onboarding — RPC `claim_welcome_mission` (เพดาน `lifetime_welcome_px` = 500)
+- ส่งของขวัญหัก `welcome_px` ก่อน `purchased_px` — ยอดรวมพร้อมใช้ = `available_gift_px`
+- ยอด top-up มี **holding 24 ชม.** ก่อนใช้ส่ง gift (`available_purchased_px`) — **welcome_px ไม่มี holding**
+- `balance_px` = `purchased_px + earned_px` (generated) — welcome_px แยกจาก balance รวม
 
 ## Limits (ค่าเริ่มต้นใน `gift_limits_config`)
 
