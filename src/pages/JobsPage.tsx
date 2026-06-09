@@ -80,7 +80,7 @@ const JobsPage = () => {
     <div className="min-h-screen bg-app-ambient pb-24 lg:pb-12">
       <SeoHead
         title={mode === "hiring" ? "งานจ้างดีไซน์" : "หางานฟรีแลนซ์"}
-        description="ค้นหางานดีไซน์ โพสต์ประกาศจ้าง หรือหาโอกาสร่วมงานจากสตูดิโอและบริษัทบน Anthem"
+        description="ค้นหางานดีไซน์ โพสต์ประกาศจ้าง หรือหาโอกาสร่วมงานจากสตูดิโอและบริษัทบน 1PX"
         path="/jobs"
       />
       <div className="max-w-6xl mx-auto px-4 py-6 space-y-5">

@@ -1,6 +1,6 @@
-# Anthem — Portfolio Hub
+# 1PX — Portfolio Hub
 
-แพลตฟอร์มพอร์ตโฟลิโอ + จับคู่งานสำหรับครีเอเตอร์ไทย (รวมกับ So1o Freelancer Management — ดู `docs/schema-reorganize.md`)
+ชุมชนครีเอทีฟไทย — ทุกฟรีแลนซ์คือ 1 PX รวมกันเป็นภาพใหญ่ (คู่กับ So1o Freelancer Management — ดู `docs/schema-reorganize.md`)
 
 ## Quick start
 
@@ -23,7 +23,7 @@ bun run dev
 ```text
 src/
 ├── core/        ← shared กับ So1o (auth, profile, wallet, notifications)
-├── features/    ← Anthem business domains (projects, jobs, chat, ...)
+├── features/    ← 1PX business domains (projects, jobs, chat, ...)
 ├── server/      ← pure supabase queries/mutations
 ├── hooks/       ← generic UI hooks
 ├── lib/         ← utilities

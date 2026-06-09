@@ -1,20 +1,28 @@
+import {
+  BRAND_COMPANY,
+  BRAND_NAME,
+  BRAND_PRIVACY_EMAIL,
+  BRAND_SUPPORT_EMAIL,
+  defaultSiteUrl,
+} from "@/lib/brandConfig";
+
 /** ค่ากลางสำหรับเอกสารกฎหมาย — ปรับผ่าน env ได้ก่อน production */
 
 export const LEGAL_APP_NAME =
-  (import.meta.env.VITE_LEGAL_APP_NAME as string | undefined) ?? "Anthem";
+  (import.meta.env.VITE_LEGAL_APP_NAME as string | undefined) ?? BRAND_NAME;
 
 export const LEGAL_COMPANY_NAME =
-  (import.meta.env.VITE_LEGAL_COMPANY_NAME as string | undefined) ??
-  "Anthem Platform";
+  (import.meta.env.VITE_LEGAL_COMPANY_NAME as string | undefined) ?? BRAND_COMPANY;
 
 export const LEGAL_UPDATED_AT =
   (import.meta.env.VITE_LEGAL_UPDATED_AT as string | undefined) ?? "31 พฤษภาคม 2026";
 
 export const LEGAL_DPO_EMAIL =
-  (import.meta.env.VITE_LEGAL_DPO_EMAIL as string | undefined) ?? "privacy@anthem.app";
+  (import.meta.env.VITE_LEGAL_DPO_EMAIL as string | undefined) ?? BRAND_PRIVACY_EMAIL;
 
 export const LEGAL_SUPPORT_EMAIL =
-  (import.meta.env.VITE_LEGAL_SUPPORT_EMAIL as string | undefined) ?? "support@anthem.app";
+  (import.meta.env.VITE_LEGAL_SUPPORT_EMAIL as string | undefined) ?? BRAND_SUPPORT_EMAIL;
 
 export const LEGAL_WEBSITE =
-  (import.meta.env.VITE_LEGAL_WEBSITE as string | undefined) ?? "http://localhost:8081";
+  (import.meta.env.VITE_LEGAL_WEBSITE as string | undefined) ??
+  (import.meta.env.DEV ? "http://localhost:5173" : defaultSiteUrl());

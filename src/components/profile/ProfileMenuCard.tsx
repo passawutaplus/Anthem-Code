@@ -73,7 +73,7 @@ const ProfileMenuCard = () => {
       <p className="px-3 pt-1 pb-1 text-[10px] uppercase tracking-wider text-muted-foreground">ระบบ So1o</p>
       {isPro ? (
         <p className="px-3 py-1.5 text-xs text-primary font-medium flex items-center gap-1.5">
-          <Sparkles className="w-3.5 h-3.5" /> So1o Pro — ใช้ได้ทั้ง an1hem และ My Desk
+          <Sparkles className="w-3.5 h-3.5" /> So1o Pro — ใช้ได้ทั้ง 1PX และ My Desk
         </p>
       ) : (
         <a href={SO1O_PRICING_URL} target="_blank" rel="noopener noreferrer" className={item}>

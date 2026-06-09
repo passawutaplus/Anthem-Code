@@ -15,6 +15,7 @@ import {
   ArrowLeft, Mail, User as UserIcon, Eye, EyeOff, Loader2,
   Sparkles, Info, Heart, Bookmark, Share2,
 } from "lucide-react";
+import { BRAND_CONCEPT, BRAND_HERO_SUBTITLE, BRAND_NAME } from "@/lib/brandConfig";
 
 const PasswordInput = ({ id, value, onChange, placeholder, autoComplete, minLength, required, invalid }: {
   id: string;
@@ -97,13 +98,13 @@ const AuthPage = () => {
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_10%,rgba(255,255,255,0.25),transparent_40%),radial-gradient(circle_at_80%_90%,rgba(255,255,255,0.18),transparent_50%)]" />
             <div className="relative">
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/15 backdrop-blur text-xs font-medium">
-                <Sparkles className="w-3.5 h-3.5" /> an1hem · พื้นที่ของฟรีแลนซ์
+                <Sparkles className="w-3.5 h-3.5" /> {BRAND_NAME} · {BRAND_HERO_SUBTITLE}
               </div>
               <h2 className="mt-8 text-4xl xl:text-5xl font-semibold thai-display">
                 โชว์ผลงาน<br />หาคนร่วมงาน<br />รับงานจ้าง — ที่เดียวจบ
               </h2>
               <p className="mt-4 text-white/85 text-sm xl:text-base thai-body max-w-md">
-                สร้างพอร์ตโฟลิโอสวยๆ ฟรี เชื่อมต่อกับครีเอเตอร์คนอื่นๆ
+                {BRAND_CONCEPT} — สร้างพอร์ตโฟลิโอฟรี เชื่อมต่อครีเอเตอร์
                 และเปิดรับโอกาสจากลูกค้าจริงในชุมชนเดียวกัน
               </p>
             </div>

@@ -1,6 +1,7 @@
 import { ExternalLink, LayoutGrid, Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useSubscription } from "@/core/subscription";
+import { BRAND_NAME } from "@/lib/brandConfig";
 import { SO1O_APP_URL, SO1O_PRICING_URL } from "@/lib/productLinks";
 import { so1oUrl } from "@/lib/crossLink";
 import { cn } from "@/lib/utils";
@@ -11,7 +12,7 @@ type Props = {
 };
 
 /**
- * Explains the So1o ↔ an1hem economy and surfaces Pro status from the shared account.
+ * Explains the So1o ↔ 1PX economy and surfaces Pro status from the shared account.
  */
 export function EcosystemProCard({ className, compact }: Props) {
   const { tier, isPro, isLoading } = useSubscription();
@@ -41,13 +42,13 @@ export function EcosystemProCard({ className, compact }: Props) {
           {!compact && (
             <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
               <strong className="text-foreground font-medium">So1o Freelancer</strong> คือหลังบ้าน —
-              ใบเสนอราคา ลูกค้า การเงิน บันทึกงาน · <strong className="text-foreground font-medium">an1hem</strong>{" "}
-              คือหน้าร้องโชว์ผลงานและรับงาน เมื่อมีคนจ้างจากผลงานที่ลงใน an1hem ไปทำใบเสนอราคาที่ So1o
-              ได้เลย งานลูกค้าเสร็จที่หลังบ้านก็นำผลงานมาโพสต์ใน an1hem ต่อ
+              ใบเสนอราคา ลูกค้า การเงิน บันทึกงาน · <strong className="text-foreground font-medium">{BRAND_NAME}</strong>{" "}
+              คือหน้าร้านโชว์ผลงานและรับงาน เมื่อมีคนจ้างจากผลงานที่ลงใน {BRAND_NAME} ไปทำใบเสนอราคาที่ So1o
+              ได้เลย งานลูกค้าเสร็จที่หลังบ้านก็นำผลงานมาโพสต์ใน {BRAND_NAME} ต่อ
             </p>
           )}
           <p className="mt-2 text-xs text-muted-foreground">
-            สมัคร Pro ที่ So1o ครั้งเดียว → ใช้สิทธิ์ Pro บน an1hem ด้วยบัญชีเดียวกัน
+            สมัคร Pro ที่ So1o ครั้งเดียว → ใช้สิทธิ์ Pro บน {BRAND_NAME} ด้วยบัญชีเดียวกัน
           </p>
           <div className="mt-3 inline-flex items-center gap-2 rounded-full border border-border bg-background/80 px-3 py-1 text-xs font-medium">
             <LayoutGrid className="h-3.5 w-3.5 text-primary" />
@@ -92,7 +93,7 @@ export function EcosystemProCard({ className, compact }: Props) {
           to="/portfolio"
           className="inline-flex items-center justify-center gap-2 rounded-full border border-border px-4 py-2.5 text-sm font-medium hover:bg-muted/50 transition-colors sm:ml-auto"
         >
-          จัดการผลงาน an1hem
+          จัดการผลงาน {BRAND_NAME}
         </Link>
       </div>
     </section>

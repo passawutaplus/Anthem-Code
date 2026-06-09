@@ -21,4 +21,4 @@ Disallow: /portfolio/manage
 Disallow: /earnings
 Disallow: /verify
 
-Sitemap: https://anthem.app/sitemap.xml
+Sitemap: https://1px.app/sitemap.xml

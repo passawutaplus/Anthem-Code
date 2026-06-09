@@ -151,7 +151,7 @@ const ProjectDetailPage = () => {
       <SeoHead
         title={project.title}
         description={truncateDescription(
-          project.description || `${project.title} โดย ${project.owner} — ${project.category} บน Anthem`,
+          project.description || `${project.title} โดย ${project.owner} — ${project.category} บน 1PX`,
         )}
         path={`/project/${project.id}`}
         image={coverImage || undefined}

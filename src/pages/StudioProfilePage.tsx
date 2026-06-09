@@ -31,7 +31,7 @@ const StudioProfilePage = () => {
     <div className="min-h-screen bg-app-ambient pb-24 lg:pb-12">
       <SeoHead
         title={studio.name}
-        description={truncateDescription(studio.description || `สตูดิโอ ${studio.name} บน Anthem`)}
+        description={truncateDescription(studio.description || `สตูดิโอ ${studio.name} บน 1PX`)}
         path={`/s/${slug}`}
         image={studio.cover_url ?? studio.avatar_url ?? undefined}
       />

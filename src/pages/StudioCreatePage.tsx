@@ -206,7 +206,7 @@ const StudioCreateInner = () => {
                 setName(e.target.value);
                 if (!slug) setSlug(slugify(e.target.value));
               }}
-              placeholder="เช่น Anthem Studio"
+              placeholder="เช่น Pixel Garden Studio"
               className="h-11 rounded-xl"
             />
           </div>
@@ -214,7 +214,7 @@ const StudioCreateInner = () => {
           <div className="space-y-1.5">
             <Label className="text-xs">Slug (สำหรับ URL)</Label>
             <div className="flex items-center gap-1.5 text-sm">
-              <span className="text-muted-foreground">an1hem.app/s/</span>
+              <span className="text-muted-foreground">1px.app/s/</span>
               <Input
                 value={finalSlug}
                 onChange={(e) => setSlug(slugify(e.target.value))}

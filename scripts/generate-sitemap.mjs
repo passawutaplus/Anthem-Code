@@ -1,14 +1,14 @@
 #!/usr/bin/env node
 /**
  * Generate public/sitemap.xml with static routes + demo catalog URLs.
- * Set VITE_SITE_URL or SITE_URL (default https://anthem.app)
+ * Set VITE_SITE_URL or SITE_URL (default https://1px.app)
  */
 import { writeFileSync } from "fs";
 import { dirname, join } from "path";
 import { fileURLToPath } from "url";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
-const base = (process.env.VITE_SITE_URL || process.env.SITE_URL || "https://anthem.app").replace(/\/$/, "");
+const base = (process.env.VITE_SITE_URL || process.env.SITE_URL || "https://1px.app").replace(/\/$/, "");
 
 const catalogUid = (i) => {
   const hex = i.toString(16).padStart(2, "0");

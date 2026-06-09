@@ -1,5 +1,6 @@
 import type { LucideIcon } from "lucide-react";
 import { Briefcase, Copyright, Eye, Link2, PenLine, User } from "lucide-react";
+import { BRAND_NAME } from "@/lib/brandConfig";
 
 export const LICENSE_TYPES = [
   "all_rights",
@@ -29,9 +30,9 @@ export const LICENSE_PRESETS: Record<LicenseType, LicenseMeta> = {
     id: "all_rights",
     icon: Copyright,
     shortLabel: "สงวนสิทธิ์ทั้งหมด",
-    description: "ดูได้บน Anthem เท่านั้น ห้ามคัดลอกหรือนำไปใช้",
+    description: `ดูได้บน ${BRAND_NAME} เท่านั้น ห้ามคัดลอกหรือนำไปใช้`,
     detailParagraph:
-      "ผลงานนี้แสดงบน Anthem เพื่อชมเท่านั้น ห้ามดาวน์โหลด คัดลอก หรือนำไปใช้ซ้ำโดยไม่ได้รับอนุญาตจากเจ้าของผลงาน",
+      `ผลงานนี้แสดงบน ${BRAND_NAME} เพื่อชมเท่านั้น ห้ามดาวน์โหลด คัดลอก หรือนำไปใช้ซ้ำโดยไม่ได้รับอนุญาตจากเจ้าของผลงาน`,
     allowsReuse: false,
     allowsCommercial: false,
     requiresAttribution: false,

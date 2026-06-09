@@ -123,7 +123,7 @@ const PublicProfilePage = () => {
 
   const displayName = profile.display_name || profile.username || "ครีเอเตอร์";
   const seoDesc = truncateDescription(
-    profile.bio || `ดูพอร์ตโฟลิโอและผลงานของ ${displayName} บน Anthem`,
+    profile.bio || `ดูพอร์ตโฟลิโอและผลงานของ ${displayName} บน 1PX`,
   );
 
   return (

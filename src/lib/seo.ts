@@ -1,8 +1,14 @@
+import {
+  BRAND_DESCRIPTION,
+  BRAND_NAME,
+  BRAND_TAGLINE,
+  defaultSiteUrl,
+} from "@/lib/brandConfig";
+
 /** Site-wide SEO defaults — override per page with SeoHead. */
-export const SITE_NAME = "Anthem";
-export const SITE_TAGLINE = "ชุมชนพอร์ตโฟลิโอและครีเอเตอร์ฟรีแลนซ์";
-export const SITE_DESCRIPTION =
-  "ลงผลงาน ติดตามครีเอเตอร์ ส่งของขวัญสนับสนุน และค้นหางานดีไซน์ — แพลตฟอร์มโชว์เคสผลงานสำหรับฟรีแลนซ์ไทย";
+export const SITE_NAME = BRAND_NAME;
+export const SITE_TAGLINE = BRAND_TAGLINE;
+export const SITE_DESCRIPTION = BRAND_DESCRIPTION;
 
 export const DEFAULT_OG_IMAGE =
   "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/19f990d1-3bf3-4ccc-9dce-de3649dc4fc6/id-preview-4b822f2c--d689aa9c-465b-4db9-bfc2-8597a23157e5.lovable.app-1777871436940.png";
@@ -11,7 +17,7 @@ export function siteUrl(): string {
   const fromEnv = import.meta.env.VITE_SITE_URL as string | undefined;
   if (fromEnv) return fromEnv.replace(/\/$/, "");
   if (typeof window !== "undefined") return window.location.origin;
-  return "https://anthem.app";
+  return defaultSiteUrl();
 }
 
 export function absoluteUrl(path: string): string {

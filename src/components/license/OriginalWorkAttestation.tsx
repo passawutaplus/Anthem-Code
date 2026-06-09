@@ -17,7 +17,7 @@ const OriginalWorkAttestation = ({ checked, onCheckedChange, required }: Props) 
       className="mt-0.5"
     />
     <Label htmlFor="rights-attest" className="text-xs leading-relaxed text-foreground/90 cursor-pointer">
-      ฉันยืนยันว่าผลงานนี้เป็นของฉัน หรือฉันได้รับอนุญาตให้เผยแพร่บน Anthem แล้ว
+      ฉันยืนยันว่าผลงานนี้เป็นของฉัน หรือฉันได้รับอนุญาตให้เผยแพร่บน 1PX แล้ว
       {required && <span className="text-destructive"> *</span>}
       {" "}
       <Link to="/legal/ip" target="_blank" className="text-primary hover:underline">

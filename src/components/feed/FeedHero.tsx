@@ -1,5 +1,6 @@
 import { Skeleton } from "@/components/ui/skeleton";
 import { useFeedStats } from "@/hooks/useFeedStats";
+import { BRAND_CONCEPT } from "@/lib/brandConfig";
 import TopProjectShowcase from "./TopProjectShowcase";
 
 const formatNum = (n: number) => n.toLocaleString("th-TH");
@@ -27,14 +28,14 @@ const FeedHero = () => {
     <section className="grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-8 items-center pt-2 pb-4">
       <div className="md:col-span-7 flex flex-col gap-5">
         <div className="space-y-2">
-          <p className="text-xs font-medium text-primary tracking-wide thai-body">ชุมชนครีเอทีฟไทย</p>
+          <p className="text-xs font-medium text-primary tracking-wide thai-body">{BRAND_CONCEPT}</p>
           <h1 className="text-3xl md:text-5xl font-semibold tracking-tight text-foreground leading-[1.08] thai-display">
             ค้นพบดีไซเนอร์
             <br />
             <span className="bg-gradient-brand bg-clip-text text-transparent">ที่ใช่สำหรับคุณ</span>
           </h1>
           <p className="text-sm md:text-base text-muted-foreground max-w-md thai-body leading-relaxed">
-            ดูผลงานจริง จ้างงาน ขอคอลแลป และหาแรงบันดาลใจ — ทุกอย่างอยู่ในฟีดเดียว
+            ดูผลงานจริง จ้างงาน ขอคอลแลป และหาแรงบันดาลใจ — ยิ่งมีคนยิ่งคม ทุกอย่างอยู่ในฟีดเดียว
           </p>
         </div>
 

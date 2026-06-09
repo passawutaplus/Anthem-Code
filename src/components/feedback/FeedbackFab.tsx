@@ -107,7 +107,7 @@ const FeedbackFab = () => {
                 <Check className="h-5 w-5 text-primary" />
               </div>
               <p className="text-sm font-semibold">ส่งฟีดแบ็กแล้ว</p>
-              <p className="text-xs text-muted-foreground">ขอบคุณที่ช่วยให้ Anthem ดีขึ้น</p>
+              <p className="text-xs text-muted-foreground">ขอบคุณที่ช่วยให้ 1PX ดีขึ้น</p>
             </div>
           ) : (
             <div className="p-4 space-y-3">
