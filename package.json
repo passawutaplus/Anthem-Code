@@ -26,7 +26,8 @@
     "db:apply-portfolio-order": "node scripts/apply-portfolio-order.mjs",
     "db:apply-welcome-missions": "node scripts/apply-welcome-missions.mjs",
     "db:push": "bash scripts/supabase-db-push.sh",
-    "docs:feature-pdf": "node scripts/generate-feature-pdf.mjs"
+    "docs:feature-pdf": "node scripts/generate-feature-pdf.mjs",
+    "deploy:demo": "bash scripts/deploy-demo-vercel.sh"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",

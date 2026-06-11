@@ -2,7 +2,7 @@ import BriefcaseIcon from "../components/icons/BriefcaseIcon";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, FileText, Handshake, Info } from "lucide-react";
-import { so1oUrl, trackCrossLink } from "@/lib/crossLink";
+import { so1oQuotationUrl, trackCrossLink } from "@/lib/crossLink";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -39,6 +39,19 @@ const LiveChatPage = () => {
         .from("profiles")
         .select("id, display_name, avatar_url, role")
         .eq("id", otherId!)
+        .maybeSingle();
+      return data;
+    },
+  });
+
+  const { data: hireMeta } = useQuery({
+    queryKey: ["chat-hire-meta", conv?.request_id],
+    enabled: !!conv?.request_id && conv?.kind === "hire",
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("hiring_requests")
+        .select("id, client_name, email, phone, message, deadline, project_title, budget_amount")
+        .eq("id", conv!.request_id)
         .maybeSingle();
       return data;
     },
@@ -107,27 +120,36 @@ const LiveChatPage = () => {
           </div>
         </button>
         {isHire && (
-          <a
-            href={so1oUrl("/quotes/new", {
-              conversation_id: conv.id,
-              client_id: otherId ?? undefined,
-              project_title: conv.project_title || undefined,
-            })}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={() =>
-              trackCrossLink({
+          <button
+            type="button"
+            onClick={async () => {
+              const linkId = await trackCrossLink({
                 source: "chat_header",
                 refId: conv.id,
-                meta: { client_id: otherId ?? undefined },
-              })
-            }
+                meta: {
+                  client_id: otherId ?? undefined,
+                  request_id: conv.request_id ?? undefined,
+                },
+              });
+              const url = so1oQuotationUrl({
+                conversationId: conv.id,
+                requestId: conv.request_id ?? undefined,
+                clientName: hireMeta?.client_name ?? other?.display_name ?? undefined,
+                projectTitle: hireMeta?.project_title ?? conv.project_title ?? undefined,
+                clientEmail: hireMeta?.email ?? undefined,
+                clientPhone: hireMeta?.phone ?? undefined,
+                message: hireMeta?.message ?? undefined,
+                deadline: hireMeta?.deadline ?? undefined,
+                linkId,
+              });
+              window.open(url, "_blank", "noopener,noreferrer");
+            }}
             className="hidden sm:inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full bg-primary/10 text-primary hover:bg-primary/15 transition-colors"
             aria-label="สร้างใบเสนอราคาใน So1o"
           >
             <FileText className="w-3.5 h-3.5" />
             สร้าง Quote
-          </a>
+          </button>
         )}
         <Button
           variant="ghost"

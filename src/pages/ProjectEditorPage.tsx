@@ -10,6 +10,10 @@ import { Switch } from "@/components/ui/switch";
 import { useAuth } from "@/hooks/useAuth";
 import { useCreateProject, useProject, useUpdateProject } from "@/hooks/useProjects";
 import { uploadProjectImage } from "@/lib/uploadImage";
+import { uploadProjectVideo } from "@/lib/uploadVideo";
+import { useSubscription } from "@/core/subscription";
+import { getProjectLimits } from "@/lib/projectLimits";
+import { supabase } from "@/integrations/supabase/client";
 import { projectSchema, validateProjectPublish } from "@/lib/validators";
 import { categories } from "@/data/projectTypes";
 import { toast } from "sonner";
@@ -30,6 +34,8 @@ const ProjectEditorPage = () => {
   const [params] = useSearchParams();
   const editing = !!id;
   const { user, loading: authLoading } = useAuth();
+  const { tier } = useSubscription();
+  const limits = getProjectLimits(tier);
   const folderRef = useRef<string>(id ?? crypto.randomUUID());
 
   const { data: existing } = useProject(id);
@@ -42,6 +48,7 @@ const ProjectEditorPage = () => {
   const [category, setCategory] = useState<string>("Graphic");
   const [cover, setCover] = useState<string>("");
   const [gallery, setGallery] = useState<string[]>([]);
+  const [videoUrls, setVideoUrls] = useState<string[]>([]);
   const [tools, setTools] = useState<string[]>([]);
   const [tags, setTags] = useState<string[]>([]);
   const [price, setPrice] = useState<string>("");
@@ -60,11 +67,27 @@ const ProjectEditorPage = () => {
   const [tagInput, setTagInput] = useState("");
   const [uploadingCover, setUploadingCover] = useState(false);
   const [uploadingGallery, setUploadingGallery] = useState(false);
+  const [uploadingVideo, setUploadingVideo] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !user) navigate("/auth?redirect=/portfolio/new");
   }, [authLoading, user, navigate]);
+
+  useEffect(() => {
+    if (editing || existing) return;
+    if (params.get("from") !== "so1o") return;
+    const prefillTitle = params.get("title")?.trim();
+    const prefillClient = params.get("client")?.trim();
+    if (prefillTitle) setTitle(prefillTitle);
+    if (prefillClient) {
+      setDescription((d) =>
+        d.trim()
+          ? d
+          : `โปรเจกต์สำหรับลูกค้า ${prefillClient} — เสร็จจาก So1o Job Tracker`,
+      );
+    }
+  }, [editing, existing, params]);
 
   useEffect(() => {
     if (existing) {
@@ -74,6 +97,7 @@ const ProjectEditorPage = () => {
       setCategory(existing.category);
       setCover(existing.cover_url ?? "");
       setGallery(existing.gallery_urls ?? []);
+      setVideoUrls(((existing as { video_urls?: string[] }).video_urls) ?? []);
       setTools(existing.tools ?? []);
       setTags(existing.tags ?? []);
       setPrice(existing.price_thb ? String(existing.price_thb) : "");
@@ -96,7 +120,7 @@ const ProjectEditorPage = () => {
     if (!user) return;
     setUploadingCover(true);
     try {
-      const url = await uploadProjectImage(file, user.id, folderRef.current);
+      const url = await uploadProjectImage(file, user.id, folderRef.current, tier);
       setCover(url);
       toast.success("อัปโหลดภาพปกสำเร็จ");
     } catch (e) {
@@ -109,15 +133,16 @@ const ProjectEditorPage = () => {
   const handleGallery = async (files: FileList | File[]) => {
     if (!user) return;
     const arr = Array.from(files);
-    if (gallery.length + arr.length > 20) {
-      toast.error("รวมแล้วต้องไม่เกิน 20 ภาพ");
+    const maxGallery = Number.isFinite(limits.galleryImages) ? limits.galleryImages : 20;
+    if (gallery.length + arr.length > maxGallery) {
+      toast.error(`รวมแล้วต้องไม่เกิน ${maxGallery} ภาพ`);
       return;
     }
     setUploadingGallery(true);
     try {
       const urls: string[] = [];
       for (const f of arr) {
-        const u = await uploadProjectImage(f, user.id, folderRef.current);
+        const u = await uploadProjectImage(f, user.id, folderRef.current, tier);
         urls.push(u);
       }
       setGallery((prev) => [...prev, ...urls]);
@@ -139,9 +164,53 @@ const ProjectEditorPage = () => {
     });
   };
 
+  const handleVideo = async (file: File) => {
+    if (!user) return;
+    if (videoUrls.length >= limits.videosPerProject) {
+      toast.error(`แพ็กเกจนี้อัปโหลดวิดีโอได้สูงสุด ${limits.videosPerProject} คลิป/ผลงาน`);
+      return;
+    }
+    setUploadingVideo(true);
+    try {
+      const url = await uploadProjectVideo(file, user.id, folderRef.current, tier);
+      setVideoUrls((prev) => [...prev, url]);
+      toast.success("อัปโหลดวิดีโอสำเร็จ");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "อัปโหลดไม่สำเร็จ");
+    } finally {
+      setUploadingVideo(false);
+    }
+  };
+
   const handleSubmit = async (publish?: boolean) => {
     if (!user) return;
     const targetStatus: Status = publish === undefined ? status : publish ? "Published" : "Draft";
+
+    if (targetStatus === "Published" && existing?.status !== "Published") {
+      const maxPublished = limits.published;
+      if (Number.isFinite(maxPublished)) {
+        const { count } = await supabase
+          .from("projects")
+          .select("id", { count: "exact", head: true })
+          .eq("owner_id", user.id)
+          .eq("status", "Published");
+        if ((count ?? 0) >= maxPublished) {
+          toast.error(`แพ็ก Free เผยแพร่ได้สูงสุด ${maxPublished} ผลงาน — อัปเกรด Pro เพื่อไม่จำกัด`);
+          return;
+        }
+      }
+    }
+    if (targetStatus === "Draft" && !editing) {
+      const { count } = await supabase
+        .from("projects")
+        .select("id", { count: "exact", head: true })
+        .eq("owner_id", user.id)
+        .eq("status", "Draft");
+      if ((count ?? 0) >= limits.draft) {
+        toast.error(`Draft เต็มแล้ว (${limits.draft} ชิ้น) — เผยแพร่หรือลบ draft ก่อน`);
+        return;
+      }
+    }
 
     const rightsAttestedAt = rightsAttested ? new Date().toISOString() : null;
 
@@ -152,6 +221,7 @@ const ProjectEditorPage = () => {
       category,
       cover_url: cover,
       gallery_urls: gallery,
+      video_urls: videoUrls,
       tools,
       tags,
       price_thb: price ? Number(price) : null,
@@ -304,8 +374,13 @@ const ProjectEditorPage = () => {
           {/* Gallery */}
           <section className="space-y-2">
             <div className="flex items-center justify-between">
-              <Label className="text-sm font-semibold">แกลเลอรีรูปผลงาน ({gallery.length}/20)</Label>
-              <GalleryAddButton disabled={uploadingGallery || gallery.length >= 20} onPick={handleGallery} />
+              <Label className="text-sm font-semibold">
+                แกลเลอรีรูปผลงาน ({gallery.length}/{Number.isFinite(limits.galleryImages) ? limits.galleryImages : 20})
+              </Label>
+              <GalleryAddButton
+                disabled={uploadingGallery || gallery.length >= (Number.isFinite(limits.galleryImages) ? limits.galleryImages : 20)}
+                onPick={handleGallery}
+              />
             </div>
 
             {gallery.length === 0 ? (
@@ -339,6 +414,38 @@ const ProjectEditorPage = () => {
                 )}
               </div>
             )}
+          </section>
+
+          {/* Video */}
+          <section className="space-y-2">
+            <Label className="text-sm font-semibold">
+              วิดีโอผลงาน ({videoUrls.length}/{limits.videosPerProject})
+            </Label>
+            <p className="text-xs text-muted-foreground">สั้นๆ สูงสุด ~15MB/คลิป (mp4, webm, mov)</p>
+            {videoUrls.map((url, i) => (
+              <div key={url} className="flex items-center gap-2 rounded-xl border border-border p-2">
+                <video src={url} className="h-16 w-28 rounded-lg object-cover bg-muted" controls />
+                <span className="text-xs text-muted-foreground flex-1 truncate">คลิปที่ {i + 1}</span>
+                <Button size="icon" variant="ghost" onClick={() => setVideoUrls((p) => p.filter((_, j) => j !== i))}>
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+              </div>
+            ))}
+            <label className="inline-flex items-center gap-2 cursor-pointer text-sm text-primary hover:underline">
+              <input
+                type="file"
+                accept="video/mp4,video/webm,video/quicktime"
+                className="hidden"
+                disabled={uploadingVideo || videoUrls.length >= limits.videosPerProject}
+                onChange={(e) => {
+                  const f = e.target.files?.[0];
+                  if (f) void handleVideo(f);
+                  e.target.value = "";
+                }}
+              />
+              {uploadingVideo ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+              {uploadingVideo ? "กำลังอัปโหลด..." : "เพิ่มวิดีโอ"}
+            </label>
           </section>
         </div>
 

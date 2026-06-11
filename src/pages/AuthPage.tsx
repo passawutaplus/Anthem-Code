@@ -15,7 +15,14 @@ import {
   ArrowLeft, Mail, User as UserIcon, Eye, EyeOff, Loader2,
   Sparkles, Info, Heart, Bookmark, Share2,
 } from "lucide-react";
-import { BRAND_CONCEPT, BRAND_HERO_SUBTITLE, BRAND_NAME } from "@/lib/brandConfig";
+import { BrandLogo } from "@/components/brand/BrandLogo";
+import { DemoLoginHint, DemoSignupBlocked } from "@/components/DemoAuthHints";
+import {
+  BRAND_CONCEPT,
+  BRAND_HERO_SUBTITLE,
+  BRAND_NAME,
+  BRAND_STORAGE_NO_PERSIST,
+} from "@/lib/brandConfig";
 
 const PasswordInput = ({ id, value, onChange, placeholder, autoComplete, minLength, required, invalid }: {
   id: string;
@@ -127,17 +134,11 @@ const AuthPage = () => {
         {/* RIGHT: Form */}
         <div className="flex items-center justify-center p-4 sm:p-6 lg:p-8">
           <div className="w-full max-w-md">
-            <div className="flex flex-col items-center mb-6 lg:hidden">
-              <div className="h-12 w-12 rounded-2xl bg-gradient-brand shadow-lg" />
-              <span className="mt-3 font-medium tracking-tight text-lg">
-                an<span className="text-gradient">1</span>hem
-              </span>
+            <div className="flex justify-center mb-6 lg:hidden">
+              <BrandLogo />
             </div>
-            <div className="hidden lg:flex items-center gap-2 mb-8">
-              <div className="h-10 w-10 rounded-xl bg-gradient-brand shadow-md" />
-              <span className="font-medium tracking-tight text-lg">
-                an<span className="text-gradient">1</span>hem
-              </span>
+            <div className="hidden lg:flex mb-8">
+              <BrandLogo size="sm" />
             </div>
 
             <h1 className="text-2xl font-medium tracking-tight mb-1.5 thai-display">
@@ -162,8 +163,6 @@ const AuthPage = () => {
               </TabsContent>
 
               <TabsContent value="signup" className="space-y-4 mt-0">
-                <SocialButtons redirectTo={redirect} />
-                <AuthEmailSeparator />
                 <SignupForm onSwitch={() => setTab("login")} />
               </TabsContent>
             </Tabs>
@@ -202,7 +201,7 @@ const LoginForm = ({ redirect, onSwitch }: { redirect: string; onSwitch: () => v
           ? "อ๊ะ! อีเมลหรือรหัสผ่านไม่ถูกต้อง"
           : error.message);
       } else {
-        if (!remember) sessionStorage.setItem("an1hem_no_persist", "1");
+        if (!remember) sessionStorage.setItem(BRAND_STORAGE_NO_PERSIST, "1");
         toast.success("เข้าสู่ระบบสำเร็จ");
       }
     } finally {
@@ -212,6 +211,12 @@ const LoginForm = ({ redirect, onSwitch }: { redirect: string; onSwitch: () => v
 
   return (
     <form onSubmit={submit} className="space-y-4">
+      <DemoLoginHint
+        onUseAccount={(demoEmail, demoPassword) => {
+          setEmail(demoEmail);
+          setPassword(demoPassword);
+        }}
+      />
       <div className="space-y-1.5">
         <Label htmlFor="login-email" className="text-xs">อีเมล</Label>
         <div className="relative">
@@ -270,6 +275,10 @@ const LoginForm = ({ redirect, onSwitch }: { redirect: string; onSwitch: () => v
 };
 
 const SignupForm = ({ onSwitch }: { onSwitch: () => void }) => {
+  if (import.meta.env.VITE_DEMO_MODE === "true") {
+    return <DemoSignupBlocked onSwitchToLogin={onSwitch} />;
+  }
+
   const [displayName, setDisplayName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

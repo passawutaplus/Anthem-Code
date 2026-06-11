@@ -3,6 +3,7 @@ import { Camera, LayoutGrid, Loader2, MapPin, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useUpdateProfileMedia } from "@/hooks/useProfile";
 import { uploadProjectImage } from "@/lib/uploadImage";
+import { useSubscription } from "@/core/subscription";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -24,6 +25,7 @@ type Props = {
 };
 
 export default function ProfileCoverHeader({ userId, profile, stats, onManage, onShare }: Props) {
+  const { tier } = useSubscription();
   const updateMedia = useUpdateProfileMedia(userId);
   const coverInput = useRef<HTMLInputElement>(null);
   const avatarInput = useRef<HTMLInputElement>(null);
@@ -38,7 +40,7 @@ export default function ProfileCoverHeader({ userId, profile, stats, onManage, o
     const setBusy = kind === "cover" ? setCoverBusy : setAvatarBusy;
     setBusy(true);
     try {
-      const url = await uploadProjectImage(file, userId, kind);
+      const url = await uploadProjectImage(file, userId, kind, tier);
       await updateMedia.mutateAsync(
         kind === "avatar" ? { avatar_url: url } : { cover_url: url },
       );

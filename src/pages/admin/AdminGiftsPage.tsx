@@ -13,10 +13,12 @@ import { Gift, Wallet, ArrowUpRight, Users, Sparkles, Coins, ExternalLink, Searc
 import { toast } from "sonner";
 import AdminRowActions from "@/components/admin/AdminRowActions";
 import { useAdminRejectCashout, useAdminUpdateGift, useAdminUpdateGiftLimits } from "@/hooks/admin/useAdminMutations";
+import { processCashoutViaStripe } from "@/lib/stripePaymentsApi";
 import { Label } from "@/components/ui/label";
 
 const isCashoutPaid = (s: string) => s === "mock_paid" || s === "paid";
 const isCashoutPending = (s: string) => s === "pending";
+const isCashoutProcessing = (s: string) => s === "processing";
 
 interface Overview {
   gift_count: number;
@@ -130,7 +132,17 @@ export default function AdminGiftsPage() {
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success("ทำเครื่องหมายว่าจ่ายแล้ว");
+      toast.success("ทำเครื่องหมายว่าจ่ายแล้ว (manual)");
+      qc.invalidateQueries({ queryKey: ["admin-cashouts"] });
+      qc.invalidateQueries({ queryKey: ["admin-gift-overview"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const stripePayout = useMutation({
+    mutationFn: (id: string) => processCashoutViaStripe(id),
+    onSuccess: (transferId) => {
+      toast.success(`โอน Stripe สำเร็จ (${transferId})`);
       qc.invalidateQueries({ queryKey: ["admin-cashouts"] });
       qc.invalidateQueries({ queryKey: ["admin-gift-overview"] });
     },
@@ -358,6 +370,8 @@ export default function AdminGiftsPage() {
       render: (r) => {
         if (isCashoutPaid(r.status)) return <Badge className="bg-emerald-600 hover:bg-emerald-600">จ่ายแล้ว</Badge>;
         if (r.status === "rejected") return <Badge variant="destructive">ปฏิเสธ</Badge>;
+        if (r.status === "failed") return <Badge variant="destructive">โอนล้มเหลว</Badge>;
+        if (isCashoutProcessing(r.status)) return <Badge className="bg-amber-600 hover:bg-amber-600">กำลังโอน</Badge>;
         if (isCashoutPending(r.status)) return <Badge variant="secondary">รอจ่าย</Badge>;
         return <Badge variant="outline">{r.status}</Badge>;
       },
@@ -366,9 +380,16 @@ export default function AdminGiftsPage() {
       key: "action", header: "",
       render: (r) =>
         isCashoutPending(r.status) ? (
-          <div className="flex gap-1">
+          <div className="flex flex-wrap gap-1">
+            <Button
+              size="sm"
+              disabled={stripePayout.isPending}
+              onClick={() => stripePayout.mutate(r.id)}
+            >
+              โอน Stripe
+            </Button>
             <Button size="sm" variant="outline" disabled={markPaid.isPending} onClick={() => markPaid.mutate(r.id)}>
-              จ่ายแล้ว
+              manual
             </Button>
             <Button
               size="sm"

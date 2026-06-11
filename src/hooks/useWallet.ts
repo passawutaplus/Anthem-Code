@@ -82,6 +82,7 @@ export const useDailyGiftTotal = () => {
   });
 };
 
+/** @deprecated Mock top-up — disabled when payment_settings.mock_topup_enabled = false */
 export const useTopUp = () => {
   const { user } = useAuth();
   const qc = useQueryClient();

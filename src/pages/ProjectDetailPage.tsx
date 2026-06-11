@@ -109,6 +109,7 @@ const ProjectDetailPage = () => {
         copyrightHolder: dbProject.copyright_holder ?? "",
         hasThirdPartyAssets: dbProject.has_third_party_assets ?? false,
         thirdPartyNote: dbProject.third_party_note ?? "",
+        videos: ((dbProject as { video_urls?: string[] }).video_urls ?? []).filter(Boolean),
       }
     : null;
 
@@ -212,6 +213,22 @@ const ProjectDetailPage = () => {
             ) : (
               <div className="aspect-video rounded-2xl bg-muted flex items-center justify-center text-muted-foreground">
                 ยังไม่มีรูปภาพ
+              </div>
+            )}
+            {project.videos.length > 0 && (
+              <div className="space-y-2">
+                <p className="text-sm font-medium text-foreground">วิดีโอ</p>
+                <div className="grid gap-3">
+                  {project.videos.map((src) => (
+                    <video
+                      key={src}
+                      src={src}
+                      controls
+                      playsInline
+                      className="w-full rounded-2xl bg-black max-h-[480px]"
+                    />
+                  ))}
+                </div>
               </div>
             )}
           </div>

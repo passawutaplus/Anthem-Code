@@ -2,6 +2,14 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 
+export type CashoutStatus =
+  | "pending"
+  | "processing"
+  | "paid"
+  | "mock_paid"
+  | "rejected"
+  | "failed";
+
 export interface CashoutRequest {
   id: string;
   user_id: string;
@@ -9,7 +17,9 @@ export interface CashoutRequest {
   fee_px: number;
   net_px: number;
   bank_info: { bank?: string; account_number?: string; account_name?: string };
-  status: "pending" | "mock_paid" | "rejected";
+  status: CashoutStatus;
+  stripe_transfer_id?: string | null;
+  failure_reason?: string | null;
   created_at: string;
   processed_at: string | null;
 }
@@ -61,3 +71,21 @@ export const useRequestCashout = () => {
     },
   });
 };
+
+export function cashoutStatusLabel(status: CashoutStatus): string {
+  switch (status) {
+    case "paid":
+    case "mock_paid":
+      return "โอนแล้ว";
+    case "pending":
+      return "รอดำเนินการ";
+    case "processing":
+      return "กำลังโอน";
+    case "failed":
+      return "โอนล้มเหลว";
+    case "rejected":
+      return "ปฏิเสธ";
+    default:
+      return status;
+  }
+}

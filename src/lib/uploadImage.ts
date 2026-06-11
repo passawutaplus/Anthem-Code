@@ -3,6 +3,8 @@ import {
   sharedStorage,
   SHARED_MEDIA_BUCKET,
 } from "@/integrations/supabase/sharedStorageClient";
+import type { Tier } from "@/core/subscription/useSubscription";
+import { assertAnthemStorageAvailable } from "@/lib/anthemStorageUsage";
 
 const MAX_MB = 5;
 
@@ -16,11 +18,14 @@ const MAX_MB = 5;
 export async function uploadProjectImage(
   file: File,
   userId: string,
-  folder: string
+  folder: string,
+  tier: Tier = "free",
 ): Promise<string> {
   if (!file.type.startsWith("image/")) throw new Error("ไฟล์ไม่ใช่รูปภาพ");
   if (file.size > MAX_MB * 1024 * 1024)
     throw new Error(`ไฟล์ใหญ่เกิน ${MAX_MB}MB`);
+
+  await assertAnthemStorageAvailable(userId, tier, file.size);
 
   const compressed = await imageCompression(file, {
     maxSizeMB: 1.2,

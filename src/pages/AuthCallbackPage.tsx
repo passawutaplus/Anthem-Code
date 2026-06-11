@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { consumeOAuthRedirect, parseOAuthError } from "@/lib/oauthRedirect";
+import { HttpErrorPage } from "@/components/HttpErrorPage";
 
 const AuthCallbackPage = () => {
   const navigate = useNavigate();
@@ -60,16 +61,11 @@ const AuthCallbackPage = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center gap-4 p-6 text-center">
-        <p className="text-sm text-destructive max-w-md">{error}</p>
-        <button
-          type="button"
-          className="text-sm text-primary underline"
-          onClick={() => navigate("/auth", { replace: true })}
-        >
-          กลับไปหน้าเข้าสู่ระบบ
-        </button>
-      </div>
+      <HttpErrorPage
+        kind="token"
+        errorMessage={error}
+        extraAction={{ labelTh: "กลับไปเข้าสู่ระบบ", labelEn: "Back to sign in", to: "/auth" }}
+      />
     );
   }
 

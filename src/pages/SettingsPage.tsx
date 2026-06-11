@@ -16,6 +16,9 @@ import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { requestOpenCookiePreferences } from "@/lib/cookieConsent";
 import { Link } from "react-router-dom";
 import { EcosystemProCard } from "@/components/ecosystem/EcosystemProCard";
+import { StorageUsageSection } from "@/components/settings/StorageUsageSection";
+import { LineNotificationSection } from "@/components/settings/LineNotificationSection";
+import { useSubscription } from "@/core/subscription";
 
 const empty: ProfileInput = {
   displayName: "",
@@ -49,6 +52,7 @@ const SettingsPage = () => {
   const { theme, setTheme } = useTheme();
   const isDark = theme === "dark";
   const { data: isAdmin } = useIsAdmin();
+  const { tier } = useSubscription();
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
@@ -94,7 +98,7 @@ const SettingsPage = () => {
     if (!file || !user) return;
     setAvatarBusy(true);
     try {
-      const url = await uploadProjectImage(file, user.id, "avatar");
+      const url = await uploadProjectImage(file, user.id, "avatar", tier);
       await updateMedia.mutateAsync({ avatar_url: url });
       toast.success("อัปเดตรูปโปรไฟล์แล้ว");
     } catch (err: unknown) {
@@ -146,6 +150,8 @@ const SettingsPage = () => {
 
       <form onSubmit={handleSave} className="max-w-3xl mx-auto px-4 pb-24 space-y-6">
         <EcosystemProCard />
+        <StorageUsageSection />
+        <LineNotificationSection />
 
         <section className="rounded-2xl glass-panel p-6">
           <div className="flex items-center gap-4">

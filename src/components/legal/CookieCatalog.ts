@@ -1,4 +1,4 @@
-import { BRAND_NAME } from "@/lib/brandConfig";
+import { BRAND_NAME, BRAND_STORAGE_NO_PERSIST } from "@/lib/brandConfig";
 
 /** รายการคุกกี้/ที่เก็บในเบราว์เซอร์ที่แพลตฟอร์มใช้จริง */
 
@@ -47,7 +47,7 @@ export const COOKIE_CATALOG: CookieCatalogRow[] = [
     category: "analytics",
   },
   {
-    name: "an1hem_no_persist",
+    name: BRAND_STORAGE_NO_PERSIST,
     provider: BRAND_NAME,
     purpose: "ระบุว่าไม่ต้องการจดจำการเข้าสู่ระบบ",
     duration: "เซสชัน",

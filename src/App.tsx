@@ -7,11 +7,13 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import Index from "./pages/Index.tsx";
 import NotFound from "./pages/NotFound.tsx";
+import ErrorPage from "./pages/ErrorPage.tsx";
 import CookieConsent from "./components/CookieConsent.tsx";
 import BottomNav from "./components/BottomNav.tsx";
 import RequireAuth from "./components/RequireAuth.tsx";
 import AuthDialog from "./components/AuthDialog.tsx";
 import FeedbackFab from "./components/feedback/FeedbackFab.tsx";
+import { AnthemAssistantFab } from "./components/assistant/AnthemAssistantFab";
 import RedirectTo from "./components/RedirectTo.tsx";
 import RouteFallback from "./components/RouteFallback.tsx";
 import DemoModeBanner from "./components/DemoModeBanner.tsx";
@@ -75,7 +77,9 @@ const DataRightsPage = lazy(() => import("./pages/legal/DataRightsPage.tsx"));
 const IntellectualPropertyPage = lazy(() => import("./pages/legal/IntellectualPropertyPage.tsx"));
 const ExploreProjectsPage = lazy(() => import("./pages/ExploreProjectsPage.tsx"));
 const EarningsPage = lazy(() => import("./pages/EarningsPage.tsx"));
+const ResearchPage = lazy(() => import("./pages/ResearchPage.tsx"));
 const AdvertisePage = lazy(() => import("./pages/AdvertisePage.tsx"));
+const UpgradePage = lazy(() => import("./pages/UpgradePage.tsx"));
 const AdDetailPage = lazy(() => import("./pages/AdDetailPage.tsx"));
 const ContractEditorPage = lazy(() => import("./pages/ContractEditorPage.tsx"));
 const ContractsListPage = lazy(() => import("./pages/ContractsListPage.tsx"));
@@ -102,6 +106,7 @@ const App = () => (
           <Suspense fallback={<RouteFallback />}>
             <Routes>
               <Route path="/" element={<Index />} />
+              <Route path="/research" element={<ResearchPage />} />
               <Route path="/auth" element={<AuthPage />} />
               <Route path="/auth/callback" element={<AuthCallbackPage />} />
               <Route path="/portfolio" element={<RequireAuth><PortfolioProfilePage /></RequireAuth>} />
@@ -157,6 +162,7 @@ const App = () => (
               </Route>
               <Route path="/jobs" element={<JobsPage />} />
               <Route path="/advertise" element={<AdvertisePage />} />
+              <Route path="/upgrade" element={<UpgradePage />} />
               <Route path="/ads/:id" element={<AdDetailPage />} />
               <Route path="/jobs/:id" element={<JobDetailPage />} />
               <Route path="/contracts" element={<ContractsListPage />} />
@@ -170,6 +176,11 @@ const App = () => (
               <Route path="/legal/cookies" element={<CookiesPage />} />
               <Route path="/legal/rights" element={<DataRightsPage />} />
               <Route path="/legal/ip" element={<IntellectualPropertyPage />} />
+              <Route path="/error" element={<ErrorPage />} />
+              <Route path="/error/404" element={<ErrorPage defaultKind="404" />} />
+              <Route path="/error/405" element={<ErrorPage defaultKind="405" />} />
+              <Route path="/error/500" element={<ErrorPage defaultKind="500" />} />
+              <Route path="/error/503" element={<ErrorPage defaultKind="503" />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>
@@ -177,6 +188,7 @@ const App = () => (
           <BottomNav />
           <AuthDialog />
           <FeedbackFab />
+          <AnthemAssistantFab />
         </BrowserRouter>
       </TooltipProvider>
     </ThemeProvider>

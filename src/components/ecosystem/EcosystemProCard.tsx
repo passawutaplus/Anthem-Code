@@ -18,7 +18,15 @@ export function EcosystemProCard({ className, compact }: Props) {
   const { tier, isPro, isLoading } = useSubscription();
 
   const tierLabel =
-    tier === "inhouse" ? "In-House" : tier === "pro" ? "Pro" : isLoading ? "…" : "Free";
+    tier === "inhouse"
+      ? "In-House"
+      : tier === "pro_plus"
+        ? "Pro+"
+        : tier === "pro"
+          ? "Pro"
+          : isLoading
+            ? "…"
+            : "Free";
 
   return (
     <section
@@ -58,17 +66,25 @@ export function EcosystemProCard({ className, compact }: Props) {
         </div>
       </div>
 
-      <div className={cn("mt-4 flex flex-col sm:flex-row gap-2", compact && "mt-3")}>
+      <div className={cn("mt-4 flex flex-col sm:flex-row gap-2 flex-wrap", compact && "mt-3")}>
         {!isPro ? (
-          <a
-            href={SO1O_PRICING_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center justify-center gap-2 rounded-full bg-gradient-primary text-primary-foreground px-4 py-2.5 text-sm font-semibold hover:opacity-90 transition-opacity"
-          >
-            สมัคร So1o Pro
-            <ExternalLink className="h-4 w-4" />
-          </a>
+          <>
+            <Link
+              to="/upgrade"
+              className="inline-flex items-center justify-center gap-2 rounded-full bg-gradient-primary text-primary-foreground px-4 py-2.5 text-sm font-semibold hover:opacity-90 transition-opacity"
+            >
+              ดูแพ็กเกจทั้งหมด
+            </Link>
+            <a
+              href={SO1O_PRICING_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center gap-2 rounded-full border border-primary/30 text-primary px-4 py-2.5 text-sm font-semibold hover:bg-primary/5 transition-colors"
+            >
+              ชำระเงินที่ So1o
+              <ExternalLink className="h-4 w-4" />
+            </a>
+          </>
         ) : (
           <a
             href={so1oUrl("/dashboard")}
@@ -89,6 +105,12 @@ export function EcosystemProCard({ className, compact }: Props) {
           หลังบ้าน So1o
           <ExternalLink className="h-3.5 w-3.5" />
         </a>
+        <Link
+          to="/upgrade"
+          className="inline-flex items-center justify-center gap-2 rounded-full border border-border px-4 py-2.5 text-sm font-medium hover:bg-muted/50 transition-colors"
+        >
+          เปรียบเทียบแพ็กเกจ
+        </Link>
         <Link
           to="/portfolio"
           className="inline-flex items-center justify-center gap-2 rounded-full border border-border px-4 py-2.5 text-sm font-medium hover:bg-muted/50 transition-colors sm:ml-auto"

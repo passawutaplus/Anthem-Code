@@ -1,7 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { LayoutGrid, Layers3, Coins, MessageCircle, Settings, LogOut, Plus, Building2, Flag, MessageSquare, ShieldCheck, Sparkles } from "lucide-react";
 import { useSubscription } from "@/core/subscription";
-import { SO1O_PRICING_URL } from "@/lib/productLinks";
 import BriefcaseIcon from "@/components/icons/BriefcaseIcon";
 import { supabase } from "@/integrations/supabase/client";
 import { useMyStudios, useSetActiveStudio } from "@/hooks/useStudios";
@@ -76,9 +75,9 @@ const ProfileMenuCard = () => {
           <Sparkles className="w-3.5 h-3.5" /> So1o Pro — ใช้ได้ทั้ง 1PX และ My Desk
         </p>
       ) : (
-        <a href={SO1O_PRICING_URL} target="_blank" rel="noopener noreferrer" className={item}>
-          <Sparkles className="w-4 h-4 text-primary" /> สมัคร So1o Pro (หลังบ้าน + หน้าร้าน)
-        </a>
+        <button onClick={() => navigate("/upgrade")} className={item}>
+          <Sparkles className="w-4 h-4 text-primary" /> แพ็กเกจ & อัพเกรด (So1o)
+        </button>
       )}
 
       <div className="my-2 border-t border-border" />

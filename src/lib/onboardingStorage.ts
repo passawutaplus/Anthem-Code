@@ -1,4 +1,6 @@
-const PREFIX = "an1hem_onboarding";
+import { BRAND_STORAGE_ONBOARDING } from "./brandConfig";
+
+const PREFIX = BRAND_STORAGE_ONBOARDING;
 
 export type OnboardingVisitId = "explore_feed" | "jobs" | "share_profile";
 
@@ -44,7 +46,7 @@ export function getOnboardingVisits(userId: string): Partial<Record<OnboardingVi
   return read(userId).visits ?? {};
 }
 
-const UPDATE_EVENT = "an1hem_onboarding_update";
+const UPDATE_EVENT = `${BRAND_STORAGE_ONBOARDING}_update`;
 
 export async function markOnboardingVisit(userId: string, visitId: OnboardingVisitId) {
   const state = read(userId);

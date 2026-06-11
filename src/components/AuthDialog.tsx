@@ -6,11 +6,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Mail, User as UserIcon, Eye, EyeOff, Loader2, Info, Sparkles } from "lucide-react";
+import { Mail, User as UserIcon, Eye, EyeOff, Loader2, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { SocialButtons, AuthEmailSeparator } from "@/components/auth/SocialButtons";
 import { toast } from "sonner";
+import { BrandLogo } from "@/components/brand/BrandLogo";
+import { DemoLoginHint, DemoSignupBlocked } from "@/components/DemoAuthHints";
+import { BRAND_STORAGE_NO_PERSIST } from "@/lib/brandConfig";
 import { useAuth } from "@/hooks/useAuth";
 import { useAuthDialog } from "@/stores/authDialogStore";
 
@@ -52,13 +55,8 @@ const AuthDialog = () => {
     <Dialog open={open} onOpenChange={(v) => !v && close()}>
       <DialogContent className="sm:max-w-md rounded-2xl p-0 overflow-hidden gap-0">
         <div className="p-6 sm:p-7">
-          <div className="flex items-center gap-2 mb-4">
-            <div className="h-10 w-10 rounded-xl bg-gradient-brand shadow-md grid place-items-center">
-              <Sparkles className="w-4 h-4 text-white" />
-            </div>
-            <span className="font-medium tracking-tight text-lg">
-              an<span className="text-gradient">1</span>hem
-            </span>
+          <div className="mb-4">
+            <BrandLogo size="sm" />
           </div>
 
           <DialogTitle className="text-xl font-medium tracking-tight thai-display">
@@ -77,8 +75,6 @@ const AuthDialog = () => {
             </TabsList>
 
             <TabsContent value="signup" className="space-y-3.5 mt-0">
-              <SocialButtons redirectTo={redirectPath} />
-              <AuthEmailSeparator />
               <SignupForm onSwitch={() => setMode("login")} />
             </TabsContent>
 
@@ -120,7 +116,7 @@ const LoginForm = ({ onSwitch }: { onSwitch: () => void }) => {
           ? "อ๊ะ! อีเมลหรือรหัสผ่านไม่ถูกต้อง"
           : error.message);
       } else {
-        if (!remember) sessionStorage.setItem("an1hem_no_persist", "1");
+        if (!remember) sessionStorage.setItem(BRAND_STORAGE_NO_PERSIST, "1");
         toast.success("เข้าสู่ระบบสำเร็จ");
       }
     } finally { setBusy(false); }
@@ -128,6 +124,12 @@ const LoginForm = ({ onSwitch }: { onSwitch: () => void }) => {
 
   return (
     <form onSubmit={submit} className="space-y-3.5">
+      <DemoLoginHint
+        onUseAccount={(demoEmail, demoPassword) => {
+          setEmail(demoEmail);
+          setPassword(demoPassword);
+        }}
+      />
       <div className="space-y-1.5">
         <Label htmlFor="ad-li-email" className="text-xs">อีเมล</Label>
         <div className="relative">
@@ -162,6 +164,10 @@ const LoginForm = ({ onSwitch }: { onSwitch: () => void }) => {
 };
 
 const SignupForm = ({ onSwitch }: { onSwitch: () => void }) => {
+  if (import.meta.env.VITE_DEMO_MODE === "true") {
+    return <DemoSignupBlocked onSwitchToLogin={onSwitch} />;
+  }
+
   const [displayName, setDisplayName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

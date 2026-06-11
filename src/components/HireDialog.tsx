@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { hireRequestSchema } from "@/lib/validators";
 import { useAuth } from "@/hooks/useAuth";
 import { useCreateHireRequest } from "@/hooks/useHiringRequests";
+import { supabase } from "@/integrations/supabase/client";
 import { useAuthDialog } from "@/stores/authDialogStore";
 
 interface HireDialogProps {
@@ -54,7 +55,7 @@ const HireDialog = ({ open, onOpenChange, projectTitle, projectId, freelancerId 
       return;
     }
     try {
-      await createReq.mutateAsync({
+      const requestId = await createReq.mutateAsync({
         freelancer_id: freelancerId,
         client_id: user.id,
         project_id: projectId ?? null,
@@ -65,6 +66,9 @@ const HireDialog = ({ open, onOpenChange, projectTitle, projectId, freelancerId 
         budget_amount: budgetNum ?? null,
         deadline: parsed.data.deadline || null,
         message: parsed.data.message || null,
+      });
+      void supabase.functions.invoke("notify-hire-request", {
+        body: { request_id: requestId },
       });
       toast.success("ส่งคำขอจ้างงานสำเร็จ!", { description: "ฟรีแลนซ์จะติดต่อกลับทางอีเมลที่คุณให้ไว้" });
       setForm({ clientName: "", email: "", phone: "", budgetAmount: "", deadline: "", message: "" });

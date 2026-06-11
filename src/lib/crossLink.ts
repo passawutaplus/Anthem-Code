@@ -1,15 +1,12 @@
 /**
  * Cross-link helper for the Anthem ↔ So1o ecosystem.
- *
- * Phase 1: pure deep-link CTAs. No backend integration yet — the target
- * app reads query params to prefill forms. Tracking is best-effort.
  */
 import { supabase } from "@/integrations/supabase/client";
 import { SO1O_APP_URL } from "@/lib/productLinks";
 
 export { SO1O_APP_URL };
 
-type CrossLinkContext = {
+export type CrossLinkContext = {
   /** Where the CTA lives, e.g. "project_detail" | "chat_header". */
   source: string;
   /** Anthem entity id this link references. */
@@ -23,7 +20,7 @@ type CrossLinkContext = {
  */
 export function so1oUrl(
   path: string,
-  params: Record<string, string | undefined> = {}
+  params: Record<string, string | undefined> = {},
 ): string {
   const url = new URL(path.startsWith("/") ? path : `/${path}`, SO1O_APP_URL);
   url.searchParams.set("from", "anthem");
@@ -33,23 +30,61 @@ export function so1oUrl(
   return url.toString();
 }
 
+/** Deep-link to So1o quotation form with Anthem hire context. */
+export function so1oQuotationUrl(params: {
+  conversationId?: string;
+  requestId?: string;
+  clientName?: string;
+  projectTitle?: string;
+  clientEmail?: string;
+  clientPhone?: string;
+  message?: string;
+  deadline?: string;
+  linkId?: string;
+}): string {
+  return so1oUrl("/dashboard", {
+    tab: "finance",
+    sub: "quotations",
+    conversation_id: params.conversationId,
+    request_id: params.requestId,
+    client_name: params.clientName,
+    project_title: params.projectTitle,
+    client_email: params.clientEmail,
+    client_phone: params.clientPhone,
+    message: params.message,
+    deadline: params.deadline,
+    link_id: params.linkId,
+  });
+}
+
 /**
- * Best-effort log of a cross-app CTA click. Never throws.
- * In Phase 2 this will write to a shared analytics table; for now it
- * logs to the console so we can validate the wiring during prototyping.
+ * Log cross-app CTA to ecosystem_links. Never throws.
  */
-export function trackCrossLink(ctx: CrossLinkContext): void {
+export async function trackCrossLink(ctx: CrossLinkContext): Promise<string | undefined> {
   try {
-    // Lightweight client log — replace with shared.notifications/analytics
-    // table in Phase 2.
-    // eslint-disable-next-line no-console
-    console.info("[cross_link_clicked]", ctx);
-    // Fire-and-forget user context capture (no await, no error surface).
-    void supabase.auth.getUser().then(({ data }) => {
-      // eslint-disable-next-line no-console
-      console.info("[cross_link_clicked:user]", data.user?.id ?? "anon");
-    });
+    const { data: auth } = await supabase.auth.getUser();
+    const userId = auth.user?.id;
+    if (!userId) return undefined;
+
+    const { data, error } = await supabase
+      .from("ecosystem_links")
+      .insert({
+        user_id: userId,
+        event_type: "cross_link_click",
+        source_app: "anthem",
+        source_page: ctx.source,
+        ref_id: ctx.refId ?? null,
+        meta: ctx.meta ?? {},
+      })
+      .select("id")
+      .single();
+
+    if (error) {
+      console.warn("[cross_link] insert failed", error.message);
+      return undefined;
+    }
+    return data?.id as string | undefined;
   } catch {
-    /* noop */
+    return undefined;
   }
 }

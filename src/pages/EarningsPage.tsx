@@ -1,5 +1,5 @@
-import { useState, useMemo } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useState, useMemo, useEffect } from "react";
+import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, Sparkles, Banknote, Gift as GiftIcon, Coins, Pencil, Coffee, Highlighter, PenTool, Palette, Laptop, ShieldCheck, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -7,10 +7,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useWallet, useAvailablePurchasedPx } from "@/hooks/useWallet";
 import { useReceivedGifts, useGifts } from "@/hooks/useGifting";
-import { useCashoutHistory, MIN_CASHOUT_PX, PLATFORM_FEE_RATE } from "@/hooks/useCashout";
+import { useCashoutHistory, MIN_CASHOUT_PX, PLATFORM_FEE_RATE, cashoutStatusLabel } from "@/hooks/useCashout";
 import CashoutDialog from "@/components/gifting/CashoutDialog";
+import TopUpDialog from "@/components/gifting/TopUpDialog";
 import { formatThaiDate } from "@/lib/format";
 import SeoHead from "@/components/SeoHead";
+import { toast } from "sonner";
 
 const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
   Pencil, Coffee, Highlighter, PenTool, Palette, Laptop,
@@ -25,6 +27,22 @@ const EarningsPage = () => {
   const { data: received = [] } = useReceivedGifts(user?.id);
   const { data: cashouts = [] } = useCashoutHistory();
   const [cashoutOpen, setCashoutOpen] = useState(false);
+  const [topupOpen, setTopupOpen] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  useEffect(() => {
+    const topup = searchParams.get("topup");
+    const connect = searchParams.get("connect");
+    if (topup === "success") {
+      toast.success("เติม Pixel สำเร็จ — ยอดจะพร้อมส่งของขวัญหลังช่วงพัก 24 ชม.");
+      searchParams.delete("topup");
+      setSearchParams(searchParams, { replace: true });
+    } else if (connect === "success") {
+      toast.success("เชื่อมบัญชี Stripe Connect แล้ว");
+      searchParams.delete("connect");
+      setSearchParams(searchParams, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
 
   const giftById = useMemo(() => new Map(gifts.map((g) => [g.id, g])), [gifts]);
   const senderIds = useMemo(
@@ -66,11 +84,19 @@ const EarningsPage = () => {
       </div>
 
       <div className="max-w-5xl mx-auto px-4 py-6 space-y-6">
-        <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 text-sm text-foreground/90 leading-relaxed">
-          <p className="font-medium text-foreground">ระบบชำระเงินกำลังเตรียมเปิดใช้งาน</p>
-          <p className="text-muted-foreground mt-1 text-xs">
-            เติม Pixel และถอนเงินจริงจะพร้อมหลังเชื่อม payment gateway — ตอนนี้เติม/ถอนเป็นโหมดทดสอบหรือคิวรอดำเนินการ
-          </p>
+        <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 text-sm text-foreground/90 leading-relaxed flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div>
+            <p className="font-medium text-foreground">เติม Pixel ด้วย Stripe</p>
+            <p className="text-muted-foreground mt-1 text-xs">
+              1 px = 1 บาท · ชำระผ่าน Stripe Checkout · ยอดเติมใช้ส่งของขวัญได้หลังพัก 24 ชม.
+            </p>
+          </div>
+          <Button
+            onClick={() => setTopupOpen(true)}
+            className="rounded-full bg-primary text-primary-foreground hover:bg-primary/90 shrink-0"
+          >
+            <Coins className="w-4 h-4 mr-1.5" /> เติม Pixel
+          </Button>
         </div>
         {/* Stat cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -221,13 +247,15 @@ const EarningsPage = () => {
                   </div>
                   <div className="text-right">
                     <span className={`text-[11px] px-2 py-0.5 rounded-full ${
-                      c.status === "mock_paid"
+                      c.status === "mock_paid" || c.status === "paid"
                         ? "bg-primary/10 text-primary"
-                        : c.status === "rejected"
+                        : c.status === "rejected" || c.status === "failed"
                         ? "bg-destructive/10 text-destructive"
+                        : c.status === "processing"
+                        ? "bg-amber-500/10 text-amber-700 dark:text-amber-300"
                         : "bg-muted text-muted-foreground"
                     }`}>
-                      {c.status === "mock_paid" ? "โอนแล้ว" : c.status === "pending" ? "รอดำเนินการ" : "ปฏิเสธ"}
+                      {cashoutStatusLabel(c.status)}
                     </span>
                     <p className="text-[10px] text-muted-foreground mt-1">{formatThaiDate(c.created_at)}</p>
                   </div>
@@ -239,6 +267,7 @@ const EarningsPage = () => {
       </div>
 
       <CashoutDialog open={cashoutOpen} onOpenChange={setCashoutOpen} />
+      <TopUpDialog open={topupOpen} onOpenChange={setTopupOpen} />
     </div>
   );
 };

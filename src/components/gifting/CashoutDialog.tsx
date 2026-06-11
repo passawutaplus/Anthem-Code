@@ -3,9 +3,11 @@ import { Link } from "react-router-dom";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Banknote } from "lucide-react";
+import { Banknote, Link2, Loader2 } from "lucide-react";
 import { useWallet } from "@/hooks/useWallet";
 import { useRequestCashout, PLATFORM_FEE_RATE, MIN_CASHOUT_PX } from "@/hooks/useCashout";
+import { useConnectProfile } from "@/hooks/useConnectProfile";
+import { startConnectOnboarding } from "@/lib/stripePaymentsApi";
 import { toast } from "sonner";
 
 interface Props {
@@ -15,22 +17,41 @@ interface Props {
 
 const CashoutDialog = ({ open, onOpenChange }: Props) => {
   const { data: wallet } = useWallet();
+  const { data: connectProfile, refetch: refetchConnect } = useConnectProfile();
   const cashout = useRequestCashout();
   const earnedBalance = wallet?.earned_px ?? 0;
   const [amount, setAmount] = useState<string>("");
   const [bank, setBank] = useState("");
   const [accountNumber, setAccountNumber] = useState("");
   const [accountName, setAccountName] = useState("");
+  const [connectLoading, setConnectLoading] = useState(false);
+
+  const connectReady =
+    connectProfile?.connect_onboarding_complete && connectProfile?.connect_payouts_enabled;
 
   const amountNum = parseInt(amount, 10) || 0;
   const fee = useMemo(() => Math.floor(amountNum * PLATFORM_FEE_RATE), [amountNum]);
   const net = amountNum - fee;
   const canSubmit =
+    connectReady &&
     amountNum >= MIN_CASHOUT_PX &&
     amountNum <= earnedBalance &&
     bank.trim() &&
     accountNumber.trim() &&
     accountName.trim();
+
+  const handleConnect = async () => {
+    setConnectLoading(true);
+    try {
+      await startConnectOnboarding({
+        returnPath: "/earnings?connect=success",
+        refreshPath: "/earnings?connect=refresh",
+      });
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "เชื่อมบัญชีไม่สำเร็จ");
+      setConnectLoading(false);
+    }
+  };
 
   const handleSubmit = () => {
     cashout.mutate(
@@ -38,18 +59,24 @@ const CashoutDialog = ({ open, onOpenChange }: Props) => {
       {
         onSuccess: () => {
           toast.success(`ส่งคำขอถอน ${amountNum.toLocaleString()} px แล้ว`, {
-            description: `อยู่ในคิวดำเนินการ — สุทธิประมาณ ฿ ${net.toLocaleString()} หลังหักค่าธรรมเนียม 15%`,
+            description: `สุทธิประมาณ ฿ ${net.toLocaleString()} หลังหักค่าธรรมเนียม 15% — admin จะโอนผ่าน Stripe Connect`,
           });
           onOpenChange(false);
           setAmount("");
         },
         onError: (e: Error) => toast.error(e.message),
-      }
+      },
     );
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog
+      open={open}
+      onOpenChange={(o) => {
+        onOpenChange(o);
+        if (o) void refetchConnect();
+      }}
+    >
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
@@ -59,6 +86,28 @@ const CashoutDialog = ({ open, onOpenChange }: Props) => {
             ยอดถอนได้ (จากของขวัญ) <span className="text-primary font-semibold">{earnedBalance.toLocaleString()} px</span> · ขั้นต่ำ {MIN_CASHOUT_PX.toLocaleString()} px · ค่าธรรมเนียม {PLATFORM_FEE_RATE * 100}%
           </DialogDescription>
         </DialogHeader>
+
+        {!connectReady && (
+          <div className="rounded-xl border border-primary/25 bg-primary/5 p-3 space-y-2">
+            <p className="text-xs text-foreground/90">
+              ก่อนถอนครั้งแรก ต้องเชื่อมบัญชีรับเงินผ่าน Stripe Connect
+            </p>
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full rounded-full"
+              disabled={connectLoading}
+              onClick={handleConnect}
+            >
+              {connectLoading ? (
+                <Loader2 className="w-4 h-4 animate-spin mr-2" />
+              ) : (
+                <Link2 className="w-4 h-4 mr-2" />
+              )}
+              เชื่อมบัญชีรับเงิน
+            </Button>
+          </div>
+        )}
 
         <div className="space-y-3">
           <div className="space-y-1.5">
@@ -70,10 +119,13 @@ const CashoutDialog = ({ open, onOpenChange }: Props) => {
               placeholder={`อย่างน้อย ${MIN_CASHOUT_PX}`}
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
+              disabled={!connectReady}
             />
             <button
+              type="button"
               onClick={() => setAmount(String(earnedBalance))}
               className="text-[11px] text-primary hover:underline"
+              disabled={!connectReady}
             >
               ใช้ยอดทั้งหมด ({earnedBalance.toLocaleString()} px)
             </button>
@@ -82,16 +134,16 @@ const CashoutDialog = ({ open, onOpenChange }: Props) => {
           <div className="grid grid-cols-2 gap-2">
             <div className="space-y-1.5">
               <label className="text-xs text-muted-foreground">ธนาคาร</label>
-              <Input placeholder="เช่น กสิกรไทย" value={bank} onChange={(e) => setBank(e.target.value)} />
+              <Input placeholder="เช่น กสิกรไทย" value={bank} onChange={(e) => setBank(e.target.value)} disabled={!connectReady} />
             </div>
             <div className="space-y-1.5">
               <label className="text-xs text-muted-foreground">เลขบัญชี</label>
-              <Input placeholder="xxx-x-xxxxx-x" value={accountNumber} onChange={(e) => setAccountNumber(e.target.value)} />
+              <Input placeholder="xxx-x-xxxxx-x" value={accountNumber} onChange={(e) => setAccountNumber(e.target.value)} disabled={!connectReady} />
             </div>
           </div>
           <div className="space-y-1.5">
             <label className="text-xs text-muted-foreground">ชื่อบัญชี</label>
-            <Input placeholder="ชื่อ-นามสกุล" value={accountName} onChange={(e) => setAccountName(e.target.value)} />
+            <Input placeholder="ชื่อ-นามสกุล" value={accountName} onChange={(e) => setAccountName(e.target.value)} disabled={!connectReady} />
           </div>
 
           <div className="rounded-xl bg-muted/50 p-3 space-y-1 text-sm">
@@ -102,8 +154,13 @@ const CashoutDialog = ({ open, onOpenChange }: Props) => {
           </div>
 
           <div className="text-[11px] text-muted-foreground bg-muted/50 rounded-lg p-2 leading-relaxed space-y-1">
-            <p>คำขอจะเข้าคิว <span className="font-medium text-foreground">รอดำเนินการ</span> — ทีมงานจะโอนเมื่อระบบชำระเงินเปิดใช้งาน</p>
-            <p>ต้องยืนยันตัวตน (KYC) ก่อนถอน — ดูที่หน้า <Link to="/verify" className="text-primary underline">ยืนยันตัวตน</Link></p>
+            <p>คำขอจะเข้าคิวรอ admin โอนผ่าน Stripe Connect</p>
+            <p>
+              ต้องยืนยันตัวตน (KYC) ก่อนถอน — ดูที่หน้า{" "}
+              <Link to="/verify" className="text-primary underline">
+                ยืนยันตัวตน
+              </Link>
+            </p>
           </div>
 
           <Button

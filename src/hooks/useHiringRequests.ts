@@ -45,8 +45,13 @@ export const useCreateHireRequest = () => {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (payload: Database["public"]["Tables"]["hiring_requests"]["Insert"]) => {
-      const { error } = await supabase.from("hiring_requests").insert(payload);
+      const { data, error } = await supabase
+        .from("hiring_requests")
+        .insert(payload)
+        .select("id")
+        .single();
       if (error) throw error;
+      return data.id as string;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["hiring_requests"] }),
   });

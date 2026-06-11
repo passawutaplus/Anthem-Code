@@ -17,7 +17,7 @@ export interface SubscriptionRow {
   environment: string;
 }
 
-export type Tier = "free" | "pro" | "inhouse";
+export type Tier = "free" | "pro" | "pro_plus" | "inhouse";
 
 /** Stripe env: live when VITE_STRIPE_MODE=live, else sandbox (matches So1o). */
 export function getStripeEnvironment(): "sandbox" | "live" {
@@ -89,7 +89,7 @@ export function useSubscription() {
       )
       .on(
         "postgres_changes",
-        { event: "UPDATE", schema: "public", table: "profiles", filter: `id=eq.${userId}` },
+        { event: "UPDATE", schema: "public", table: "profiles", filter: `user_id=eq.${userId}` },
         invalidate,
       )
       .subscribe();
@@ -112,7 +112,7 @@ export function useSubscription() {
       (sub.status === "canceled" && periodEndMs && periodEndMs > now));
 
   const tier: Tier = profileTier !== "free" ? profileTier : isActive ? "pro" : "free";
-  const isPro = tier === "pro" || tier === "inhouse";
+  const isPro = tier === "pro" || tier === "pro_plus" || tier === "inhouse";
 
   return {
     subscription: sub,

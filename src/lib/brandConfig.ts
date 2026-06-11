@@ -19,8 +19,8 @@ export const BRAND_CONCEPT =
 
 export const BRAND_HERO_SUBTITLE = "พื้นที่ของฟรีแลนซ์";
 
-/** โลโก้ mark ในกล่อง (เช่น header) */
-export const BRAND_MARK = "1PX";
+/** โลโก้ mark ในกล่อง — พิกเซลเดียว (ย่อจาก 1PX) */
+export const BRAND_MARK = "1";
 
 export const BRAND_COMPANY = "1PX Platform";
 
@@ -36,7 +36,10 @@ export const BRAND_STORAGE_NO_PERSIST = "an1hem_no_persist";
 export const BRAND_ECOSYSTEM_KEY = "anthem";
 
 export function defaultSiteUrl(): string {
-  const fromEnv = import.meta.env.VITE_SITE_URL as string | undefined;
+  const fromEnv =
+    typeof import.meta !== "undefined"
+      ? (import.meta.env?.VITE_SITE_URL as string | undefined)
+      : undefined;
   if (fromEnv) return fromEnv.replace(/\/$/, "");
   return `https://${BRAND_DOMAIN}`;
 }

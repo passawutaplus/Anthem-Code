@@ -1,46 +1,43 @@
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Sparkles, Zap } from "lucide-react";
-import { useTopUp, useWallet } from "@/hooks/useWallet";
+import { Sparkles, Zap, Loader2 } from "lucide-react";
+import { useWallet } from "@/hooks/useWallet";
 import { toast } from "sonner";
+import { PX_PRICE_BY_AMOUNT, startStripeCheckout } from "@/lib/stripePaymentsApi";
 
 interface Props {
   open: boolean;
   onOpenChange: (o: boolean) => void;
 }
 
-const PRESETS = [100, 300, 500, 1000];
-const MAX_TOPUP = 100_000;
+const PRESETS = [
+  { px: 500, label: "Starter" },
+  { px: 2000, label: "Creator" },
+  { px: 10000, label: "Studio" },
+] as const;
 
 const TopUpDialog = ({ open, onOpenChange }: Props) => {
   const { data: wallet } = useWallet();
-  const topup = useTopUp();
-  const [amount, setAmount] = useState<number>(300);
-  const [custom, setCustom] = useState("");
+  const [loadingPx, setLoadingPx] = useState<number | null>(null);
 
-  const finalAmount = custom ? parseInt(custom, 10) || 0 : amount;
-
-  const handleConfirm = () => {
-    if (finalAmount <= 0) {
-      toast.error("กรุณาใส่จำนวน px");
+  const handleStripeTopup = async (px: number) => {
+    const priceId = PX_PRICE_BY_AMOUNT[px];
+    if (!priceId) {
+      toast.error("แพ็กนี้ยังไม่พร้อม — เลือก 500 / 2,000 / 10,000 px");
       return;
     }
-    if (finalAmount > MAX_TOPUP) {
-      toast.error(`เติมได้สูงสุด ${MAX_TOPUP.toLocaleString()} px ต่อครั้ง`);
-      return;
+    setLoadingPx(px);
+    try {
+      await startStripeCheckout({
+        priceId,
+        successPath: "/earnings?topup=success",
+        cancelPath: "/earnings?topup=canceled",
+      });
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "ไม่สามารถเริ่ม checkout ได้");
+      setLoadingPx(null);
     }
-    topup.mutate(finalAmount, {
-      onSuccess: () => {
-        toast.success(`เติม Pixel สำเร็จ +${finalAmount} px`, {
-          description: "ยอดที่เติมจะใช้ส่งของขวัญได้หลัง 24 ชั่วโมง (ช่วงพักตรวจสอบ AML)",
-        });
-        onOpenChange(false);
-        setCustom("");
-      },
-      onError: (e: Error) => toast.error(e.message),
-    });
   };
 
   return (
@@ -55,51 +52,40 @@ const TopUpDialog = ({ open, onOpenChange }: Props) => {
           </DialogDescription>
         </DialogHeader>
 
-        <div className="grid grid-cols-2 gap-2 mt-2">
-          {PRESETS.map((p) => {
-            const active = !custom && amount === p;
+        <div className="grid grid-cols-1 gap-2 mt-2">
+          {PRESETS.map(({ px, label }) => {
+            const active = loadingPx === px;
             return (
               <button
-                key={p}
-                onClick={() => {
-                  setAmount(p);
-                  setCustom("");
-                }}
-                className={`rounded-xl border p-3 text-left transition ${
-                  active ? "border-primary bg-primary/5" : "border-border hover:border-primary/40"
-                }`}
+                key={px}
+                type="button"
+                onClick={() => handleStripeTopup(px)}
+                disabled={loadingPx !== null}
+                className="rounded-xl border border-border hover:border-primary/40 p-3 text-left transition flex items-center justify-between gap-3"
               >
-                <p className="text-lg font-semibold text-foreground">{p} <span className="text-xs text-muted-foreground">px</span></p>
-                <p className="text-xs text-muted-foreground">฿ {p.toLocaleString()}</p>
+                <div>
+                  <p className="text-sm font-semibold text-foreground">{label}</p>
+                  <p className="text-lg font-semibold tabular-nums">
+                    {px.toLocaleString()} <span className="text-xs text-muted-foreground">px</span>
+                  </p>
+                  <p className="text-xs text-muted-foreground">฿ {px.toLocaleString()}</p>
+                </div>
+                {active ? (
+                  <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                ) : (
+                  <Zap className="w-4 h-4 text-primary shrink-0" />
+                )}
               </button>
             );
           })}
         </div>
 
-        <div className="space-y-1.5">
-          <label className="text-xs text-muted-foreground">หรือระบุจำนวนเอง (px)</label>
-          <Input
-            type="number"
-            min={1}
-            placeholder="เช่น 250"
-            value={custom}
-            onChange={(e) => setCustom(e.target.value)}
-          />
-        </div>
-
         <div className="text-[11px] text-muted-foreground bg-muted/50 rounded-lg p-2 leading-relaxed space-y-1">
-          <p>⏳ <span className="font-medium text-foreground">ช่วงพัก 24 ชั่วโมง:</span> เพื่อความปลอดภัย ยอดที่เติมต้องรอ 24 ชม. จึงจะนำไปส่งของขวัญได้</p>
-          <p>🛡️ เพดานเติมต่อครั้ง: {MAX_TOPUP.toLocaleString()} px · โหมดทดสอบ ไม่มีการตัดเงินจริง</p>
+          <p>
+            ⏳ <span className="font-medium text-foreground">ช่วงพัก 24 ชั่วโมง:</span> ยอดที่เติมต้องรอ 24 ชม. จึงจะนำไปส่งของขวัญได้
+          </p>
+          <p>ชำระผ่าน Stripe Checkout (sandbox/production ตามการตั้งค่า)</p>
         </div>
-
-        <Button
-          onClick={handleConfirm}
-          disabled={topup.isPending || finalAmount <= 0}
-          className="w-full bg-primary text-primary-foreground hover:bg-primary/90 rounded-full"
-        >
-          <Zap className="w-4 h-4 mr-1.5" />
-          เติม {finalAmount > 0 ? `${finalAmount} px` : ""}
-        </Button>
       </DialogContent>
     </Dialog>
   );

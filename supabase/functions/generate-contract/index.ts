@@ -1,4 +1,4 @@
-// Generate contract draft (Thai) via Google Gemini.
+// Generate contract draft (Thai) via Google Gemini — shared AI credits with So1o.
 import { z } from "npm:zod@3";
 import { createClient } from "npm:@supabase/supabase-js@2";
 import {
@@ -8,6 +8,10 @@ import {
   getGeminiApiKey,
   normalizeGeminiModel,
 } from "../_shared/gemini.ts";
+import { debitAiQuota, getAiUsageSummary } from "../_shared/ai-quota.ts";
+
+const CONTRACT_FEATURE = "generate_contract";
+const CONTRACT_COST = 8;
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -71,7 +75,6 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   if (req.method !== "POST") return json({ error: "method not allowed" }, 405);
 
-  // --- Auth ---
   const authHeader = req.headers.get("Authorization");
   if (!authHeader?.startsWith("Bearer ")) return json({ error: "unauthorized" }, 401);
   const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
@@ -81,7 +84,6 @@ Deno.serve(async (req) => {
   const { data: claims, error: authErr } = await supabase.auth.getClaims(token);
   if (authErr || !claims?.claims?.sub) return json({ error: "unauthorized" }, 401);
 
-  // --- Validate input ---
   let raw: unknown;
   try {
     raw = await req.json();
@@ -90,6 +92,12 @@ Deno.serve(async (req) => {
   }
   const parsed = PayloadSchema.safeParse(raw);
   if (!parsed.success) return json({ error: parsed.error.flatten().fieldErrors }, 400);
+
+  const userId = claims.claims.sub as string;
+  const summary = await getAiUsageSummary(userId);
+  if ((summary.total_remaining ?? 0) < CONTRACT_COST) {
+    return json({ error: "limit_reached", ...summary }, 429);
+  }
 
   try {
     const model = normalizeGeminiModel("google/gemini-2.5-flash", defaultModel());
@@ -100,6 +108,12 @@ Deno.serve(async (req) => {
       ],
       temperature: 0.3,
     });
+
+    const quota = await debitAiQuota(userId, CONTRACT_FEATURE, crypto.randomUUID());
+    if (!quota.allowed) {
+      return json({ error: "limit_reached", ...quota }, 429);
+    }
+
     return json({ draft });
   } catch (e) {
     if (e instanceof GeminiError && e.status === 429) {

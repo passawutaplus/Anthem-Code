@@ -1,19 +1,26 @@
 # AML & Gifting Compliance (Anthem)
 
-เอกสารอ้างอิงสำหรับทีม ops / admin — สอดคล้องกับ migration `20260530121450` และ `.lovable/plan.md`
+เอกสารอ้างอิงสำหรับทีม ops / admin — สอดคล้องกับ migration `20260530121450`, `scripts/ecosystem/stripe-payments.sql` และ `.lovable/plan.md`
 
 ## โครงสร้าง PX (closed-loop)
 
 | ช่อง wallet | ที่มา | ใช้ทำอะไร | Cashout |
 |-------------|--------|-----------|---------|
 | `welcome_px` | ภารกิจ Welcome Bonus (สูงสุด 500 px) | ส่งของขวัญ | ไม่ได้ |
-| `purchased_px` | เติมเงิน (mock / Stripe ในอนาคต) | ส่งของขวัญ | ไม่ได้ |
-| `earned_px` | รับของขวัญ | ถอนเป็นบาท | ได้ (หลัง KYC, ขั้นต่ำ 1,000 px) |
+| `purchased_px` | เติมเงิน (Stripe Checkout ผ่าน So1o) | ส่งของขวัญ | ไม่ได้ |
+| `earned_px` | รับของขวัญ | ถอนเป็นบาท | ได้ (หลัง KYC + Connect, ขั้นต่ำ 1,000 px) |
 
 - Welcome Bonus ปลดล็อกทีละภารกิจ onboarding — RPC `claim_welcome_mission` (เพดาน `lifetime_welcome_px` = 500)
 - ส่งของขวัญหัก `welcome_px` ก่อน `purchased_px` — ยอดรวมพร้อมใช้ = `available_gift_px`
 - ยอด top-up มี **holding 24 ชม.** ก่อนใช้ส่ง gift (`available_purchased_px`) — **welcome_px ไม่มี holding**
 - `balance_px` = `purchased_px + earned_px` (generated) — welcome_px แยกจาก balance รวม
+
+## Stripe top-up (PX)
+
+- Checkout รวมศูนย์ที่ **So1o** (`/pricing` หรือ `/api/payments/checkout`) — lookup keys `px_500`, `px_2000`, `px_10000`
+- Webhook `checkout.session.completed` → RPC `topup_wallet_stripe` (idempotent ด้วย `stripe_session_id`)
+- Anthem UI: `/earnings` → TopUpDialog → redirect Stripe → กลับ `?topup=success`
+- ปิด mock: ตั้ง `payment_settings.mock_topup_enabled = false` (production)
 
 ## Limits (ค่าเริ่มต้นใน `gift_limits_config`)
 
@@ -41,18 +48,19 @@
 
 Admin จัดการที่ `/admin/aml`: dismiss / escalate / freeze
 
-## Cashout workflow (pre-Stripe)
+## Cashout workflow (Stripe Connect)
 
-1. ผู้ใช้ขอถอนที่ `/earnings` → `cashout_requests.status = pending`
-2. Admin ดูที่ `/admin/gifts` (แท็บ cashout) → `admin_mark_cashout_paid`
-3. ผู้ใช้ได้รับ in-app notification (`cashout_paid`)
-
-> เมื่อเชื่อม payment จริง: เปลี่ยน `mock_paid` → `paid` และเชื่อม webhook โอนเงิน
+1. ผู้ใช้ onboard Connect ที่ `/earnings` → So1o `/api/payments/connect/onboard`
+2. ผู้ใช้ขอถอนที่ `/earnings` → `cashout_requests.status = pending` (หัก `earned_px`)
+3. Admin ที่ `/admin/gifts` → **โอน Stripe** → `processCashoutTransfer` → `stripe.transfers.create`
+4. สถานะ `processing` → `paid` (หรือ `failed` + คืน `earned_px` ผ่าน `mark_cashout_failed_stripe`)
+5. Fallback manual: `admin_mark_cashout_paid` (sandbox / edge cases)
 
 ## ก่อน go-live (checklist)
 
-- [ ] ปิด `topup_wallet_mock` ใน production
-- [ ] เปิด Stripe/Omise + webhook top-up
-- [ ] Cashout จริง + สถานะ `paid` / `rejected` พร้อมคืน `earned_px` เมื่อ reject
+- [x] Stripe Checkout top-up (`topup_wallet_stripe`)
+- [x] Stripe Connect cashout path
+- [ ] ตั้ง `payment_settings.mock_topup_enabled = false` ใน production
+- [ ] Webhook secrets + products ใน Stripe Dashboard (sandbox แล้ว → live)
 - [ ] KYC อัปโหลดเอกสาร (storage private)
 - [ ] ทบทวน `docs/security.md` และ pentest scope
