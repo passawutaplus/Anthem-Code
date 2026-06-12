@@ -24,7 +24,7 @@ const JobBoardRail = () => {
         {isLoading ? (
           <div className="space-y-2">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="glass-panel rounded-2xl p-4 h-28 animate-pulse" />
+              <div key={i} className="rounded-2xl h-52 animate-pulse bg-muted/50 border border-border/40" />
             ))}
           </div>
         ) : jobs.length === 0 ? (

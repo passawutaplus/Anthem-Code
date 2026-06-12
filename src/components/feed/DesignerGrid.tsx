@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { SearchX } from "lucide-react";
 import { useDesigners, type DesignerCardData } from "@/hooks/useDesigners";
 import DesignerCard from "./DesignerCard";
+import { StaggerGrid } from "@/components/motion/StaggerGrid";
 import { fuzzyMatchAll } from "@/lib/fuzzyMatch";
 import type { DesignerSort } from "./DesignerToolbar";
 import EmptyState from "@/components/ui/EmptyState";
@@ -80,11 +81,11 @@ const DesignerGrid = ({
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+    <StaggerGrid className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
       {filtered.map((d) => (
         <DesignerCard key={d.profile.id} data={d} onHire={onHire} onCollab={onCollab} search={search} />
       ))}
-    </div>
+    </StaggerGrid>
   );
 };
 

@@ -329,6 +329,7 @@ async function main() {
     post_type: "hiring",
     poster_role: "studio",
     employment_type: "project",
+    cover_image_url: unsplashArt(i, 1200, 720),
   }));
   const { error: jobErr } = await anthemDb.from("job_posts").upsert(jobs, { onConflict: "id" });
   if (jobErr) console.warn("job_posts:", jobErr.message);

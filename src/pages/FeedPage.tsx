@@ -19,6 +19,7 @@ import HireDialog from "@/components/HireDialog";
 import CollabDialog from "@/components/CollabDialog";
 import ProfileButton from "@/components/ProfileButton";
 import FeedHero from "@/components/feed/FeedHero";
+import { StaggerGrid } from "@/components/motion/StaggerGrid";
 import FeedModeToggle, { type FeedMode } from "@/components/feed/FeedModeToggle";
 import DesignerGrid from "@/components/feed/DesignerGrid";
 import { FilterPanel, type DesignerSort } from "@/components/feed/DesignerToolbar";
@@ -282,7 +283,10 @@ const FeedPage = (_props: { onMyPortClick: () => void }) => {
             <ProjectGridSkeleton />
           ) : (
             <>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 2xl:grid-cols-5 gap-2 sm:gap-3 lg:gap-4">
+              <StaggerGrid
+                dense
+                className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 2xl:grid-cols-5 gap-2 sm:gap-3 lg:gap-4"
+              >
                 {feedItems.map((item) =>
                   item.kind === "ad" ? (
                     <AdCard key={item.key} ad={item.data} />
@@ -307,7 +311,7 @@ const FeedPage = (_props: { onMyPortClick: () => void }) => {
                     />
                   )
                 )}
-              </div>
+              </StaggerGrid>
 
               {!projectsLoading && filtered.length === 0 && (
                 <EmptyState

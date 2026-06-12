@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { Sparkles, X, Loader2, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -6,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAiUsage } from "@/hooks/useAiUsage";
 import { useSubscription } from "@/core/subscription";
 import { BRAND_NAME } from "@/lib/brandConfig";
+import { panelTransition, panelVariants } from "@/lib/motion";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 
@@ -58,8 +60,16 @@ export function AnthemAssistantFab() {
         {open ? <X className="h-5 w-5" /> : <Sparkles className="h-5 w-5" />}
       </button>
 
-      {open && (
-        <div className="fixed bottom-36 right-4 z-40 w-[min(100vw-2rem,22rem)] rounded-2xl border border-border bg-background shadow-xl p-4 space-y-3">
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            variants={panelVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            transition={panelTransition}
+            className="fixed bottom-36 right-4 z-40 w-[min(100vw-2rem,22rem)] rounded-2xl border border-border bg-background shadow-xl p-4 space-y-3"
+          >
           <div className="flex items-center justify-between gap-2">
             <p className="text-sm font-semibold">{ASSISTANT_LABEL}</p>
             <span className="text-[10px] text-muted-foreground">
@@ -89,8 +99,9 @@ export function AnthemAssistantFab() {
               ถาม
             </Button>
           </div>
-        </div>
-      )}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 }

@@ -110,6 +110,38 @@
     text-rendering: optimizeLegibility;
   }
 
+  /* Smooth crossfade when toggling light/dark (View Transitions API) */
+  @media (prefers-reduced-motion: no-preference) {
+    ::view-transition-old(root),
+    ::view-transition-new(root) {
+      animation-duration: 0.45s;
+      animation-timing-function: ease-in-out;
+    }
+  }
+
+  /* Fallback for browsers without View Transitions */
+  html.theme-fade-active,
+  html.theme-fade-active body {
+    transition:
+      background-color 0.45s ease,
+      color 0.45s ease;
+  }
+
+  html.theme-fade-active .bg-app-ambient,
+  html.theme-fade-active .glass-panel,
+  html.theme-fade-active .glass-panel-strong,
+  html.theme-fade-active .glass-chip,
+  html.theme-fade-active [class*="bg-card"],
+  html.theme-fade-active [class*="bg-muted"],
+  html.theme-fade-active [class*="bg-secondary"],
+  html.theme-fade-active [class*="bg-background"] {
+    transition:
+      background-color 0.45s ease,
+      color 0.45s ease,
+      border-color 0.45s ease,
+      box-shadow 0.45s ease;
+  }
+
   /* Thai text needs more leading to avoid tone-mark collision */
   :lang(th), body {
     line-height: 1.65;
@@ -128,7 +160,32 @@
   }
 }
 
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
+}
+@keyframes input-shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-6px); }
+  40% { transform: translateX(6px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(4px); }
+}
+
 @layer utilities {
+  .animate-fade-up { animation: fade-up 0.5s cubic-bezier(0.22, 1, 0.36, 1) both; }
+  .animate-fade-in { animation: fade-in 0.3s ease-out both; }
+  .animate-scale-in { animation: scale-in 0.25s ease-out both; }
+  .animate-input-shake { animation: input-shake 0.4s ease-in-out; }
+
   .scrollbar-hide::-webkit-scrollbar { display: none; }
   .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 

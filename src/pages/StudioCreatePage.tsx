@@ -1,5 +1,5 @@
-import { useState, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useRef, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -39,6 +39,7 @@ const uploadImage = async (file: File, userId: string, kind: "logo" | "cover") =
 
 const StudioCreateInner = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { user } = useAuth();
   const create = useCreateFormation();
 
@@ -71,6 +72,31 @@ const StudioCreateInner = () => {
   const [availableForWork, setAvailableForWork] = useState(true);
 
   const finalSlug = slug || slugify(name);
+
+  useEffect(() => {
+    const inviteId = searchParams.get("invite");
+    if (!inviteId || !user?.id) return;
+    if (invitees.some((i) => i.id === inviteId)) return;
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from("profiles")
+        .select("user_id, display_name, avatar_url, username")
+        .eq("user_id", inviteId)
+        .maybeSingle();
+      if (cancelled || !data?.user_id || data.user_id === user.id) return;
+      setInvitees([
+        {
+          id: data.user_id,
+          display_name: data.display_name || data.username || "ผู้ใช้",
+          avatar_url: data.avatar_url,
+        },
+      ]);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [searchParams, user?.id]);
 
   const { data: searchResults = [], isFetching } = useQuery({
     queryKey: ["studio-invite-search", search],

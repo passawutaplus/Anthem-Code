@@ -27,6 +27,7 @@ export interface JobPost {
   employment_type: "project" | "fulltime" | "parttime" | "internship";
   attached_cv_url: string | null;
   attached_portfolio_ids: string[];
+  cover_image_url: string | null;
   studio?: { name: string; slug: string; avatar_url: string; verified: boolean };
   poster?: { display_name: string; avatar_url: string | null; username: string | null };
 }
@@ -101,7 +102,8 @@ export const useJobById = (id?: string) =>
       const { data, error } = await supabase.from("job_posts").select("*").eq("id", id!).maybeSingle();
       if (error) throw error;
       if (!data) return null;
-      const [out] = await attachStudios([data as JobPost]);
+      const [withStudio] = await attachStudios([data as JobPost]);
+      const [out] = await attachPosters([withStudio]);
       return out;
     },
   });

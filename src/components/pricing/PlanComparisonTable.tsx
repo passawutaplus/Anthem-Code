@@ -1,5 +1,6 @@
-import { Check, Minus } from "lucide-react";
+import { Check, ExternalLink, Minus } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
   PLAN_COMPARISON_ROWS,
@@ -8,6 +9,8 @@ import {
   type ComparisonCell,
 } from "@/data/planComparison";
 import type { PlanId } from "@/data/plans";
+import { TIER_RANK } from "@/lib/tierMembership";
+import { SO1O_PRICING_URL } from "@/lib/productLinks";
 import { cn } from "@/lib/utils";
 
 function ComparisonCellValue({ value }: { value: ComparisonCell }) {
@@ -27,12 +30,77 @@ function ComparisonCellValue({ value }: { value: ComparisonCell }) {
   return <span className="text-foreground/90">{value}</span>;
 }
 
+function UpgradeCell({
+  tier,
+  currentTier,
+  onUpgrade,
+}: {
+  tier: PlanId;
+  currentTier?: PlanId;
+  onUpgrade?: (tier: PlanId) => void;
+}) {
+  if (!currentTier) {
+    if (tier === "free") {
+      return <span className="text-xs text-muted-foreground">—</span>;
+    }
+    return (
+      <Button asChild size="sm" variant="outline" className="h-8 rounded-full text-xs px-3">
+        <a href={SO1O_PRICING_URL} target="_blank" rel="noopener noreferrer">
+          เลือกแพ็ก
+        </a>
+      </Button>
+    );
+  }
+
+  if (tier === currentTier) {
+    return (
+      <Badge variant="secondary" className="text-[10px] font-medium">
+        ปัจจุบัน
+      </Badge>
+    );
+  }
+
+  if (TIER_RANK[tier] < TIER_RANK[currentTier] || tier === "free") {
+    return <span className="text-xs text-muted-foreground">—</span>;
+  }
+
+  if (onUpgrade) {
+    return (
+      <Button
+        type="button"
+        size="sm"
+        className="h-8 gap-1 rounded-full text-xs px-3"
+        onClick={() => onUpgrade(tier)}
+      >
+        อัพเกรด
+        <ExternalLink className="h-3 w-3" />
+      </Button>
+    );
+  }
+
+  return (
+    <Button asChild size="sm" className="h-8 gap-1 rounded-full text-xs px-3">
+      <a href={SO1O_PRICING_URL} target="_blank" rel="noopener noreferrer">
+        อัพเกรด
+        <ExternalLink className="h-3 w-3" />
+      </a>
+    </Button>
+  );
+}
+
 type Props = {
   currentTier?: PlanId;
   className?: string;
+  showUpgradeRow?: boolean;
+  onUpgrade?: (tier: PlanId) => void;
 };
 
-export function PlanComparisonTable({ currentTier, className }: Props) {
+export function PlanComparisonTable({
+  currentTier,
+  className,
+  showUpgradeRow = false,
+  onUpgrade,
+}: Props) {
   return (
     <section className={cn("max-w-6xl mx-auto", className)}>
       <div className="text-center mb-6">
@@ -100,6 +168,31 @@ export function PlanComparisonTable({ currentTier, className }: Props) {
                   ))}
                 </tr>
               ))}
+              {showUpgradeRow && (
+                <tr className="border-t border-border bg-muted/30">
+                  <th
+                    scope="row"
+                    className="text-left font-medium px-4 sm:px-5 py-4 text-foreground/90"
+                  >
+                    อัพเกรด
+                  </th>
+                  {PLAN_COMPARISON_TIER_ORDER.map((tier) => (
+                    <td
+                      key={tier}
+                      className={cn(
+                        "text-center px-3 py-4",
+                        currentTier === tier && "bg-primary/5",
+                      )}
+                    >
+                      <UpgradeCell
+                        tier={tier}
+                        currentTier={currentTier}
+                        onUpgrade={onUpgrade}
+                      />
+                    </td>
+                  ))}
+                </tr>
+              )}
             </tbody>
           </table>
         </div>

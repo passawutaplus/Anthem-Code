@@ -14,7 +14,8 @@ import {
 import { useAuth } from "@/hooks/useAuth";
 import { useSubscription } from "@/core/subscription";
 import { PLANS, type BillingCycle } from "@/data/plans";
-import { PlanComparisonTable } from "@/components/pricing/PlanComparisonTable";
+import { TierDetailsSection } from "@/components/tier/TierDetailsSection";
+import type { PlanId } from "@/data/plans";
 import { EcosystemProCard } from "@/components/ecosystem/EcosystemProCard";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -276,7 +277,16 @@ const UpgradePage = () => {
           })}
         </div>
 
-        <PlanComparisonTable currentTier={user ? tier : undefined} className="mt-16 sm:mt-20" />
+        <TierDetailsSection
+          currentTier={user ? tier : undefined}
+          className="mt-16 sm:mt-20"
+          showUpgradeRow
+          onUpgrade={(targetTier: PlanId) => {
+            if (targetTier !== "free") {
+              window.open(SO1O_PRICING_URL, "_blank", "noopener,noreferrer");
+            }
+          }}
+        />
 
         <div className="mt-12 max-w-2xl mx-auto rounded-2xl border border-border glass-panel p-5 text-center">
           <LayoutGrid className="h-8 w-8 text-primary mx-auto mb-3" />

@@ -1,8 +1,15 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { AnimatePresence, motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useTopProjects } from "@/hooks/useProjects";
+import {
+  carouselSlideTransition,
+  imageCrossfadeVariants,
+  imageRevealTransition,
+  smoothEase,
+} from "@/lib/motion";
 import { cn } from "@/lib/utils";
 
 const TopProjectShowcase = () => {
@@ -43,43 +50,61 @@ const TopProjectShowcase = () => {
 
   return (
     <div className="relative">
-      <div
-        className="relative aspect-[4/3] md:aspect-[5/4] rounded-3xl overflow-hidden glass-panel p-2 md:p-3 rotate-[-1.5deg] shadow-xl transition-transform hover:rotate-0"
+      <motion.div
+        className="relative aspect-[4/3] md:aspect-[5/4] rounded-3xl overflow-hidden glass-panel p-2 md:p-3 rotate-[-1.5deg] shadow-xl"
         style={{ WebkitBackdropFilter: "blur(14px)", backdropFilter: "blur(14px)" }}
+        whileHover={{ rotate: 0, scale: 1.01 }}
+        transition={{ duration: 0.45, ease: smoothEase }}
       >
         <div className="relative w-full h-full rounded-2xl overflow-hidden bg-muted">
-          {cover && (
-            <img
-              key={current.id}
-              src={cover}
-              alt={current.title}
-              className="absolute inset-0 w-full h-full object-cover animate-fade-in cursor-pointer"
-              onClick={() => navigate(`/project/${current.id}`)}
-            />
-          )}
-          <div className="absolute inset-x-0 bottom-0 p-3 md:p-4 bg-gradient-to-t from-black/70 via-black/30 to-transparent">
-            <button
-              onClick={() => navigate(`/project/${current.id}`)}
-              className="block text-left text-white font-semibold text-sm md:text-base line-clamp-1 hover:underline"
-            >
-              {current.title}
-            </button>
-            {owner && (
-              <button
-                onClick={() => navigate(`/profile/${owner.id}`)}
-                className="flex items-center gap-1.5 mt-1 text-white/85 text-xs hover:text-white"
-              >
-                {owner.avatar_url ? (
-                  <img src={owner.avatar_url} className="w-4 h-4 rounded-full object-cover" alt="" />
-                ) : (
-                  <span className="w-4 h-4 rounded-full bg-white/20" />
-                )}
-                <span className="hover:underline">{owner.display_name || owner.username}</span>
-              </button>
+          <AnimatePresence mode="wait">
+            {cover && (
+              <motion.img
+                key={current.id}
+                src={cover}
+                alt={current.title}
+                variants={imageCrossfadeVariants}
+                initial="initial"
+                animate="animate"
+                exit="exit"
+                transition={imageRevealTransition}
+                className="absolute inset-0 w-full h-full object-cover cursor-pointer"
+                onClick={() => navigate(`/project/${current.id}`)}
+              />
             )}
-          </div>
+          </AnimatePresence>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={`meta-${current.id}`}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 4 }}
+              transition={carouselSlideTransition}
+              className="absolute inset-x-0 bottom-0 p-3 md:p-4 bg-gradient-to-t from-black/70 via-black/30 to-transparent"
+            >
+              <button
+                onClick={() => navigate(`/project/${current.id}`)}
+                className="block text-left text-white font-semibold text-sm md:text-base line-clamp-1 hover:underline"
+              >
+                {current.title}
+              </button>
+              {owner && (
+                <button
+                  onClick={() => navigate(`/profile/${owner.id}`)}
+                  className="flex items-center gap-1.5 mt-1 text-white/85 text-xs hover:text-white"
+                >
+                  {owner.avatar_url ? (
+                    <img src={owner.avatar_url} className="w-4 h-4 rounded-full object-cover" alt="" />
+                  ) : (
+                    <span className="w-4 h-4 rounded-full bg-white/20" />
+                  )}
+                  <span className="hover:underline">{owner.display_name || owner.username}</span>
+                </button>
+              )}
+            </motion.div>
+          </AnimatePresence>
         </div>
-      </div>
+      </motion.div>
 
       {slides.length > 1 && (
         <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 px-2 py-1 rounded-full glass-panel">
@@ -89,8 +114,8 @@ const TopProjectShowcase = () => {
               onClick={() => setIdx(i)}
               aria-label={`slide ${i + 1}`}
               className={cn(
-                "h-1.5 rounded-full transition-all",
-                i === idx ? "w-5 bg-primary" : "w-1.5 bg-muted-foreground/40"
+                "h-1.5 rounded-full transition-all duration-300",
+                i === idx ? "w-5 bg-primary" : "w-1.5 bg-muted-foreground/40 hover:bg-muted-foreground/60",
               )}
             />
           ))}

@@ -1,19 +1,18 @@
 import * as React from 'react'
+import { EMAIL_FOOTER_NOT_REQUESTED } from '@/lib/copyConstants'
 import { EmailLayout, EmailButton, EmailText } from './layout'
 
 interface MagicLinkEmailProps { siteName: string; confirmationUrl: string }
 
 export const MagicLinkEmail = ({ siteName, confirmationUrl }: MagicLinkEmailProps) => (
   <EmailLayout
-    preview={`ลิงก์เข้าสู่ระบบของคุณ — ${siteName}`}
-    badge="เข้าสู่ระบบ"
+    preview={`เข้าสู่ระบบ ${siteName}`}
     icon="mail"
     title="เข้าสู่ระบบด่วน"
-    footerNote="ถ้าคุณไม่ได้ขอลิงก์นี้ ลบอีเมลนี้ทิ้งได้เลย บัญชีของคุณยังปลอดภัยดี"
+    footerNote={EMAIL_FOOTER_NOT_REQUESTED}
   >
     <EmailText>
-      กดปุ่มด้านล่างเพื่อเข้าสู่ระบบ {siteName} โดยไม่ต้องใช้รหัสผ่าน
-      ลิงก์นี้ใช้ได้ครั้งเดียวและจะหมดอายุภายใน 1 ชั่วโมง
+      กดปุ่มด้านล่างเข้า {siteName} โดยไม่ต้องใช้รหัสผ่าน — ลิงก์ใช้ได้ครั้งเดียว หมดอายุใน 1 ชั่วโมง
     </EmailText>
     <EmailButton href={confirmationUrl}>เข้าสู่ระบบ</EmailButton>
   </EmailLayout>

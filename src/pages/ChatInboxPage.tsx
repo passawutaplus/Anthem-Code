@@ -1,54 +1,100 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { MessageCircle } from "lucide-react";
-import { useAuth } from "@/hooks/useAuth";
-import { useConversation, type ChatKind } from "@/hooks/useChat";
+import { useConversation, useMessages, type ChatKind } from "@/hooks/useChat";
 import ChatSidebar from "@/components/chat/ChatSidebar";
 import ChatThreadView from "@/components/chat/ChatThreadView";
 import ChatPartnerPanel from "@/components/chat/ChatPartnerPanel";
+import { ChatErrorBoundary } from "@/components/chat/ChatErrorBoundary";
 import { cn } from "@/lib/utils";
 
 const ChatInboxPage = () => {
   const { id } = useParams<{ id?: string }>();
   const navigate = useNavigate();
-  const { user, loading: authLoading } = useAuth();
   const [tab, setTab] = useState<"all" | ChatKind>("all");
   const [search, setSearch] = useState("");
   const [showPartnerMobile, setShowPartnerMobile] = useState(false);
 
-  const { data: conv, isLoading: convLoading } = useConversation(id);
-
-  useEffect(() => {
-    if (!authLoading && !user) {
-      navigate(id ? `/auth?redirect=/chat/${id}` : "/auth?redirect=/chat");
-    }
-  }, [authLoading, user, id, navigate]);
+  const { data: conv, isLoading: convLoading, isError: convError } = useConversation(id);
+  const { data: messages = [] } = useMessages(id, { subscribe: true });
 
   useEffect(() => {
     setShowPartnerMobile(false);
   }, [id]);
 
-  if (authLoading) {
-    return (
-      <div className="min-h-[100dvh] flex items-center justify-center text-muted-foreground">
-        กำลังโหลด…
-      </div>
-    );
-  }
+  const hasThread = !!id;
+  const showSidebarMobile = !hasThread;
+  const showThreadMobile = hasThread;
 
-  const showThread = !!id;
-  const showSidebarMobile = !showThread;
-  const showThreadMobile = showThread;
+  const selectConversation = (conversationId: string) => {
+    navigate(`/chat/${conversationId}`, { replace: false });
+  };
+
+  const clearConversation = () => {
+    navigate("/chat", { replace: false });
+  };
+
+  const threadContent = (
+    <>
+      {id && convLoading && (
+        <div className="flex-1 flex items-center justify-center text-muted-foreground">
+          กำลังโหลด…
+        </div>
+      )}
+      {id && !convLoading && convError && (
+        <div className="flex-1 flex flex-col items-center justify-center text-muted-foreground px-4">
+          <p className="font-medium text-foreground">โหลดบทสนทนาไม่สำเร็จ</p>
+          <button
+            type="button"
+            onClick={clearConversation}
+            className="mt-3 text-sm text-primary hover:underline"
+          >
+            กลับรายการแชท
+          </button>
+        </div>
+      )}
+      {id && !convLoading && !convError && !conv && (
+        <div className="flex-1 flex flex-col items-center justify-center text-muted-foreground px-4">
+          <p className="font-medium text-foreground">ไม่พบบทสนทนานี้</p>
+          <button
+            type="button"
+            onClick={clearConversation}
+            className="mt-3 text-sm text-primary hover:underline"
+          >
+            กลับรายการแชท
+          </button>
+        </div>
+      )}
+      {conv && (
+        <ChatThreadView
+          conv={conv}
+          messages={messages}
+          showBack
+          onBack={clearConversation}
+          showPartnerToggle
+          onOpenPartnerPanel={() => setShowPartnerMobile(true)}
+        />
+      )}
+      {!id && (
+        <div className="hidden md:flex flex-1 flex-col items-center justify-center text-muted-foreground px-6">
+          <MessageCircle className="w-12 h-12 mb-3 opacity-30" />
+          <p className="font-medium text-foreground">เลือกบทสนทนาเพื่อเริ่มแชท</p>
+          <p className="text-sm mt-1 text-center">
+            รายการแชทงานจ้างและคอลแลปอยู่ทางซ้าย — คลิกเพื่อเปิดข้อความ
+          </p>
+        </div>
+      )}
+    </>
+  );
 
   return (
     <div className="h-[100dvh] bg-background overflow-hidden">
-      <div className="h-full lg:grid lg:grid-cols-[320px_1fr_340px]">
-        {/* Sidebar */}
+      <div className="h-full md:grid md:grid-cols-[minmax(260px,320px)_1fr_minmax(280px,340px)]">
         <div
           className={cn(
-            "h-full",
-            showSidebarMobile ? "block" : "hidden",
-            "lg:block",
+            "h-full min-h-0",
+            showSidebarMobile ? "flex flex-col" : "hidden",
+            "md:flex md:flex-col",
           )}
         >
           <ChatSidebar
@@ -57,78 +103,47 @@ const ChatInboxPage = () => {
             onTabChange={setTab}
             search={search}
             onSearchChange={setSearch}
+            onSelectConversation={selectConversation}
           />
         </div>
 
-        {/* Thread / empty */}
         <div
           className={cn(
-            "h-full min-w-0 border-border lg:border-x",
+            "h-full min-h-0 min-w-0 border-border md:border-x",
             showThreadMobile ? "flex flex-col" : "hidden",
-            "lg:flex lg:flex-col",
+            "md:flex md:flex-col",
           )}
         >
-          {id && convLoading && (
-            <div className="flex-1 flex items-center justify-center text-muted-foreground">
-              กำลังโหลด…
-            </div>
-          )}
-          {id && !convLoading && !conv && (
-            <div className="flex-1 flex flex-col items-center justify-center text-muted-foreground px-4">
-              <p className="font-medium text-foreground">ไม่พบบทสนทนานี้</p>
-              <button
-                type="button"
-                onClick={() => navigate("/chat")}
-                className="mt-3 text-sm text-primary hover:underline"
-              >
-                กลับรายการแชท
-              </button>
-            </div>
-          )}
-          {conv && (
-            <ChatThreadView
-              conv={conv}
-              showBack
-              onBack={() => navigate("/chat")}
-              showPartnerToggle
-              onOpenPartnerPanel={() => setShowPartnerMobile(true)}
-            />
-          )}
-          {!id && (
-            <div className="hidden lg:flex flex-1 flex-col items-center justify-center text-muted-foreground px-6">
-              <MessageCircle className="w-12 h-12 mb-3 opacity-30" />
-              <p className="font-medium text-foreground">เลือกบทสนทนาเพื่อเริ่มแชท</p>
-              <p className="text-sm mt-1 text-center">
-                รายการแชทงานจ้างและคอลแลปอยู่ทางซ้าย — คลิกเพื่อเปิดข้อความ
-              </p>
-            </div>
-          )}
+          <ChatErrorBoundary onBack={clearConversation}>{threadContent}</ChatErrorBoundary>
         </div>
 
-        {/* Partner panel — desktop */}
-        <div className="hidden lg:block h-full">
-          {conv ? (
-            <ChatPartnerPanel conversation={conv} />
-          ) : (
-            <aside className="h-full border-l border-border bg-muted/20" />
-          )}
+        <div className="hidden md:block h-full min-h-0 min-w-0">
+          <ChatErrorBoundary onBack={clearConversation}>
+            {conv ? (
+              <ChatPartnerPanel conversation={conv} messages={messages} />
+            ) : (
+              <aside className="h-full border-l border-border bg-muted/20" />
+            )}
+          </ChatErrorBoundary>
         </div>
       </div>
 
-      {/* Partner panel — mobile slide-over */}
       {showPartnerMobile && conv && (
         <div
-          className="lg:hidden fixed inset-0 z-40 bg-background/60 backdrop-blur-sm"
+          className="md:hidden fixed inset-0 z-40 bg-background/60 backdrop-blur-sm"
           onClick={() => setShowPartnerMobile(false)}
         >
           <div
             className="absolute right-0 top-0 bottom-0 w-[92%] max-w-sm bg-background shadow-xl"
             onClick={(e) => e.stopPropagation()}
           >
-            <ChatPartnerPanel
-              conversation={conv}
-              onClose={() => setShowPartnerMobile(false)}
-            />
+            <ChatErrorBoundary onBack={() => setShowPartnerMobile(false)}>
+              <ChatPartnerPanel
+                conversation={conv}
+                messages={messages}
+                onClose={() => setShowPartnerMobile(false)}
+              />
+            </ChatErrorBoundary>
           </div>
         </div>
       )}

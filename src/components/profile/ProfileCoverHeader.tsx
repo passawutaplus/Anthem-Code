@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { Camera, LayoutGrid, Loader2, MapPin, Share2 } from "lucide-react";
+import { Camera, Eye, LayoutGrid, Loader2, MapPin, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useUpdateProfileMedia } from "@/hooks/useProfile";
 import { uploadProjectImage } from "@/lib/uploadImage";
@@ -22,9 +22,10 @@ type Props = {
   stats: { works: number; followers: number; following: number };
   onManage: () => void;
   onShare: () => void;
+  onPreview?: () => void;
 };
 
-export default function ProfileCoverHeader({ userId, profile, stats, onManage, onShare }: Props) {
+export default function ProfileCoverHeader({ userId, profile, stats, onManage, onShare, onPreview }: Props) {
   const { tier } = useSubscription();
   const updateMedia = useUpdateProfileMedia(userId);
   const coverInput = useRef<HTMLInputElement>(null);
@@ -167,6 +168,18 @@ export default function ProfileCoverHeader({ userId, profile, stats, onManage, o
             </div>
 
             <div className="flex flex-wrap gap-2 shrink-0">
+              {onPreview && (
+                <Button
+                  onClick={onPreview}
+                  variant="outline"
+                  size="icon"
+                  className="rounded-full shrink-0"
+                  title="มุมมองคนอื่น"
+                  aria-label="มุมมองคนอื่น"
+                >
+                  <Eye className="w-4 h-4" />
+                </Button>
+              )}
               <Button
                 onClick={onManage}
                 className="rounded-full bg-primary text-primary-foreground hover:bg-primary/90"

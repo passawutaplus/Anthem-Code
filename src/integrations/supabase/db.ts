@@ -49,6 +49,8 @@ const SHARED_TABLES = new Set([
   "contracts",
   "admin_audit_log",
   "conversations",
+  "conversation_members",
+  "conversation_pins",
   "messages",
   "aml_flags",
   "kyc_requests",

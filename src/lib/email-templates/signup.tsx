@@ -1,5 +1,6 @@
 import * as React from 'react'
 import { Link } from '@react-email/components'
+import { EMAIL_FOOTER_NOT_SIGNED_UP } from '@/lib/copyConstants'
 import { EmailLayout, EmailButton, EmailText, link } from './layout'
 
 interface SignupEmailProps {
@@ -11,15 +12,14 @@ interface SignupEmailProps {
 
 export const SignupEmail = ({ siteName, siteUrl, recipient, confirmationUrl }: SignupEmailProps) => (
   <EmailLayout
-    preview={`ยืนยันอีเมลของคุณกับ ${siteName}`}
-    badge="ยืนยันอีเมล"
+    preview={`ยืนยันอีเมล ${siteName}`}
     icon="mail"
-    title="ยินดีต้อนรับสู่ชุมชนครีเอทีฟ"
-    footerNote="ถ้าคุณไม่ได้สมัครบัญชี ไม่ต้องทำอะไร — อีเมลนี้จะหมดอายุภายในไม่กี่ชั่วโมง"
+    title="ยินดีต้อนรับ"
+    footerNote={EMAIL_FOOTER_NOT_SIGNED_UP}
   >
     <EmailText>
-      ขอบคุณที่สมัครใช้งาน <Link href={siteUrl} style={link}>{siteName}</Link>{' '}
-      กดปุ่มด้านล่างเพื่อยืนยันอีเมล <strong>{recipient}</strong> แล้วเริ่มลงผลงานได้เลย
+      กดปุ่มด้านล่างยืนยัน <strong>{recipient}</strong> แล้วเริ่มใช้{' '}
+      <Link href={siteUrl} style={link}>{siteName}</Link> ได้เลย
     </EmailText>
     <EmailButton href={confirmationUrl}>ยืนยันอีเมลของฉัน</EmailButton>
   </EmailLayout>

@@ -14,6 +14,9 @@ import {
   SHARED_MEDIA_BUCKET,
 } from "@/integrations/supabase/sharedStorageClient";
 import { useAuth } from "@/hooks/useAuth";
+import { useProfile } from "@/hooks/useProfile";
+import JobCoverUploadField from "@/components/jobs/JobCoverUploadField";
+import JobCardPreview from "@/components/jobs/JobCardPreview";
 import { toast } from "sonner";
 
 const ROLE_OPTIONS = [
@@ -29,6 +32,7 @@ interface Props {
 
 const JobPostDialog = ({ open, onOpenChange, defaultMode = "hiring" }: Props) => {
   const { user } = useAuth();
+  const { data: profile } = useProfile(user?.id);
   const qc = useQueryClient();
   const [mode, setMode] = useState<"hiring" | "seeking">(defaultMode);
   const [posterRole, setPosterRole] = useState<"studio" | "company" | "freelancer">(
@@ -43,11 +47,15 @@ const JobPostDialog = ({ open, onOpenChange, defaultMode = "hiring" }: Props) =>
   const [budgetMax, setBudgetMax] = useState("");
   const [location, setLocation] = useState("Remote");
   const [locType, setLocType] = useState<"remote" | "onsite" | "hybrid">("remote");
+  const [coverImageUrl, setCoverImageUrl] = useState<string | null>(null);
   const [cvFile, setCvFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
 
+  const budgetType = employment === "fulltime" || employment === "parttime" ? "monthly" as const : "fixed" as const;
+
   const reset = () => {
     setTitle(""); setDesc(""); setSkills(""); setBudgetMin(""); setBudgetMax("");
+    setCoverImageUrl(null);
     setCvFile(null);
   };
 
@@ -76,7 +84,7 @@ const JobPostDialog = ({ open, onOpenChange, defaultMode = "hiring" }: Props) =>
         skills: skills.split(",").map((s) => s.trim()).filter(Boolean),
         budget_min: budgetMin ? parseInt(budgetMin) : null,
         budget_max: budgetMax ? parseInt(budgetMax) : null,
-        budget_type: employment === "fulltime" || employment === "parttime" ? "monthly" : "fixed",
+        budget_type: budgetType,
         location_type: locType,
         location,
         status: "open",
@@ -84,6 +92,7 @@ const JobPostDialog = ({ open, onOpenChange, defaultMode = "hiring" }: Props) =>
         poster_role: posterRole,
         employment_type: employment,
         attached_cv_url: cvUrl,
+        cover_image_url: coverImageUrl,
       } as any);
       if (error) throw error;
       toast.success(mode === "seeking" ? "ประกาศหางานเรียบร้อย" : "ลงประกาศงานเรียบร้อย");
@@ -122,6 +131,14 @@ const JobPostDialog = ({ open, onOpenChange, defaultMode = "hiring" }: Props) =>
         </div>
 
         <div className="space-y-3">
+          {user && (
+            <JobCoverUploadField
+              userId={user.id}
+              value={coverImageUrl}
+              onChange={setCoverImageUrl}
+            />
+          )}
+
           <div>
             <Label className="text-xs">ชื่อประกาศ</Label>
             <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder={mode === "hiring" ? "เช่น หา UI Designer ทำแอป Wellness" : "เช่น UI Designer มองหางานประจำ"} />
@@ -206,6 +223,25 @@ const JobPostDialog = ({ open, onOpenChange, defaultMode = "hiring" }: Props) =>
               <Input type="file" accept="application/pdf" onChange={(e) => setCvFile(e.target.files?.[0] ?? null)} />
             </div>
           )}
+
+          <JobCardPreview
+            data={{
+              title,
+              description: desc,
+              role_category: role,
+              skills: skills.split(",").map((s) => s.trim()).filter(Boolean),
+              budget_min: budgetMin ? parseInt(budgetMin) : null,
+              budget_max: budgetMax ? parseInt(budgetMax) : null,
+              budget_type: budgetType,
+              location_type: locType,
+              location,
+              employment_type: employment,
+              post_type: mode,
+              cover_image_url: coverImageUrl,
+              posterName: profile?.display_name ?? "ผู้ใช้",
+              posterAvatar: profile?.avatar_url,
+            }}
+          />
 
           <Button
             disabled={loading}

@@ -40,7 +40,7 @@ export function StorageUsageSection() {
   const overLimit = usedBytes > limit;
 
   return (
-    <section className="rounded-2xl glass-panel p-6 space-y-4">
+    <section className="h-full rounded-2xl glass-panel p-6 space-y-4 flex flex-col">
       <div className="flex items-start justify-between gap-3">
         <div>
           <h2 className="font-semibold text-foreground flex items-center gap-2">

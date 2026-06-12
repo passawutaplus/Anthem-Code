@@ -87,3 +87,10 @@ For every form: register, login, password reset, project editor, job post, ad ap
 - [ ] Admin → AdminReportsPage จัดการ status, batch actions, ดูหลักฐานได้
 - [ ] Admin → AdminFeedbackPage มีกราฟแนวโน้ม, ตัวกรองช่วงเวลา, ส่งออก CSV
 - [ ] Admin ได้รับ in-app notification เมื่อมี report/feedback ใหม่ (ลิงก์ไปหน้าที่เกี่ยวข้อง)
+
+## Microcopy (ดู [microcopy-style-guide.md](../../docs/microcopy-style-guide.md))
+
+- [ ] `/research` — warning อ่านครั้งเดียวเข้าใจ ไม่ซ้ำ tagline + concept
+- [ ] Demo banner ไม่ซ้ำกับ ResearchPage warning
+- [ ] Error page อ่านเข้าใจใน 3 วินาที (title + desc ไม่ทับกัน)
+- [ ] อีเมล auth ใช้ footer มาตรฐานจาก `src/lib/copyConstants.ts`

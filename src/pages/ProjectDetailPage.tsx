@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { motion } from "framer-motion";
 import { ArrowLeft, Flag, Share2 } from "lucide-react";
 import ReportDialog from "@/components/report/ReportDialog";
 import SaveToCollectionPopover from "@/components/collections/SaveToCollectionPopover";
@@ -23,6 +24,8 @@ import { isCategoryAllowed } from "@/lib/cookieConsent";
 import SeoHead from "@/components/SeoHead";
 import { truncateDescription } from "@/lib/seo";
 import LicenseDetailBlock from "@/components/license/LicenseDetailBlock";
+import { FadeUp } from "@/components/motion/FadeUp";
+import { staggerReveal, viewportOnce } from "@/lib/motion";
 
 const ProjectDetailPage = () => {
   const { id } = useParams();
@@ -234,7 +237,7 @@ const ProjectDetailPage = () => {
           </div>
 
           {/* Right: Side panel (sticky on desktop) */}
-          <div className="lg:sticky lg:top-20 lg:self-start">
+          <FadeUp className="lg:sticky lg:top-20 lg:self-start" delay={0.06}>
             <ProjectSidePanel
               projectId={dbProject?.id}
               title={project.title}
@@ -269,7 +272,7 @@ const ProjectDetailPage = () => {
                 onHire={() => setHireOpen(true)}
               />
             </div>
-          </div>
+          </FadeUp>
         </div>
 
         {/* Comments full width below */}
@@ -308,7 +311,14 @@ const GalleryWithLightbox = ({ images, project }: { images: string[]; project: G
   return (
     <>
       {images.map((src, i) => (
-        <div key={src + i} className="relative group">
+        <motion.div
+          key={src + i}
+          className="relative group"
+          initial={{ opacity: 0, y: 18 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={viewportOnce}
+          transition={staggerReveal(i)}
+        >
           <SafeDemoImage
             src={src}
             index={imgIndex(i)}
@@ -323,7 +333,7 @@ const GalleryWithLightbox = ({ images, project }: { images: string[]; project: G
             imageUrl={src}
             imageIndex={i}
           />
-        </div>
+        </motion.div>
       ))}
       <ImageLightbox
         src={lightboxSrc ?? ""}

@@ -23,7 +23,7 @@ import ProfileCoverHeader from "@/components/profile/ProfileCoverHeader";
 import ReceivedGiftsSummary from "@/components/profile/ReceivedGiftsSummary";
 import OnboardingChecklist from "@/components/onboarding/OnboardingChecklist";
 import { markOnboardingVisit } from "@/lib/onboardingStorage";
-import { profilePublicUrl } from "@/lib/profileRoutes";
+import { profilePublicPath, profilePublicUrl } from "@/lib/profileRoutes";
 import { sortPortfolioProjects, type PortfolioSortMode } from "@/lib/portfolioSort";
 import { Pin } from "lucide-react";
 
@@ -115,6 +115,9 @@ const PortfolioProfilePage = () => {
           userId={user!.id}
           profile={profile}
           stats={{ works: published.length, followers, following }}
+          onPreview={() =>
+            navigate(profilePublicPath({ user_id: user!.id, username: profile.username }))
+          }
           onManage={() => navigate("/portfolio/manage")}
           onShare={sharePublic}
         />

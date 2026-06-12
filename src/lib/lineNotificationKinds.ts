@@ -11,6 +11,10 @@ export type LineNotifyKind =
   | "anthem_hire"
   | "anthem_chat"
   | "anthem_job_match"
+  | "inhouse_invite"
+  | "inhouse_member_join"
+  | "inhouse_chat"
+  | "inhouse_task"
   | "support_ticket"
   | "billing";
 
@@ -25,6 +29,10 @@ export const DEFAULT_LINE_NOTIFY_PREFS: Record<LineNotifyKind, boolean> = {
   anthem_hire: true,
   anthem_chat: true,
   anthem_job_match: true,
+  inhouse_invite: true,
+  inhouse_member_join: true,
+  inhouse_chat: true,
+  inhouse_task: true,
   support_ticket: false,
   billing: false,
 };
@@ -98,6 +106,36 @@ export const LINE_NOTIFY_GROUPS: LineNotifyGroup[] = [
         key: "portal_quotation",
         label: { th: "อัปเดตใบเสนอราคา", en: "Quotation update" },
         hint: { th: "เร็วๆ นี้ — ลูกค้าตอบรับใบเสนอราคา", en: "Coming soon — quotation response" },
+      },
+    ],
+  },
+  {
+    id: "inhouse",
+    label: { th: "In-House Workspace", en: "In-House workspace" },
+    description: {
+      th: "คำเชิญทีม แชท และงานที่มอบหมายใน workspace",
+      en: "Team invites, workspace chat, and task assignments",
+    },
+    kinds: [
+      {
+        key: "inhouse_invite",
+        label: { th: "คำเชิญเข้าร่วมทีม", en: "Team invite" },
+        hint: { th: "เมื่อ admin เชิญคุณเข้า org", en: "When an admin invites you to an org" },
+      },
+      {
+        key: "inhouse_member_join",
+        label: { th: "สมาชิกใหม่เข้าร่วม", en: "New member joined" },
+        hint: { th: "เมื่อมีคนยอมรับคำเชิญของทีมคุณ", en: "When someone accepts your team invite" },
+      },
+      {
+        key: "inhouse_chat",
+        label: { th: "ข้อความใน workspace", en: "Workspace message" },
+        hint: { th: "แชทในช่องของ workspace", en: "Messages in workspace channels" },
+      },
+      {
+        key: "inhouse_task",
+        label: { th: "มอบหมายงาน / due date", en: "Task assignment / due date" },
+        hint: { th: "ถูก assign to-do หรือใกล้ครบกำหนด", en: "Assigned a task or due today" },
       },
     ],
   },

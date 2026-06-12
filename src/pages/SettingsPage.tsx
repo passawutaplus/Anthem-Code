@@ -1,8 +1,7 @@
 import BriefcaseIcon from "../components/icons/BriefcaseIcon";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, User, Mail, Link2, Camera, Save, Bell, MessageCircle, Sparkles, MapPin, Moon, Sun, LogOut, Palette, Shield, Flag, MessageSquare, ChevronRight } from "lucide-react";
-import { useTheme } from "next-themes";
+import { ArrowLeft, User, Mail, Link2, Camera, Save, Bell, MessageCircle, Sparkles, MapPin, LogOut, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
@@ -13,10 +12,10 @@ import { supabase } from "@/integrations/supabase/client";
 import SkillsEditor from "@/components/profile/SkillsEditor";
 import ExperienceEditor from "@/components/profile/ExperienceEditor";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
-import { requestOpenCookiePreferences } from "@/lib/cookieConsent";
-import { Link } from "react-router-dom";
-import { EcosystemProCard } from "@/components/ecosystem/EcosystemProCard";
+import { TierMembershipCard } from "@/components/tier/TierMembershipCard";
 import { StorageUsageSection } from "@/components/settings/StorageUsageSection";
+import { AiUsageSettingsSection } from "@/components/settings/AiUsageSettingsSection";
+import { SettingsPreferencesSection } from "@/components/settings/SettingsPreferencesSection";
 import { LineNotificationSection } from "@/components/settings/LineNotificationSection";
 import { useSubscription } from "@/core/subscription";
 
@@ -49,8 +48,6 @@ const SettingsPage = () => {
   const updateMedia = useUpdateProfileMedia(user?.id);
   const avatarInput = useRef<HTMLInputElement>(null);
   const [avatarBusy, setAvatarBusy] = useState(false);
-  const { theme, setTheme } = useTheme();
-  const isDark = theme === "dark";
   const { data: isAdmin } = useIsAdmin();
   const { tier } = useSubscription();
 
@@ -149,8 +146,11 @@ const SettingsPage = () => {
       </div>
 
       <form onSubmit={handleSave} className="max-w-3xl mx-auto px-4 pb-24 space-y-6">
-        <EcosystemProCard />
-        <StorageUsageSection />
+        <TierMembershipCard />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch">
+          <StorageUsageSection />
+          <AiUsageSettingsSection />
+        </div>
         <LineNotificationSection />
 
         <section className="rounded-2xl glass-panel p-6">
@@ -297,77 +297,7 @@ const SettingsPage = () => {
           )}
         </section>
 
-        <section className="rounded-2xl glass-panel p-6 space-y-4">
-          <SectionTitle icon={Palette} title="ลักษณะการแสดงผล" />
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-foreground">โหมดสี</p>
-              <p className="text-xs text-muted-foreground">สลับระหว่างโหมดสว่างและมืด</p>
-            </div>
-            <button
-              type="button"
-              onClick={() => setTheme(isDark ? "light" : "dark")}
-              className="inline-flex items-center gap-2 rounded-full bg-secondary hover:bg-accent px-4 py-2 text-sm font-medium text-foreground transition-colors"
-            >
-              {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-              {isDark ? "โหมดสว่าง" : "โหมดมืด"}
-            </button>
-          </div>
-        </section>
-
-        <section className="rounded-2xl glass-panel p-6 space-y-3">
-          <SectionTitle icon={Flag} title="การติดตามของฉัน" />
-          <p className="text-xs text-muted-foreground">ดูสถานะรายงานและฟีดแบ็กที่คุณส่งให้ทีมงาน</p>
-          <div className="grid sm:grid-cols-2 gap-2">
-            <button
-              type="button"
-              onClick={() => navigate("/me/reports")}
-              className="flex items-center justify-between gap-2 rounded-xl bg-secondary hover:bg-accent px-4 py-3 text-sm font-medium text-foreground transition-colors"
-            >
-              <span className="inline-flex items-center gap-2"><Flag className="w-4 h-4 text-primary" /> รายงานของฉัน</span>
-              <ChevronRight className="w-4 h-4 text-muted-foreground" />
-            </button>
-            <button
-              type="button"
-              onClick={() => navigate("/me/feedback")}
-              className="flex items-center justify-between gap-2 rounded-xl bg-secondary hover:bg-accent px-4 py-3 text-sm font-medium text-foreground transition-colors"
-            >
-              <span className="inline-flex items-center gap-2"><MessageSquare className="w-4 h-4 text-primary" /> ฟีดแบ็กของฉัน</span>
-              <ChevronRight className="w-4 h-4 text-muted-foreground" />
-            </button>
-          </div>
-        </section>
-
-        <section className="rounded-2xl glass-panel p-6 space-y-3">
-          <SectionTitle icon={Shield} title="ความเป็นส่วนตัวและข้อมูล (PDPA)" />
-          <p className="text-xs text-muted-foreground leading-relaxed">
-            จัดการความยินยอมคุกกี้ อ่านนโยบาย หรือใช้สิทธิเจ้าของข้อมูลตาม พ.ร.บ. คุ้มครองข้อมูลส่วนบุคคล
-          </p>
-          <div className="flex flex-col gap-2">
-            <button
-              type="button"
-              onClick={() => requestOpenCookiePreferences()}
-              className="flex items-center justify-between gap-2 rounded-xl bg-secondary hover:bg-accent px-4 py-3 text-sm font-medium text-foreground transition-colors text-left"
-            >
-              <span>การตั้งค่าคุกกี้</span>
-              <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
-            </button>
-            <Link
-              to="/legal/rights"
-              className="flex items-center justify-between gap-2 rounded-xl bg-secondary hover:bg-accent px-4 py-3 text-sm font-medium text-foreground transition-colors"
-            >
-              <span>สิทธิของเจ้าของข้อมูล</span>
-              <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
-            </Link>
-            <Link
-              to="/legal/privacy"
-              className="flex items-center justify-between gap-2 rounded-xl bg-secondary hover:bg-accent px-4 py-3 text-sm text-foreground transition-colors"
-            >
-              <span>นโยบายความเป็นส่วนตัว</span>
-              <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
-            </Link>
-          </div>
-        </section>
+        <SettingsPreferencesSection />
 
         {isAdmin && (
           <section className="rounded-2xl glass-panel p-6 space-y-3">

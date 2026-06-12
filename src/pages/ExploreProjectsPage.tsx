@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, SearchX, Wrench, Hash } from "lucide-react";
 import ProjectCard from "@/components/ProjectCard";
+import { StaggerGrid } from "@/components/motion/StaggerGrid";
 import ProjectGridSkeleton from "@/components/ui/ProjectGridSkeleton";
 import EmptyState from "@/components/ui/EmptyState";
 import HireDialog from "@/components/HireDialog";
@@ -130,7 +131,10 @@ const ExploreProjectsPage = () => {
             }
           />
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-2 sm:gap-3 lg:gap-4">
+          <StaggerGrid
+            dense
+            className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-2 sm:gap-3 lg:gap-4"
+          >
             {projects.map((p) => (
               <ProjectCard
                 key={p.id}
@@ -151,7 +155,7 @@ const ExploreProjectsPage = () => {
                 }}
               />
             ))}
-          </div>
+          </StaggerGrid>
         )}
       </div>
 

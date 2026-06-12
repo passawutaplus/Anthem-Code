@@ -15,6 +15,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Building2, Loader2, Plus, Users, ArrowLeft } from "lucide-react";
 import JobCard from "@/components/jobs/JobCard";
+import JobCoverUploadField from "@/components/jobs/JobCoverUploadField";
+import JobCardPreview from "@/components/jobs/JobCardPreview";
 
 const StudioManageInner = () => {
   const navigate = useNavigate();
@@ -106,7 +108,7 @@ const StudioManageInner = () => {
                 ยังไม่มีประกาศงาน
               </div>
             ) : (
-              <div className="grid sm:grid-cols-2 gap-3">
+              <div className="grid sm:grid-cols-2 gap-4">
                 {jobs.map((j) => <JobCard key={j.id} job={j} />)}
               </div>
             )}
@@ -135,12 +137,28 @@ const StudioManageInner = () => {
         </Tabs>
       </div>
 
-      <NewJobDialog open={jobDialogOpen} onOpenChange={setJobDialogOpen} studioId={studio.id} />
+      <NewJobDialog
+        open={jobDialogOpen}
+        onOpenChange={setJobDialogOpen}
+        studioId={studio.id}
+        studio={{ name: studio.name, avatar_url: studio.avatar_url, verified: studio.verified }}
+      />
     </div>
   );
 };
 
-const NewJobDialog = ({ open, onOpenChange, studioId }: { open: boolean; onOpenChange: (o: boolean) => void; studioId: string }) => {
+const NewJobDialog = ({
+  open,
+  onOpenChange,
+  studioId,
+  studio,
+}: {
+  open: boolean;
+  onOpenChange: (o: boolean) => void;
+  studioId: string;
+  studio: { name: string; avatar_url: string; verified: boolean };
+}) => {
+  const { user } = useAuth();
   const create = useCreateJob();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -149,6 +167,16 @@ const NewJobDialog = ({ open, onOpenChange, studioId }: { open: boolean; onOpenC
   const [budgetMax, setBudgetMax] = useState("");
   const [budgetType, setBudgetType] = useState<"fixed" | "hourly" | "monthly">("fixed");
   const [locationType, setLocationType] = useState<"remote" | "onsite" | "hybrid">("remote");
+  const [coverImageUrl, setCoverImageUrl] = useState<string | null>(null);
+
+  const reset = () => {
+    setTitle("");
+    setDescription("");
+    setSkills("");
+    setBudgetMin("");
+    setBudgetMax("");
+    setCoverImageUrl(null);
+  };
 
   const submit = () => {
     create.mutate(
@@ -161,11 +189,12 @@ const NewJobDialog = ({ open, onOpenChange, studioId }: { open: boolean; onOpenC
         budget_max: budgetMax ? Number(budgetMax) : null,
         budget_type: budgetType,
         location_type: locationType,
+        cover_image_url: coverImageUrl,
       } as any,
       {
         onSuccess: () => {
           onOpenChange(false);
-          setTitle(""); setDescription(""); setSkills(""); setBudgetMin(""); setBudgetMax("");
+          reset();
         },
       }
     );
@@ -177,6 +206,13 @@ const NewJobDialog = ({ open, onOpenChange, studioId }: { open: boolean; onOpenC
         <DialogTitle className="thai-display">ลงประกาศหา designer</DialogTitle>
         <DialogDescription className="thai-body">เขียนรายละเอียดให้ชัดเพื่อดึงดูดคนที่ใช่</DialogDescription>
         <div className="space-y-3 mt-2">
+          {user && (
+            <JobCoverUploadField
+              userId={user.id}
+              value={coverImageUrl}
+              onChange={setCoverImageUrl}
+            />
+          )}
           <div>
             <Label className="text-xs">ตำแหน่ง *</Label>
             <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="เช่น Senior UI/UX Designer" className="h-10 rounded-xl mt-1" />
@@ -221,6 +257,25 @@ const NewJobDialog = ({ open, onOpenChange, studioId }: { open: boolean; onOpenC
               </SelectContent>
             </Select>
           </div>
+
+          <JobCardPreview
+            data={{
+              title,
+              description,
+              role_category: "Design",
+              skills: skills.split(",").map((s) => s.trim()).filter(Boolean),
+              budget_min: budgetMin ? Number(budgetMin) : null,
+              budget_max: budgetMax ? Number(budgetMax) : null,
+              budget_type: budgetType,
+              location_type: locationType,
+              location: locationType === "remote" ? "Remote" : "Bangkok",
+              employment_type: "project",
+              post_type: "hiring",
+              cover_image_url: coverImageUrl,
+              posterName: studio.name,
+              studio: { name: studio.name, avatar_url: studio.avatar_url, verified: studio.verified },
+            }}
+          />
         </div>
         <div className="flex gap-2 justify-end mt-3">
           <Button variant="outline" onClick={() => onOpenChange(false)} className="rounded-xl">ยกเลิก</Button>

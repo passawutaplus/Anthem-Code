@@ -1,5 +1,6 @@
 import { lazy, Suspense } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { AuthProvider } from "@/hooks/useAuth";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
@@ -28,7 +29,7 @@ const SettingsPage = lazy(() => import("./pages/SettingsPage.tsx"));
 const ProjectEditorPage = lazy(() => import("./pages/ProjectEditorPage.tsx"));
 const PublicProfilePage = lazy(() => import("./pages/PublicProfilePage.tsx"));
 const NotificationsPage = lazy(() => import("./pages/NotificationsPage.tsx"));
-const ChatInboxPage = lazy(() => import("./pages/ChatInboxPage.tsx"));
+import ChatInboxPage from "./pages/ChatInboxPage.tsx";
 const CollectionsPage = lazy(() => import("./pages/CollectionsPage.tsx"));
 const CollectionDetailPage = lazy(() => import("./pages/CollectionDetailPage.tsx"));
 const JobsPage = lazy(() => import("./pages/JobsPage.tsx"));
@@ -96,6 +97,7 @@ const queryClient = new QueryClient({
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
+    <AuthProvider>
     <ThemeProvider>
       <TooltipProvider>
         <Toaster />
@@ -124,8 +126,7 @@ const App = () => (
 
               <Route path="/settings" element={<RequireAuth><SettingsPage /></RequireAuth>} />
               <Route path="/notifications" element={<RequireAuth><NotificationsPage /></RequireAuth>} />
-              <Route path="/chat" element={<RequireAuth><ChatInboxPage /></RequireAuth>} />
-              <Route path="/chat/:id" element={<RequireAuth><ChatInboxPage /></RequireAuth>} />
+              <Route path="/chat/:id?" element={<RequireAuth><ChatInboxPage /></RequireAuth>} />
               <Route path="/collections" element={<RequireAuth><CollectionsPage /></RequireAuth>} />
               <Route path="/collections/:id" element={<RequireAuth><CollectionDetailPage /></RequireAuth>} />
               <Route path="/me/reports" element={<RequireAuth><MyReportsPage /></RequireAuth>} />
@@ -191,6 +192,7 @@ const App = () => (
         </BrowserRouter>
       </TooltipProvider>
     </ThemeProvider>
+    </AuthProvider>
   </QueryClientProvider>
 );
 

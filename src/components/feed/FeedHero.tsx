@@ -1,6 +1,7 @@
 import { Skeleton } from "@/components/ui/skeleton";
 import { useFeedStats } from "@/hooks/useFeedStats";
 import { BRAND_CONCEPT } from "@/lib/brandConfig";
+import { FadeUp } from "@/components/motion/FadeUp";
 import TopProjectShowcase from "./TopProjectShowcase";
 
 const formatNum = (n: number) => n.toLocaleString("th-TH");
@@ -26,7 +27,7 @@ const FeedHero = () => {
 
   return (
     <section className="grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-8 items-center pt-2 pb-4">
-      <div className="md:col-span-7 flex flex-col gap-5">
+      <FadeUp className="md:col-span-7 flex flex-col gap-5">
         <div className="space-y-2">
           <p className="text-xs font-medium text-primary tracking-wide thai-body">{BRAND_CONCEPT}</p>
           <h1 className="text-3xl md:text-5xl font-semibold tracking-tight text-foreground leading-[1.08] thai-display">
@@ -45,11 +46,11 @@ const FeedHero = () => {
           {stat("คอลแลป", s.collabs, isLoading)}
           {stat("จ้างงาน", s.hires, isLoading)}
         </div>
-      </div>
+      </FadeUp>
 
-      <div className="md:col-span-5">
+      <FadeUp className="md:col-span-5" delay={0.08}>
         <TopProjectShowcase />
-      </div>
+      </FadeUp>
     </section>
   );
 };

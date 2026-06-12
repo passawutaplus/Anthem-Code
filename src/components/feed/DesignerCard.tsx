@@ -1,11 +1,13 @@
 import BriefcaseIcon from "../icons/BriefcaseIcon";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { AnimatePresence, motion } from "framer-motion";
 import { Heart, Users } from "lucide-react";
 import type { DesignerCardData } from "@/hooks/useDesigners";
 import FollowButton from "@/components/FollowButton";
 import { useProjectLike } from "@/hooks/useProjectInteractions";
 import { highlight } from "@/lib/highlight";
+import { imageCrossfadeVariants, imageRevealTransition } from "@/lib/motion";
 
 interface Props {
   data: DesignerCardData;
@@ -70,14 +72,21 @@ const DesignerCard = ({ data, onHire, onCollab, search = "" }: Props) => {
               className="relative aspect-[4/3] rounded-xl overflow-hidden bg-muted group"
               title={shown.title}
             >
-              {src && (
-                <img
-                  key={shown.id}
-                  src={src}
-                  alt={shown.title}
-                  className="absolute inset-0 w-full h-full object-cover animate-fade-in transition-transform group-hover:scale-105"
-                />
-              )}
+              <AnimatePresence mode="wait">
+                {src && (
+                  <motion.img
+                    key={shown.id}
+                    src={src}
+                    alt={shown.title}
+                    variants={imageCrossfadeVariants}
+                    initial="initial"
+                    animate="animate"
+                    exit="exit"
+                    transition={imageRevealTransition}
+                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                )}
+              </AnimatePresence>
             </button>
           );
         })}
@@ -96,13 +105,14 @@ const DesignerCard = ({ data, onHire, onCollab, search = "" }: Props) => {
         >
           <Users className="w-3.5 h-3.5" /> คอลแลป
         </button>
-        <button
+        <motion.button
+          whileTap={{ scale: 0.92 }}
           onClick={() => featured && like.toggle()}
           aria-label="Like featured"
           className="w-9 h-9 flex items-center justify-center rounded-full glass-panel hover:bg-accent/40 transition"
         >
           <Heart className={`w-4 h-4 ${like.isLiked ? "fill-primary text-primary" : "text-muted-foreground"}`} />
-        </button>
+        </motion.button>
       </div>
     </article>
   );

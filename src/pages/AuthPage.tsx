@@ -18,7 +18,6 @@ import {
 import { BrandLogo } from "@/components/brand/BrandLogo";
 import { DemoLoginHint, DemoSignupBlocked } from "@/components/DemoAuthHints";
 import {
-  BRAND_CONCEPT,
   BRAND_HERO_SUBTITLE,
   BRAND_NAME,
   BRAND_STORAGE_NO_PERSIST,
@@ -111,8 +110,7 @@ const AuthPage = () => {
                 โชว์ผลงาน<br />หาคนร่วมงาน<br />รับงานจ้าง — ที่เดียวจบ
               </h2>
               <p className="mt-4 text-white/85 text-sm xl:text-base thai-body max-w-md">
-                {BRAND_CONCEPT} — สร้างพอร์ตโฟลิโอฟรี เชื่อมต่อครีเอเตอร์
-                และเปิดรับโอกาสจากลูกค้าจริงในชุมชนเดียวกัน
+                สร้างพอร์ตโฟลิโอฟรี หาคนร่วมงาน รับงานจ้าง — ในชุมชนเดียวกัน
               </p>
             </div>
 
@@ -186,6 +184,7 @@ const LoginForm = ({ redirect, onSwitch }: { redirect: string; onSwitch: () => v
   const [remember, setRemember] = useState(true);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
+  const [shake, setShake] = useState(false);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -200,6 +199,8 @@ const LoginForm = ({ redirect, onSwitch }: { redirect: string; onSwitch: () => v
         setErr(error.message.toLowerCase().includes("invalid")
           ? "อ๊ะ! อีเมลหรือรหัสผ่านไม่ถูกต้อง"
           : error.message);
+        setShake(true);
+        setTimeout(() => setShake(false), 450);
       } else {
         if (!remember) sessionStorage.setItem(BRAND_STORAGE_NO_PERSIST, "1");
         toast.success("เข้าสู่ระบบสำเร็จ");
@@ -210,7 +211,7 @@ const LoginForm = ({ redirect, onSwitch }: { redirect: string; onSwitch: () => v
   };
 
   return (
-    <form onSubmit={submit} className="space-y-4">
+    <form onSubmit={submit} className={cn("space-y-4", shake && "animate-input-shake")}>
       <DemoLoginHint
         onUseAccount={(demoEmail, demoPassword) => {
           setEmail(demoEmail);

@@ -105,6 +105,7 @@ const LoginForm = ({ onSwitch }: { onSwitch: () => void }) => {
   const [remember, setRemember] = useState(true);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
+  const [shake, setShake] = useState(false);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -115,6 +116,8 @@ const LoginForm = ({ onSwitch }: { onSwitch: () => void }) => {
         setErr(error.message.toLowerCase().includes("invalid")
           ? "อ๊ะ! อีเมลหรือรหัสผ่านไม่ถูกต้อง"
           : error.message);
+        setShake(true);
+        setTimeout(() => setShake(false), 450);
       } else {
         if (!remember) sessionStorage.setItem(BRAND_STORAGE_NO_PERSIST, "1");
         toast.success("เข้าสู่ระบบสำเร็จ");
@@ -123,7 +126,7 @@ const LoginForm = ({ onSwitch }: { onSwitch: () => void }) => {
   };
 
   return (
-    <form onSubmit={submit} className="space-y-3.5">
+    <form onSubmit={submit} className={cn("space-y-3.5", shake && "animate-input-shake")}>
       <DemoLoginHint
         onUseAccount={(demoEmail, demoPassword) => {
           setEmail(demoEmail);

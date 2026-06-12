@@ -236,9 +236,9 @@ const JobsPage = () => {
         </div>
 
         {isLoading ? (
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {[1, 2, 3, 4, 5, 6].map((i) => (
-              <div key={i} className="glass-panel rounded-2xl h-40 animate-pulse" />
+              <div key={i} className="rounded-2xl h-64 animate-pulse bg-muted/50 border border-border/40" />
             ))}
           </div>
         ) : filtered.length === 0 ? (
@@ -250,7 +250,7 @@ const JobsPage = () => {
             <p className="text-sm text-muted-foreground mt-1 thai-body">ลองเปลี่ยนตัวกรองหรือเป็นคนแรกที่ลงประกาศ</p>
           </div>
         ) : (
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {filtered.map((j) => <JobCard key={j.id} job={j} />)}
           </div>
         )}

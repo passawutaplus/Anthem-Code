@@ -16,13 +16,22 @@ const items = [
 ];
 
 const HIDDEN_PREFIXES = ["/auth", "/admin"];
-const isLiveChat = (p: string) => /^\/chat\/[^/]+/.test(p);
+const isActiveChatThread = (p: string) => /^\/chat\/[^/]+/.test(p);
 
 const BottomNav = () => {
   const { pathname } = useLocation();
   const { user } = useAuth();
   const openAuth = useAuthDialog((s) => s.openSignup);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [narrowViewport, setNarrowViewport] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 767px)");
+    const sync = () => setNarrowViewport(mq.matches);
+    sync();
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
+  }, []);
 
   useEffect(() => {
     if (!user) { setAvatarUrl(null); return; }
@@ -34,7 +43,12 @@ const BottomNav = () => {
       .then(({ data }) => setAvatarUrl(data?.avatar_url ?? null));
   }, [user]);
 
-  if (HIDDEN_PREFIXES.some((p) => pathname.startsWith(p)) || isLiveChat(pathname)) return null;
+  if (
+    HIDDEN_PREFIXES.some((p) => pathname.startsWith(p)) ||
+    (narrowViewport && isActiveChatThread(pathname))
+  ) {
+    return null;
+  }
 
   return (
     <nav className="lg:hidden fixed bottom-0 inset-x-0 z-30 bg-background/40 backdrop-blur-xl border-t border-white/10 pb-[env(safe-area-inset-bottom)]" style={{ WebkitBackdropFilter: "blur(20px)" }}>

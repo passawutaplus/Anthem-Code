@@ -1,7 +1,8 @@
 import { Link } from "react-router-dom";
 import { ArrowLeft, ClipboardList, LogIn, Map, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { BRAND_CONCEPT, BRAND_NAME, BRAND_TAGLINE } from "@/lib/brandConfig";
+import { BRAND_NAME, BRAND_TAGLINE } from "@/lib/brandConfig";
+import { DEMO_WARNING_BULLETS } from "@/lib/copyConstants";
 import {
   DEMO_PASSWORD,
   DEMO_RESEARCH_ACCOUNTS,
@@ -81,7 +82,6 @@ export default function ResearchPage() {
             {BRAND_NAME} — คู่มือทดสอบ UX/UI
           </h1>
           <p className="text-muted-foreground leading-relaxed">{BRAND_TAGLINE}</p>
-          <p className="text-sm text-foreground/80 leading-relaxed">{BRAND_CONCEPT}</p>
         </section>
 
         <section className="rounded-2xl border border-amber-500/30 bg-amber-500/8 p-4 space-y-2">
@@ -90,14 +90,14 @@ export default function ResearchPage() {
             ข้อมูลบันทึกจริง — อ่านก่อนเริ่ม
           </h2>
           <ul className="text-sm text-foreground/85 space-y-1.5 list-disc pl-5">
+            {DEMO_WARNING_BULLETS.map((bullet) => (
+              <li key={bullet}>{bullet}</li>
+            ))}
             <li>
-              เว็บนี้เชื่อม <strong>ฐานข้อมูลจริง</strong> — ล็อกอินด้วยบัญชี demo แล้วแก้โปรไฟล์ / โพสต์ / คอมเมนต์
-              <strong> บันทึกถาวร</strong> (ใช้ร่วมกับนักวิจัยคนอื่น)
+              ใช้บัญชี <code className="text-xs bg-muted px-1 rounded">*@demo.an1hem.app</code> เท่านั้น
             </li>
-            <li>ใช้เฉพาะบัญชี <code className="text-xs bg-muted px-1 rounded">*@demo.an1hem.app</code> — <strong>อย่าสมัครบัญชีใหม่</strong></li>
-            <li>ไม่ต้องใส่ข้อมูลส่วนตัวจริง · ไม่ต้องชำระเงินจริง · ถอน PX เป็น flow จำลอง</li>
             {demo && (
-              <li className="text-primary font-medium">โหมดทดสอบเปิดอยู่ — แถบส้มด้านบนจะแสดงตลอด</li>
+              <li className="text-primary font-medium">โหมดทดสอบเปิดอยู่ — แถบด้านบนจะแสดงตลอด</li>
             )}
           </ul>
         </section>

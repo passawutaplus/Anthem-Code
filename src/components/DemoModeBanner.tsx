@@ -1,6 +1,7 @@
 import { Info } from "lucide-react";
 import { Link } from "react-router-dom";
 import { BRAND_NAME } from "@/lib/brandConfig";
+import { DEMO_BANNER_SHORT } from "@/lib/copyConstants";
 import { DEMO_PASSWORD, isDemoMode } from "@/lib/demoMode";
 
 /** แถบแจ้งโหมดทดสอบ — เปิดด้วย VITE_DEMO_MODE=true */
@@ -14,8 +15,7 @@ export default function DemoModeBanner() {
     >
       <Info className="w-3.5 h-3.5 shrink-0 text-primary" aria-hidden />
       <span>
-        <strong>{BRAND_NAME} · โหมด UX Research</strong> — ล็อกอิน demo แล้ว
-        <strong> บันทึกข้อมูลจริง</strong> (
+        <strong>{BRAND_NAME}</strong> — {DEMO_BANNER_SHORT} (
         <code className="text-[11px] bg-muted px-1 rounded">*@demo.an1hem.app</code> /{" "}
         <code className="text-[11px] bg-muted px-1 rounded">{DEMO_PASSWORD}</code>)
       </span>

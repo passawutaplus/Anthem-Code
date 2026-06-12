@@ -15,6 +15,7 @@ import ReportDialog from "@/components/report/ReportDialog";
 import { useFollowState } from "@/hooks/useFollow";
 import { usePublicCollections } from "@/hooks/useCollections";
 import PortfolioGrid from "@/components/profile/PortfolioGrid";
+import { StaggerGrid } from "@/components/motion/StaggerGrid";
 import CollectionCard from "@/components/collections/CollectionCard";
 import { safeHttpUrl } from "@/lib/safeUrl";
 import { highlight } from "@/lib/highlight";
@@ -248,18 +249,18 @@ const PublicProfilePage = () => {
       {recentProjects.length > 0 && (
         <div className="max-w-5xl mx-auto px-4 mt-6">
           <h2 className="text-sm font-medium text-muted-foreground mb-2">ผลงานล่าสุด</h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2">
+          <StaggerGrid dense className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2">
             {recentProjects.map((p: any) => (
               <button key={p.id} onClick={() => navigate(`/project/${p.id}`)} className="aspect-square rounded-xl overflow-hidden bg-muted relative group">
                 {(p.cover_url || p.gallery_urls?.[0]) && (
-                  <img src={p.cover_url || p.gallery_urls?.[0]} alt={p.title} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform" />
+                  <img src={p.cover_url || p.gallery_urls?.[0]} alt={p.title} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out" loading="lazy" />
                 )}
-                <div className="absolute inset-x-0 bottom-0 p-1.5 bg-gradient-to-t from-black/70 to-transparent">
+                <div className="absolute inset-x-0 bottom-0 p-1.5 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                   <p className="text-[10px] text-white line-clamp-1">{highlight(p.title, q)}</p>
                 </div>
               </button>
             ))}
-          </div>
+          </StaggerGrid>
         </div>
       )}
 

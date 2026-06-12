@@ -1,5 +1,6 @@
 import BriefcaseIcon from "./icons/BriefcaseIcon";
 import { useEffect, useRef, useState } from "react";
+import { motion } from "framer-motion";
 import { Heart, Eye, MoreHorizontal, Layers3, Share2, Handshake } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import type { Project } from "@/data/projectTypes";
@@ -8,6 +9,7 @@ import SaveToCollectionPopover from "@/components/collections/SaveToCollectionPo
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import SafeDemoImage from "@/components/SafeDemoImage";
+import { smoothEase } from "@/lib/motion";
 
 interface ProjectCardProps {
   project: Project;
@@ -65,7 +67,13 @@ const ProjectCard = ({ project, onHireClick, onCollabClick }: ProjectCardProps) 
   };
 
   return (
-    <div className="group cursor-pointer" onClick={() => navigate(`/project/${project.id}`)}>
+    <motion.div
+      className="group cursor-pointer"
+      onClick={() => navigate(`/project/${project.id}`)}
+      whileHover={{ y: -2 }}
+      whileTap={{ scale: 0.985 }}
+      transition={{ duration: 0.22, ease: smoothEase }}
+    >
       <div ref={wrapRef} className="relative w-full aspect-[4/3] overflow-hidden rounded-sm bg-muted">
         <SafeDemoImage
           src={project.image}
@@ -198,7 +206,7 @@ const ProjectCard = ({ project, onHireClick, onCollabClick }: ProjectCardProps) 
           </button>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 
