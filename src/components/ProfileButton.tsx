@@ -45,6 +45,14 @@ const ProfileButton = () => {
           <BriefcaseIcon className="w-5 h-5" />
         </button>
         <button
+          onClick={() => navigate("/auth?redirect=/chat")}
+          aria-label="ข้อความ"
+          title="ข้อความ"
+          className="inline-flex items-center justify-center w-9 h-9 rounded-full text-foreground/70 hover:text-foreground hover:bg-foreground/5 transition-colors"
+        >
+          <MessageCircle className="w-5 h-5" />
+        </button>
+        <button
           onClick={() => navigate("/auth?redirect=/notifications")}
           aria-label="แจ้งเตือน"
           className="hidden sm:inline-flex items-center justify-center w-9 h-9 rounded-full text-foreground/70 hover:text-foreground hover:bg-foreground/5 transition-colors"
@@ -73,6 +81,14 @@ const ProfileButton = () => {
         className="inline-flex items-center justify-center w-9 h-9 rounded-full text-foreground/70 hover:text-foreground hover:bg-foreground/5 transition-colors"
       >
         <BriefcaseIcon className="w-5 h-5" />
+      </button>
+      <button
+        onClick={() => navigate("/chat")}
+        aria-label="ข้อความ"
+        title="ข้อความ"
+        className="inline-flex items-center justify-center w-9 h-9 rounded-full text-foreground/70 hover:text-foreground hover:bg-foreground/5 transition-colors"
+      >
+        <MessageCircle className="w-5 h-5" />
       </button>
       <NotificationBell />
       <WalletBadge />

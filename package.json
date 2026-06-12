@@ -16,6 +16,7 @@
     "e2e:ui": "playwright test --ui",
     "sitemap:gen": "node scripts/generate-sitemap.mjs",
     "seed:demo": "node scripts/run-seed.mjs",
+    "seed:demo-chats": "node scripts/seed-demo-chats.mjs",
     "admin:create-user": "node scripts/create-admin-user.mjs",
     "db:apply-anthem": "node scripts/apply-anthem-remote.mjs",
     "db:qa-full": "node scripts/seed-qa-full.mjs",

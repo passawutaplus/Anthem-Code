@@ -14,7 +14,13 @@ const COLLAB_TYPE_LABELS: Record<string, string> = {
   other: "อื่นๆ",
 };
 
-const ChatMetaPanel = ({ conversation }: { conversation: Conversation }) => {
+const ChatMetaPanel = ({
+  conversation,
+  embedded = false,
+}: {
+  conversation: Conversation;
+  embedded?: boolean;
+}) => {
   const navigate = useNavigate();
   const isHire = conversation.kind === "hire";
 
@@ -43,14 +49,24 @@ const ChatMetaPanel = ({ conversation }: { conversation: Conversation }) => {
   const bg = isHire ? "bg-[hsl(var(--chat-hire-soft))]" : "bg-[hsl(var(--chat-collab-soft))]";
 
   return (
-    <aside className="w-full lg:w-80 lg:border-l lg:border-border bg-background overflow-y-auto">
-      <div className={`p-4 ${bg}`}>
-        <div className={`inline-flex items-center gap-1.5 text-xs font-semibold ${accent}`}>
-          {isHire ? <BriefcaseIcon className="w-3.5 h-3.5" /> : <Handshake className="w-3.5 h-3.5" />}
-          {isHire ? "ข้อมูลงานจ้าง" : "ข้อมูลคอลแลป"}
+    <aside
+      className={
+        embedded
+          ? "w-full bg-background overflow-y-auto"
+          : "w-full lg:w-80 lg:border-l lg:border-border bg-background overflow-y-auto"
+      }
+    >
+      {!embedded && (
+        <div className={`p-4 ${bg}`}>
+          <div className={`inline-flex items-center gap-1.5 text-xs font-semibold ${accent}`}>
+            {isHire ? <BriefcaseIcon className="w-3.5 h-3.5" /> : <Handshake className="w-3.5 h-3.5" />}
+            {isHire ? "ข้อมูลงานจ้าง" : "ข้อมูลคอลแลป"}
+          </div>
+          <h3 className="font-medium text-foreground mt-1 line-clamp-2">
+            {conversation.project_title || (isHire ? "งานจ้าง" : "Collab")}
+          </h3>
         </div>
-        <h3 className="font-medium text-foreground mt-1 line-clamp-2">{conversation.project_title || (isHire ? "งานจ้าง" : "Collab")}</h3>
-      </div>
+      )}
 
       <div className="p-4 space-y-3 text-sm">
         {isHire && meta?.hire && (

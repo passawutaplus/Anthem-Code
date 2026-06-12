@@ -36,7 +36,7 @@ export const useConversations = (kind?: ChatKind) => {
       .channel(`conv-rt-${user.id}`)
       .on(
         "postgres_changes",
-        { event: "*", schema: "public", table: "conversations" },
+        { event: "*", schema: "shared", table: "conversations" },
         () => qc.invalidateQueries({ queryKey: ["conversations", user.id] }),
       )
       .subscribe();
@@ -89,7 +89,7 @@ export const useMessages = (conversationId: string | undefined) => {
       .channel(`msg-rt-${conversationId}`)
       .on(
         "postgres_changes",
-        { event: "INSERT", schema: "public", table: "messages", filter: `conversation_id=eq.${conversationId}` },
+        { event: "INSERT", schema: "shared", table: "messages", filter: `conversation_id=eq.${conversationId}` },
         () => qc.invalidateQueries({ queryKey: ["messages", conversationId] }),
       )
       .subscribe();
@@ -198,6 +198,32 @@ export const useRejectRequest = () => {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["hiring_requests"] });
       qc.invalidateQueries({ queryKey: ["collab-requests"] });
+    },
+  });
+};
+
+/* ───────────────── Unread counts (sidebar badges) ───────────────── */
+
+export const useConversationUnreadCounts = (conversationIds: string[]) => {
+  const { user } = useAuth();
+  const sortedIds = [...conversationIds].sort().join(",");
+
+  return useQuery({
+    queryKey: ["chat-unread-counts", user?.id, sortedIds],
+    enabled: !!user?.id && conversationIds.length > 0,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("messages")
+        .select("conversation_id")
+        .in("conversation_id", conversationIds)
+        .neq("sender_id", user!.id)
+        .is("read_at", null);
+      if (error) throw error;
+      const map: Record<string, number> = {};
+      (data ?? []).forEach((m) => {
+        map[m.conversation_id] = (map[m.conversation_id] ?? 0) + 1;
+      });
+      return map;
     },
   });
 };
