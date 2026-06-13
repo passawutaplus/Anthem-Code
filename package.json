@@ -13,6 +13,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:gate": "npm run test && npm run smoke:public",
+    "qa:full": "bash ../scripts/test-ecosystem-full.sh",
     "e2e": "playwright test",
     "e2e:smoke": "playwright test --project=smoke",
     "e2e:seo": "playwright test e2e/smoke/seo.smoke.spec.ts --project=smoke",
@@ -36,7 +37,9 @@
     "db:apply-welcome-missions": "node scripts/apply-welcome-missions.mjs",
     "db:push": "bash scripts/supabase-db-push.sh",
     "docs:feature-pdf": "node scripts/generate-feature-pdf.mjs",
-    "deploy:demo": "bash scripts/deploy-demo-vercel.sh"
+    "deploy:demo": "bash scripts/deploy-demo-vercel.sh",
+    "email:icons": "node scripts/generate-email-icons.mjs",
+    "email:preview": "npx tsx scripts/preview-emails.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
@@ -96,6 +99,7 @@
   "devDependencies": {
     "@eslint/js": "^9.32.0",
     "@playwright/test": "^1.60.0",
+    "@react-email/components": "^1.0.12",
     "@tailwindcss/typography": "^0.5.16",
     "@testing-library/jest-dom": "^6.6.0",
     "@testing-library/react": "^16.0.0",
@@ -113,7 +117,10 @@
     "playwright": "^1.60.0",
     "postcss": "^8.5.6",
     "puppeteer-core": "^25.1.0",
+    "react-email": "^6.6.0",
+    "sharp": "^0.34.5",
     "tailwindcss": "^3.4.17",
+    "tsx": "^4.22.4",
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.38.0",
     "vite": "^5.4.19",

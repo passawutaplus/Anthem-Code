@@ -13,6 +13,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
 import { useMyProjects } from "@/hooks/useProjects";
 import { useCreateCollabRequest } from "@/hooks/useCollabRequests";
+import { supabase } from "@/integrations/supabase/client";
 
 const COLLAB_TYPES = [
   { key: "joint-project", label: "ร่วมโปรเจกต์ใหม่" },
@@ -113,7 +114,7 @@ const CollabDialog = ({ open, onOpenChange, recipientId, recipientName, projectI
     }
 
     try {
-      await createReq.mutateAsync({
+      const created = await createReq.mutateAsync({
         sender_id: user.id,
         recipient_id: recipientId,
         project_id: projectId ?? null,
@@ -123,6 +124,9 @@ const CollabDialog = ({ open, onOpenChange, recipientId, recipientName, projectI
         external_drive_url: parsed.data.externalDriveUrl || null,
         website_url: parsed.data.websiteUrl || null,
         other_type_note: otherSelected ? (parsed.data.otherTypeNote || null) : null,
+      });
+      void supabase.functions.invoke("notify-anthem-collab", {
+        body: { request_id: created.id },
       });
       toast.success(`ส่งคำขอร่วมงานไปหา ${recipientName} แล้ว`);
       reset();

@@ -225,6 +225,10 @@ export const useSendMessage = () => {
         .from("conversations")
         .update({ last_message_at: new Date().toISOString() })
         .eq("id", conversationId);
+
+      void supabase.functions.invoke("notify-anthem-chat", {
+        body: { conversation_id: conversationId },
+      });
     },
     onSuccess: (_d, vars) => {
       qc.invalidateQueries({ queryKey: ["messages", vars.conversationId] });

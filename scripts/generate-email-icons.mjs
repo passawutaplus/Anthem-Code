@@ -86,6 +86,37 @@ const icons = {
     <circle cx="24" cy="24" r="18" fill="none" stroke="${BODY}" stroke-width="2.5"/>
     <path d="M18 18 L30 30 M30 18 L18 30" stroke="${BODY}" stroke-width="2.5" stroke-linecap="round"/>
   </svg>`,
+  hire: `<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
+    <rect x="10" y="14" width="28" height="22" rx="4" fill="${ORANGE}" opacity="0.12"/>
+    <rect x="10" y="14" width="28" height="22" rx="4" fill="none" stroke="${ORANGE}" stroke-width="2.5"/>
+    <rect x="16" y="10" width="16" height="8" rx="2" fill="none" stroke="${ORANGE}" stroke-width="2.5"/>
+    <rect x="18" y="22" width="12" height="2.5" rx="1.25" fill="${INK}"/>
+    <rect x="18" y="28" width="8" height="2.5" rx="1.25" fill="${MUTE}"/>
+  </svg>`,
+  chat: `<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
+    <path d="M10 12 H38 A4 4 0 0 1 42 16 V28 A4 4 0 0 1 38 32 H22 L14 38 V32 H10 A4 4 0 0 1 6 28 V16 A4 4 0 0 1 10 12 Z" fill="${ORANGE}" opacity="0.12"/>
+    <path d="M10 12 H38 A4 4 0 0 1 42 16 V28 A4 4 0 0 1 38 32 H22 L14 38 V32 H10 A4 4 0 0 1 6 28 V16 A4 4 0 0 1 10 12 Z" fill="none" stroke="${ORANGE}" stroke-width="2.5" stroke-linejoin="round"/>
+    <circle cx="18" cy="22" r="2" fill="${ORANGE}"/>
+    <circle cx="24" cy="22" r="2" fill="${ORANGE}"/>
+    <circle cx="30" cy="22" r="2" fill="${ORANGE}"/>
+  </svg>`,
+  job: `<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
+    <circle cx="24" cy="24" r="18" fill="${SUCCESS}" opacity="0.12"/>
+    <circle cx="24" cy="24" r="18" fill="none" stroke="${SUCCESS}" stroke-width="2.5"/>
+    <circle cx="24" cy="24" r="6" fill="none" stroke="${SUCCESS}" stroke-width="2.5"/>
+    <circle cx="24" cy="24" r="2.5" fill="${SUCCESS}"/>
+    <line x1="24" y1="6" x2="24" y2="12" stroke="${SUCCESS}" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="24" y1="36" x2="24" y2="42" stroke="${SUCCESS}" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="6" y1="24" x2="12" y2="24" stroke="${SUCCESS}" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="36" y1="24" x2="42" y2="24" stroke="${SUCCESS}" stroke-width="2.5" stroke-linecap="round"/>
+  </svg>`,
+  collab: `<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
+    <circle cx="18" cy="20" r="8" fill="${ORANGE}" opacity="0.12"/>
+    <circle cx="30" cy="20" r="8" fill="${ORANGE}" opacity="0.12"/>
+    <circle cx="18" cy="20" r="8" fill="none" stroke="${ORANGE}" stroke-width="2.5"/>
+    <circle cx="30" cy="20" r="8" fill="none" stroke="${ORANGE}" stroke-width="2.5"/>
+    <path d="M12 36 C12 30 15 28 18 28 C21 28 22 30 24 30 C26 30 27 28 30 28 C33 28 36 30 36 36" fill="none" stroke="${ORANGE}" stroke-width="2.5" stroke-linecap="round"/>
+  </svg>`,
 }
 
 const logoSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
