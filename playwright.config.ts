@@ -18,7 +18,7 @@ export default defineConfig({
   reporter: [["list"], ["html", { open: "never", outputFolder: "playwright-report" }]],
 
   use: {
-    baseURL: process.env.E2E_BASE_URL ?? "http://localhost:8080",
+    baseURL: process.env.E2E_BASE_URL ?? "https://1px-demo.vercel.app",
     trace: "retain-on-failure",
     screenshot: "only-on-failure",
     video: "retain-on-failure",
@@ -30,7 +30,7 @@ export default defineConfig({
     { name: "mobile",   testMatch: /.*\.e2e\.spec\.ts/,    use: { ...devices["iPhone 13"] } },
   ],
 
-  // Spin up dev server automatically when running locally (not when E2E_BASE_URL is set).
+  // Spin up dev server when testing locally (override with E2E_BASE_URL=http://localhost:8080).
   webServer: process.env.E2E_BASE_URL
     ? undefined
     : {

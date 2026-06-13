@@ -29,6 +29,7 @@ import {
   XCircle,
 } from "lucide-react";
 import { toast } from "sonner";
+import { isDemoMode } from "@/lib/demoMode";
 
 const statusMeta: Record<
   AdApplication["status"],
@@ -384,7 +385,7 @@ const AdvertisePage = () => {
                       </div>
                     </div>
 
-                    {a.status === "pending_payment" && (
+                    {a.status === "pending_payment" && isDemoMode() && (
                       <Button
                         type="button"
                         size="sm"

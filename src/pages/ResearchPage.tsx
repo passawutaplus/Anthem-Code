@@ -4,8 +4,8 @@ import { Button } from "@/components/ui/button";
 import { BRAND_NAME, BRAND_TAGLINE } from "@/lib/brandConfig";
 import { DEMO_WARNING_BULLETS } from "@/lib/copyConstants";
 import {
-  DEMO_PASSWORD,
   DEMO_RESEARCH_ACCOUNTS,
+  getDemoPassword,
   isDemoMode,
 } from "@/lib/demoMode";
 import SeoHead from "@/components/SeoHead";
@@ -107,7 +107,7 @@ export default function ResearchPage() {
             <LogIn className="w-4 h-4 text-primary" />
             บัญชีสำหรับทดสอบ
           </h2>
-          <p className="text-sm text-muted-foreground">รหัสผ่านทุกบัญชี: <code className="bg-muted px-1.5 py-0.5 rounded text-xs">{DEMO_PASSWORD}</code></p>
+          <p className="text-sm text-muted-foreground">รหัสผ่านทุกบัญชี: <code className="bg-muted px-1.5 py-0.5 rounded text-xs">{getDemoPassword()}</code></p>
           <div className="grid gap-3">
             {DEMO_RESEARCH_ACCOUNTS.map((acc) => (
               <div key={acc.email} className="rounded-xl border border-border p-4 space-y-1">

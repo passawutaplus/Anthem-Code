@@ -30,6 +30,11 @@ export VITE_DEMO_MODE=true
 : "${VITE_SUPABASE_PUBLISHABLE_KEY:?Set VITE_SUPABASE_PUBLISHABLE_KEY in .env}"
 
 echo "→ Deploying preview (demo mode)…"
+if [[ "${1:-}" == "--prod" ]]; then
+  echo "ERROR: Do not pass --prod to deploy-demo-vercel.sh (demo credentials would ship to production)." >&2
+  echo "For production: set VITE_DEMO_MODE=false in Vercel and use: npx vercel deploy --prod" >&2
+  exit 1
+fi
 BUILD_ENVS=(
   --build-env "VITE_SUPABASE_URL=${VITE_SUPABASE_URL}"
   --build-env "VITE_SUPABASE_PUBLISHABLE_KEY=${VITE_SUPABASE_PUBLISHABLE_KEY}"
@@ -52,4 +57,4 @@ echo "Next steps:"
 echo "  1. Supabase Dashboard → Authentication → URL Configuration"
 echo "     Add redirect: ${DEPLOY_URL%/}/auth/callback"
 echo "  2. Share demo login: phatsawut@demo.an1hem.app / an1hem-demo-seed"
-echo "  3. Production: npx vercel deploy --prod (after setting env in Vercel dashboard)"
+echo "  3. Production: VITE_DEMO_MODE=false + npx vercel deploy --prod (never use this script with --prod)"

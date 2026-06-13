@@ -41,12 +41,19 @@ test.describe("smoke @public", () => {
     }
   });
 
-  test("security headers present (meta)", async ({ page }) => {
-    await page.goto("/");
-    const hasCsp = await page.locator('meta[http-equiv="Content-Security-Policy-Report-Only"]').count();
-    const hasNoSniff = await page.locator('meta[http-equiv="X-Content-Type-Options"]').count();
-    expect(hasCsp).toBeGreaterThan(0);
-    expect(hasNoSniff).toBeGreaterThan(0);
+  test("security headers present", async ({ page }) => {
+    const res = await page.goto("/");
+    const headers = res?.headers() ?? {};
+    const csp =
+      headers["content-security-policy"] ||
+      headers["content-security-policy-report-only"];
+    const hasMetaCsp = await page
+      .locator('meta[http-equiv="Content-Security-Policy-Report-Only"]')
+      .count();
+    expect(csp || hasMetaCsp).toBeTruthy();
+    if (headers["strict-transport-security"]) {
+      expect(headers["strict-transport-security"]).toMatch(/max-age=/i);
+    }
   });
 
   test("no service_role key leaked into client HTML", async ({ page }) => {

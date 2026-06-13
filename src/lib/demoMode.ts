@@ -1,6 +1,5 @@
 /** Demo / UX research mode — เปิดด้วย VITE_DEMO_MODE=true */
 
-export const DEMO_PASSWORD = "an1hem-demo-seed";
 export const DEMO_EMAIL_SUFFIX = "@demo.an1hem.app";
 
 export const DEMO_RESEARCH_ACCOUNTS = [
@@ -24,6 +23,16 @@ export const DEMO_RESEARCH_ACCOUNTS = [
 export function isDemoMode(): boolean {
   return import.meta.env.VITE_DEMO_MODE === "true";
 }
+
+/** Demo password — empty outside demo builds (Vite dead-code eliminates the fallback). */
+export function getDemoPassword(): string {
+  if (!isDemoMode()) return "";
+  const fromEnv = import.meta.env.VITE_DEMO_PASSWORD as string | undefined;
+  return fromEnv?.trim() || "an1hem-demo-seed";
+}
+
+/** @deprecated Prefer getDemoPassword() */
+export const DEMO_PASSWORD = getDemoPassword();
 
 export function isDemoEmail(email: string): boolean {
   return email.trim().toLowerCase().endsWith(DEMO_EMAIL_SUFFIX);

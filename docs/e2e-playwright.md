@@ -1,21 +1,24 @@
 # E2E (Playwright) — ติดตั้ง + รัน
 
-ไม่ได้ commit `@playwright/test` ลงใน dependencies เพราะ binary หนัก (~300MB) — ติดตั้งเฉพาะตอนรัน
+> **ทางเลือก (WSL):** [`e2e-puppeteer.md`](./e2e-puppeteer.md) · `npm run smoke:public` (curl)
+
+`@playwright/test` อยู่ใน devDependencies แล้ว
 
 ## ครั้งแรก
 
 ```bash
-bun add -d @playwright/test
-bunx playwright install --with-deps chromium webkit
+npm install
+npx playwright install --with-deps chromium
 ```
-
-(เพิ่ม webkit เผื่อจะเทส Safari)
 
 ## รัน
 
 ```bash
-# Smoke (เร็ว ~10s, ไม่ต้อง login) — ใช้ก่อนปล่อย QA
+# รันกับ deployment เดโม่ (default ใน playwright.config.ts)
 bunx playwright test --project=smoke
+
+# รันกับ localhost
+E2E_BASE_URL=http://localhost:8080 bunx playwright test --project=smoke
 
 # E2E ทั้งหมด (ต้องตั้ง env test accounts ก่อน)
 export E2E_USER_EMAIL=qa-user-a@example.com
@@ -23,9 +26,6 @@ export E2E_USER_PASSWORD='...'
 export E2E_ADMIN_EMAIL=qa-admin@example.com
 export E2E_ADMIN_PASSWORD='...'
 bunx playwright test --project=chromium
-
-# รันกับ deployment ภายนอก (ไม่ start dev server เอง)
-E2E_BASE_URL=https://anthem-freelancehub.lovable.app bunx playwright test --project=smoke
 
 # UI mode สำหรับ debug
 bunx playwright test --ui
@@ -49,7 +49,7 @@ e2e/
 
 ## หมายเหตุ
 
-- `playwright.config.ts` มี `webServer` autostart `bun run dev` → ถ้าจะรันกับ remote ให้เซ็ต `E2E_BASE_URL`
+- `playwright.config.ts` default ชี้ `https://1px-demo.vercel.app` — ตั้ง `E2E_BASE_URL` เพื่อ override (เช่น localhost)
 - ห้ามรัน E2E บน production DB จริง — ใช้ preview environment เท่านั้น
 - เพิ่ม script ใน `package.json` ได้ตามต้องการ:
   ```json

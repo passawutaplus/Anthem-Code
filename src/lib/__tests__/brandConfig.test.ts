@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  ANTHEM_DEMO_URL,
   BRAND_DOMAIN,
   BRAND_MARK,
   BRAND_NAME,
@@ -16,7 +17,8 @@ describe("brandConfig", () => {
     expect(SITE_NAME).toBe(BRAND_NAME);
     expect(LEGAL_APP_NAME).toBe(BRAND_NAME);
     expect(BRAND_DOMAIN).toBe("1px.app");
-    expect(defaultSiteUrl()).toBe("https://1px.app");
+    expect(ANTHEM_DEMO_URL).toBe("https://1px-demo.vercel.app");
+    expect(defaultSiteUrl()).toBe(ANTHEM_DEMO_URL);
   });
 
   it("uses a single-pixel mark in the logo box", () => {

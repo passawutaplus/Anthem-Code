@@ -1,6 +1,12 @@
-# Content Security Policy — Report-Only Phase
+# Content Security Policy
 
-ขั้นปัจจุบัน: **Report-Only** (เก็บ violation จริง ๆ ก่อนค่อย enforce 2 สัปดาห์ข้างหน้า)
+## Production (Vercel / nginx)
+
+**Enforced** via HTTP headers in `vercel.json` and `nginx.conf` — includes Stripe + So1o billing in `connect-src`.
+
+## Local dev
+
+**Report-Only** meta in `index.html` + `installCspReporter()` in `main.tsx`.
 
 ## วิธีทำงาน
 

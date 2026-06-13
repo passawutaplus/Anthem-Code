@@ -1,3 +1,7 @@
+import { safeRelativePath } from "./safeUrl";
+
+export { safeRelativePath };
+
 const STORAGE_KEY = "ecosystem_oauth_redirect";
 
 export function getAppOrigin(): string {
@@ -7,9 +11,10 @@ export function getAppOrigin(): string {
   return window.location.origin;
 }
 
-export function safeRelativePath(raw?: string | null, fallback = "/"): string {
-  if (!raw) return fallback;
-  return /^\/(?![/\\])/.test(raw) ? raw : fallback;
+/** True when redirect query must be removed from the URL bar (open-redirect attempt). */
+export function shouldStripRedirectParam(raw?: string | null): boolean {
+  if (!raw) return false;
+  return safeRelativePath(raw, "/") !== raw;
 }
 
 export function storeOAuthRedirect(path: string): void {

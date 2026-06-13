@@ -33,6 +33,17 @@ function upsertMeta(id: string, attr: "name" | "property", key: string, content:
   el.setAttribute("content", content);
 }
 
+function upsertCanonical(id: string, href: string) {
+  let el = document.getElementById(id) as HTMLLinkElement | null;
+  if (!el) {
+    el = document.createElement("link");
+    el.id = id;
+    el.rel = "canonical";
+    document.head.appendChild(el);
+  }
+  el.href = href;
+}
+
 function upsertJsonLd(id: string, data: Record<string, unknown> | Record<string, unknown>[]) {
   let el = document.getElementById(id) as HTMLScriptElement | null;
   if (!el) {
@@ -79,6 +90,7 @@ const SeoHead = ({
     upsertMeta(META_IDS.twTitle, "name", "twitter:title", fullTitle);
     upsertMeta(META_IDS.twDesc, "name", "twitter:description", desc);
     upsertMeta(META_IDS.twImage, "name", "twitter:image", img);
+    upsertCanonical("seo-canonical", url);
 
     const defaultLd = {
       "@context": "https://schema.org",

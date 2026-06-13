@@ -3,8 +3,8 @@ import { Info, LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DEMO_LOGIN_HINT, DEMO_SIGNUP_BLOCKED } from "@/lib/copyConstants";
 import {
-  DEMO_PASSWORD,
   DEMO_RESEARCH_ACCOUNTS,
+  getDemoPassword,
   isDemoMode,
 } from "@/lib/demoMode";
 
@@ -30,7 +30,7 @@ export function DemoLoginHint({
             variant="outline"
             size="sm"
             className="h-8 rounded-full text-[11px]"
-            onClick={() => onUseAccount(acc.email, DEMO_PASSWORD)}
+            onClick={() => onUseAccount(acc.email, getDemoPassword())}
           >
             {acc.label}
           </Button>

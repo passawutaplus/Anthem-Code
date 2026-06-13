@@ -1,7 +1,6 @@
 // Shared wallet surface. Both apps debit/credit the same PX balance.
 export {
   useWallet,
-  useTopUp,
   useTopUpHistory,
   type Wallet,
 } from "@/hooks/useWallet";

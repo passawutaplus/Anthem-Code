@@ -198,7 +198,7 @@ const FeedPage = (_props: { onMyPortClick: () => void }) => {
   };
 
   return (
-    <div className="min-h-screen bg-app-ambient pb-24 lg:pb-0">
+    <main className="min-h-screen bg-app-ambient pb-24 lg:pb-0">
       <div className="max-w-[1920px] mx-auto px-3 sm:px-4 lg:px-6 2xl:px-10 pt-4 py-4 space-y-4">
         <FeedHero />
 
@@ -356,7 +356,7 @@ const FeedPage = (_props: { onMyPortClick: () => void }) => {
         projectId={collabTarget.projectId}
         projectTitle={collabTarget.projectTitle}
       />
-    </div>
+    </main>
   );
 };
 

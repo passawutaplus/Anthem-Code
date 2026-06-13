@@ -7,7 +7,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
 import { SocialButtons, AuthEmailSeparator } from "@/components/auth/SocialButtons";
-import { safeRelativePath } from "@/lib/oauthRedirect";
+import { safeRelativePath, shouldStripRedirectParam } from "@/lib/oauthRedirect";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
@@ -65,11 +65,20 @@ const PasswordInput = ({ id, value, onChange, placeholder, autoComplete, minLeng
 const AuthPage = () => {
   const navigate = useNavigate();
   const [params] = useSearchParams();
-  const redirect = safeRelativePath(params.get("redirect"), "/");
+  const rawRedirect = params.get("redirect");
+  const redirect = safeRelativePath(rawRedirect, "/");
 
   const { user } = useAuth();
   const [tab, setTab] = useState<"login" | "signup">("login");
   const [fadeOut, setFadeOut] = useState(false);
+
+  useEffect(() => {
+    if (!shouldStripRedirectParam(rawRedirect)) return;
+    const next = new URLSearchParams(params);
+    next.delete("redirect");
+    const q = next.toString();
+    navigate(q ? `/auth?${q}` : "/auth", { replace: true });
+  }, [rawRedirect, params, navigate]);
 
   useEffect(() => {
     if (user) {

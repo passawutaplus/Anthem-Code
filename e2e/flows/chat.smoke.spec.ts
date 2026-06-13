@@ -1,14 +1,16 @@
 import { test, expect } from "@playwright/test";
+import { seedCookieConsent } from "../helpers/cookie";
 
 const DEMO_EMAIL = process.env.E2E_DEMO_EMAIL ?? "phatsawut@demo.an1hem.app";
 const DEMO_PASSWORD = process.env.E2E_DEMO_PASSWORD ?? "an1hem-demo-seed";
 const DEMO_CONV_ID = "00000000-0000-0000-000c-000000000005";
 
 async function signInDemo(page: import("@playwright/test").Page) {
+  await seedCookieConsent(page);
   await page.goto("/auth");
   await page.getByLabel(/อีเมล|email/i).first().fill(DEMO_EMAIL);
   await page.getByLabel(/รหัสผ่าน|password/i).first().fill(DEMO_PASSWORD);
-  await page.getByRole("button", { name: /เข้าสู่ระบบ|sign in|login/i }).click();
+  await page.getByRole("button", { name: "เข้าสู่ระบบ", exact: true }).click();
   await expect(page).not.toHaveURL(/\/auth/, { timeout: 15_000 });
 }
 

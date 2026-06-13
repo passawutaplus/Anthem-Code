@@ -53,24 +53,46 @@ Browser (React 18 + Vite)
 ## Edge function hardening
 
 Every public-facing edge function:
-1. CORS preflight handled
-2. JWT validated via `supabase.auth.getClaims()` (where user-bound)
-3. Input parsed + validated with **zod**
-4. Errors returned generically (no stack traces / internal messages)
-5. Service-role client used only after authorization passes
+1. CORS allowlist via `_shared/cors.ts` (not `*`)
+2. CORS preflight handled
+3. JWT validated via `supabase.auth.getClaims()` (where user-bound)
+4. Input parsed + validated with **zod**
+5. Errors returned generically (no stack traces / internal messages)
+6. Service-role client used only after authorization passes
+
+## HTTP security (1PX SPA)
+
+- **Production:** HSTS + enforced CSP via `vercel.json` and `nginx.conf`
+- **Local dev:** CSP Report-Only meta in `index.html` + `installCspReporter()` in `main.tsx`
+- **Demo mode:** `VITE_DEMO_MODE=true` only on preview builds; Dockerfile defaults to `false`
+
+## Mock payments (demo vs production)
+
+- SQL: [`scripts/ecosystem/security-mock-payments.sql`](../../scripts/ecosystem/security-mock-payments.sql)
+- Production: run `security-mock-payments-prod-revoke.sql` — disables mock RPCs
+- Demo: run `security-mock-payments-demo-enable.sql`
+- UI: mock ad pay button gated by `isDemoMode()` on `AdvertisePage`
 
 ## Accepted risks
 
 - `SECURITY DEFINER` RPCs callable by authenticated users (admin_*, wallet ops) — each function performs its own `has_role()` / ownership check internally. Linter warnings 0028/0029 are by design.
 - `pgvector` extension installed in `public` schema (Supabase default; moving requires extension re-create).
 - `job-match-dispatch` is invoked by a DB trigger via `pg_net` without a JWT (DB is the trusted caller). Input is a single validated UUID.
-- Mock payment endpoints (`topup_wallet_mock`, `mock_pay_ad_application`) exist for the staging environment. Must be removed before going live with real payments.
+- Mock payment RPCs (`topup_wallet_mock`, `mock_pay_ad_application`) gated by `payment_settings` flags — **revoked on production** via SQL script; demo enables explicitly.
+
+## CI / supply chain
+
+- GitHub Actions: lint, unit tests, npm audit (high), Playwright security smoke
+- Dependabot weekly for npm (monorepo root `.github/dependabot.yml`)
+- `scripts/check-build-env.mjs` blocks `VITE_DEMO_MODE=true` on production deploy target
 
 ## Known gaps (open for reviewer)
 
 - No application-level rate limiting on edge functions yet (Supabase platform limits apply).
-- CSP not yet enforced (only baseline headers via meta).
-- No automated dependency vulnerability gate in CI.
+
+## Production checklist
+
+See So1o [`production-security-checklist.md`](../../Solo-Code/docs/production-security-checklist.md) (shared ecosystem).
 
 ## Report & Feedback
 

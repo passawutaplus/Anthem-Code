@@ -32,7 +32,9 @@ describe("safeRelativePath", () => {
   it("rejects protocol-relative and backslash tricks", () => {
     expect(safeRelativePath("//evil.com")).toBe("/");
     expect(safeRelativePath("/\\evil.com")).toBe("/");
+    expect(safeRelativePath("/%2fevil.com")).toBe("/");
     expect(safeRelativePath("https://evil.com")).toBe("/");
+    expect(safeRelativePath("/javascript:alert(1)")).toBe("/");
     expect(safeRelativePath("javascript:alert(1)")).toBe("/");
   });
 
