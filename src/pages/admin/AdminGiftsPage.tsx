@@ -14,6 +14,7 @@ import { toast } from "sonner";
 import AdminRowActions from "@/components/admin/AdminRowActions";
 import { useAdminRejectCashout, useAdminUpdateGift, useAdminUpdateGiftLimits } from "@/hooks/admin/useAdminMutations";
 import { processCashoutViaStripe } from "@/lib/stripePaymentsApi";
+import { notifyAnthem } from "@/lib/notifyAnthem";
 import { Label } from "@/components/ui/label";
 
 const isCashoutPaid = (s: string) => s === "mock_paid" || s === "paid";
@@ -130,8 +131,10 @@ export default function AdminGiftsPage() {
     mutationFn: async (id: string) => {
       const { error } = await supabase.rpc("admin_mark_cashout_paid", { _id: id });
       if (error) throw error;
+      return id;
     },
-    onSuccess: () => {
+    onSuccess: (id) => {
+      notifyAnthem({ event: "cashout", request_id: id, status: "paid" });
       toast.success("ทำเครื่องหมายว่าจ่ายแล้ว (manual)");
       qc.invalidateQueries({ queryKey: ["admin-cashouts"] });
       qc.invalidateQueries({ queryKey: ["admin-gift-overview"] });
@@ -141,7 +144,8 @@ export default function AdminGiftsPage() {
 
   const stripePayout = useMutation({
     mutationFn: (id: string) => processCashoutViaStripe(id),
-    onSuccess: (transferId) => {
+    onSuccess: (transferId, id) => {
+      notifyAnthem({ event: "cashout", request_id: id, status: "paid" });
       toast.success(`โอน Stripe สำเร็จ (${transferId})`);
       qc.invalidateQueries({ queryKey: ["admin-cashouts"] });
       qc.invalidateQueries({ queryKey: ["admin-gift-overview"] });

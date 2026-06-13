@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { notifyAnthem } from "@/lib/notifyAnthem";
 
 export type CashoutStatus =
   | "pending"
@@ -65,7 +66,8 @@ export const useRequestCashout = () => {
       if (error) throw error;
       return data as CashoutRequest;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      notifyAnthem({ event: "cashout", request_id: data.id, status: "submitted" });
       qc.invalidateQueries({ queryKey: ["wallet", user?.id] });
       qc.invalidateQueries({ queryKey: ["cashouts", user?.id] });
     },

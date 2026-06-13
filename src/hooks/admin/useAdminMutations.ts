@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { adminListKey } from "@/hooks/admin/useAdminList";
+import { notifyAnthem } from "@/lib/notifyAnthem";
 
 function invalidateLists(qc: ReturnType<typeof useQueryClient>, tables: string[]) {
   tables.forEach((table) => qc.invalidateQueries({ queryKey: adminListKey(table) }));
@@ -128,8 +129,10 @@ export function useAdminRejectCashout() {
     mutationFn: async ({ id, note }: { id: string; note?: string }) => {
       const { error } = await supabase.rpc("admin_reject_cashout", { _id: id, _note: note ?? "" });
       if (error) throw error;
+      return id;
     },
-    onSuccess: () => {
+    onSuccess: (id) => {
+      notifyAnthem({ event: "cashout", request_id: id, status: "rejected" });
       qc.invalidateQueries({ queryKey: ["admin-cashouts"] });
       qc.invalidateQueries({ queryKey: ["admin-gift-overview"] });
     },

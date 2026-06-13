@@ -12,6 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAdminRejectCashout } from "@/hooks/admin/useAdminMutations";
 import { Wallet, ArrowDownLeft, ArrowUpRight, Gift } from "lucide-react";
 import { formatThaiDate } from "@/lib/format";
+import { notifyAnthem } from "@/lib/notifyAnthem";
 
 interface LedgerRow {
   id: string;
@@ -69,8 +70,10 @@ export default function AdminWalletPage() {
     mutationFn: async (id: string) => {
       const { error } = await supabase.rpc("admin_mark_cashout_paid", { _id: id });
       if (error) throw error;
+      return id;
     },
-    onSuccess: () => {
+    onSuccess: (id) => {
+      notifyAnthem({ event: "cashout", request_id: id, status: "paid" });
       toast.success("ทำเครื่องหมายว่าจ่ายแล้ว");
       qc.invalidateQueries({ queryKey: ["admin-wallet-ledger"] });
       qc.invalidateQueries({ queryKey: ["admin-gift-overview"] });

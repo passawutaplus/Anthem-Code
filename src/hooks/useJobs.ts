@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
+import { notifyAnthem } from "@/lib/notifyAnthem";
 
 export interface JobPost {
   id: string;
@@ -152,15 +153,17 @@ export const useApplyToJob = () => {
   return useMutation({
     mutationFn: async (input: { job_id: string; cover_letter: string; portfolio_project_ids: string[] }) => {
       if (!user) throw new Error("not authed");
-      const { error } = await supabase.from("job_applications").insert({
+      const { data, error } = await supabase.from("job_applications").insert({
         job_id: input.job_id,
         applicant_id: user.id,
         cover_letter: input.cover_letter,
         portfolio_project_ids: input.portfolio_project_ids,
-      });
+      }).select("id").single();
       if (error) throw error;
+      return data as { id: string };
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      notifyAnthem({ event: "job_application", application_id: data.id });
       qc.invalidateQueries({ queryKey: ["my-applications"] });
       qc.invalidateQueries({ queryKey: ["job-applications"] });
       toast.success("ส่งใบสมัครเรียบร้อย");

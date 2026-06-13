@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { notifyAnthem } from "@/lib/notifyAnthem";
 
 export interface Gift {
   id: string;
@@ -58,7 +59,8 @@ export const useSendGift = () => {
       if (error) throw error;
       return data as GiftTransaction;
     },
-    onSuccess: (_d, vars) => {
+    onSuccess: (data, vars) => {
+      notifyAnthem({ event: "gift", transaction_id: data.id });
       qc.invalidateQueries({ queryKey: ["wallet", user?.id] });
       qc.invalidateQueries({ queryKey: ["wallet-available-gift", user?.id] });
       qc.invalidateQueries({ queryKey: ["wallet-available-purchased", user?.id] });

@@ -117,6 +117,39 @@ const icons = {
     <circle cx="30" cy="20" r="8" fill="none" stroke="${ORANGE}" stroke-width="2.5"/>
     <path d="M12 36 C12 30 15 28 18 28 C21 28 22 30 24 30 C26 30 27 28 30 28 C33 28 36 30 36 36" fill="none" stroke="${ORANGE}" stroke-width="2.5" stroke-linecap="round"/>
   </svg>`,
+  gift: `<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
+    <rect x="10" y="20" width="28" height="18" rx="3" fill="${SUCCESS}" opacity="0.12"/>
+    <rect x="10" y="20" width="28" height="18" rx="3" fill="none" stroke="${SUCCESS}" stroke-width="2.5"/>
+    <rect x="22" y="20" width="4" height="18" fill="${SUCCESS}"/>
+    <rect x="10" y="14" width="28" height="8" rx="2" fill="none" stroke="${SUCCESS}" stroke-width="2.5"/>
+    <path d="M24 14 C24 10 28 8 30 10 C32 12 24 14 24 14 M24 14 C24 10 20 8 18 10 C16 12 24 14 24 14" fill="none" stroke="${SUCCESS}" stroke-width="2"/>
+  </svg>`,
+  follow: `<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
+    <circle cx="20" cy="18" r="7" fill="${ORANGE}" opacity="0.12"/>
+    <circle cx="20" cy="18" r="7" fill="none" stroke="${ORANGE}" stroke-width="2.5"/>
+    <path d="M10 38 C10 31 14 28 20 28 C26 28 30 31 30 38" fill="none" stroke="${ORANGE}" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="M32 16 L38 22 M38 16 L32 22" stroke="${ORANGE}" stroke-width="2.5" stroke-linecap="round"/>
+  </svg>`,
+  application: `<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
+    <rect x="14" y="8" width="20" height="32" rx="3" fill="${ORANGE}" opacity="0.12"/>
+    <rect x="14" y="8" width="20" height="32" rx="3" fill="none" stroke="${ORANGE}" stroke-width="2.5"/>
+    <rect x="18" y="16" width="12" height="2.5" rx="1.25" fill="${INK}"/>
+    <rect x="18" y="22" width="10" height="2.5" rx="1.25" fill="${MUTE}"/>
+    <rect x="18" y="28" width="8" height="2.5" rx="1.25" fill="${MUTE}"/>
+    <circle cx="32" cy="32" r="8" fill="${SUCCESS}" opacity="0.15"/>
+    <path d="M29 32 L31 34 L35 30" fill="none" stroke="${SUCCESS}" stroke-width="2.5" stroke-linecap="round"/>
+  </svg>`,
+  topup: `<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
+    <circle cx="24" cy="24" r="18" fill="${SUCCESS}" opacity="0.12"/>
+    <circle cx="24" cy="24" r="18" fill="none" stroke="${SUCCESS}" stroke-width="2.5"/>
+    <path d="M24 14 V34 M16 24 H32" stroke="${SUCCESS}" stroke-width="3" stroke-linecap="round"/>
+  </svg>`,
+  cashout: `<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
+    <rect x="8" y="14" width="32" height="22" rx="4" fill="${ORANGE}" opacity="0.12"/>
+    <rect x="8" y="14" width="32" height="22" rx="4" fill="none" stroke="${ORANGE}" stroke-width="2.5"/>
+    <circle cx="24" cy="25" r="5" fill="none" stroke="${ORANGE}" stroke-width="2.5"/>
+    <rect x="32" y="18" width="4" height="14" rx="1" fill="${ORANGE}"/>
+  </svg>`,
 }
 
 const logoSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">

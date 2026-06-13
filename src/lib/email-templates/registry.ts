@@ -3,6 +3,11 @@ import { hireRequestTemplate } from './hire-request'
 import { chatMessageTemplate } from './chat-message'
 import { jobMatchTemplate } from './job-match'
 import { collabRequestTemplate } from './collab-request'
+import { giftReceivedTemplate } from './gift-received'
+import { followTemplate } from './follow'
+import { jobApplicationTemplate } from './job-application'
+import { topupSuccessTemplate } from './topup-success'
+import { cashoutStatusTemplate } from './cashout-status'
 
 export interface NotificationTemplateEntry {
   component: ComponentType<Record<string, unknown>>
@@ -16,6 +21,11 @@ export const NOTIFICATION_TEMPLATES: Record<string, NotificationTemplateEntry> =
   'chat-message': chatMessageTemplate,
   'job-match': jobMatchTemplate,
   'collab-request': collabRequestTemplate,
+  'gift-received': giftReceivedTemplate,
+  follow: followTemplate,
+  'job-application': jobApplicationTemplate,
+  'topup-success': topupSuccessTemplate,
+  'cashout-status': cashoutStatusTemplate,
 }
 
 export const ANTHEM_NOTIFICATION_SUBJECTS = Object.fromEntries(

@@ -13,6 +13,7 @@ import TopUpDialog from "@/components/gifting/TopUpDialog";
 import { formatThaiDate } from "@/lib/format";
 import SeoHead from "@/components/SeoHead";
 import { toast } from "sonner";
+import { notifyAnthem } from "@/lib/notifyAnthem";
 
 const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
   Pencil, Coffee, Highlighter, PenTool, Palette, Laptop,
@@ -35,6 +36,7 @@ const EarningsPage = () => {
     const connect = searchParams.get("connect");
     if (topup === "success") {
       toast.success("เติม Pixel สำเร็จ — ยอดจะพร้อมส่งของขวัญหลังช่วงพัก 24 ชม.");
+      notifyAnthem({ event: "topup" });
       searchParams.delete("topup");
       setSearchParams(searchParams, { replace: true });
     } else if (connect === "success") {

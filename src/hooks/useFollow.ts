@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
+import { notifyAnthem } from "@/lib/notifyAnthem";
 
 export const useFollowState = (followingId: string | undefined) => {
   const { user } = useAuth();
@@ -44,14 +45,18 @@ export const useFollowState = (followingId: string | undefined) => {
           .eq("follower_id", user.id)
           .eq("following_id", followingId);
         if (error) throw error;
-      } else {
-        const { error } = await supabase
-          .from("follows")
-          .insert({ follower_id: user.id, following_id: followingId });
-        if (error) throw error;
+        return { followed: false as const };
       }
+      const { error } = await supabase
+        .from("follows")
+        .insert({ follower_id: user.id, following_id: followingId });
+      if (error) throw error;
+      return { followed: true as const };
     },
-    onSuccess: () => {
+    onSuccess: (result) => {
+      if (result.followed) {
+        notifyAnthem({ event: "follow", following_id: followingId! });
+      }
       qc.invalidateQueries({ queryKey: ["follow-counts", followingId] });
       qc.invalidateQueries({ queryKey: ["is-following", followingId, user?.id] });
     },
