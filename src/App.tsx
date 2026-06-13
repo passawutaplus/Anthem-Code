@@ -29,7 +29,7 @@ const SettingsPage = lazy(() => import("./pages/SettingsPage.tsx"));
 const ProjectEditorPage = lazy(() => import("./pages/ProjectEditorPage.tsx"));
 const PublicProfilePage = lazy(() => import("./pages/PublicProfilePage.tsx"));
 const NotificationsPage = lazy(() => import("./pages/NotificationsPage.tsx"));
-import ChatInboxPage from "./pages/ChatInboxPage.tsx";
+const ChatInboxPage = lazy(() => import("./pages/ChatInboxPage.tsx"));
 const CollectionsPage = lazy(() => import("./pages/CollectionsPage.tsx"));
 const CollectionDetailPage = lazy(() => import("./pages/CollectionDetailPage.tsx"));
 const JobsPage = lazy(() => import("./pages/JobsPage.tsx"));

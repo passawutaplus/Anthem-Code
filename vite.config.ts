@@ -18,4 +18,19 @@ export default defineConfig({
     },
     dedupe: ["react", "react-dom", "react/jsx-runtime", "react/jsx-dev-runtime", "@tanstack/react-query", "@tanstack/query-core"],
   },
+  build: {
+    chunkSizeWarningLimit: 600,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (!id.includes("node_modules")) return;
+          if (id.includes("recharts")) return "recharts";
+          if (id.includes("@radix-ui")) return "radix";
+          if (id.includes("@supabase")) return "supabase";
+          if (id.includes("@tanstack")) return "tanstack";
+          if (id.includes("lucide-react")) return "lucide";
+        },
+      },
+    },
+  },
 });
