@@ -6,6 +6,14 @@ ALTER TABLE anthem.projects
 COMMENT ON COLUMN anthem.projects.rights_attestation_version IS
   'Version id of legal attestation text accepted at publish (see LEGAL_ATTESTATION_VERSION)';
 
+-- Backfill legacy published rows so the CHECK constraint can be added safely.
+UPDATE anthem.projects
+SET
+  rights_attested_at = COALESCE(rights_attested_at, updated_at, created_at, now()),
+  rights_attestation_version = COALESCE(rights_attestation_version, 'legacy-pre-enforcement')
+WHERE status = 'Published'
+  AND rights_attested_at IS NULL;
+
 -- Published projects must have attestation timestamp (client + API bypass protection).
 DO $$
 BEGIN
