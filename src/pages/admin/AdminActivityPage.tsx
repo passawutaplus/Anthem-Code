@@ -1,8 +1,9 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import CollectionIcon from "@/components/icons/CollectionIcon";
 import {
   UserPlus, FolderKanban, HandshakeIcon, HeartHandshake, Building2,
-  Heart, MessageCircle, UserCheck, Gift, Flag, MessageSquareHeart, Bookmark,
+  Heart, MessageCircle, UserCheck, Gift, Flag, MessageSquareHeart,
   Sparkles, MessageSquare, Wallet, ShieldCheck, Shield, ScrollText, Eye,
 } from "lucide-react";
 import BriefcaseIcon from "@/components/icons/BriefcaseIcon";
@@ -30,7 +31,7 @@ const typeMeta: Record<ActivityEventType, { label: string; icon: React.Component
   view: { label: "วิว", icon: Eye },
   report: { label: "รายงาน", icon: Flag },
   feedback: { label: "ฟีดแบ็ก", icon: MessageSquareHeart },
-  collection: { label: "คอลเลกชัน", icon: Bookmark },
+  collection: { label: "คอลเลกชัน", icon: CollectionIcon },
   inspire: { label: "Inspire", icon: Sparkles },
   message: { label: "แชต", icon: MessageSquare },
   cashout: { label: "ถอนเงิน", icon: Wallet },

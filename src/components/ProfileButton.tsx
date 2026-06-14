@@ -1,6 +1,7 @@
 import BriefcaseIcon from "./icons/BriefcaseIcon";
+import CollectionIcon from "./icons/CollectionIcon";
 import { useEffect, useState } from "react";
-import { ChevronDown, User, LogOut, Settings, LayoutGrid, MessageCircle, Layers3, Bell, Building2, Plus, Coins } from "lucide-react";
+import { ChevronDown, User, LogOut, Settings, LayoutGrid, MessageCircle, Bell, Building2, Plus, Coins } from "lucide-react";
 import WalletBadge from "@/components/gifting/WalletBadge";
 import NotificationBell from "@/components/notifications/NotificationBell";
 
@@ -114,7 +115,7 @@ const ProfileButton = () => {
           <LayoutGrid className="w-4 h-4 mr-2" /> โปรไฟล์ของฉัน
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => navigate("/collections")} className="rounded-lg">
-          <Layers3 className="w-4 h-4 mr-2" /> คอลเลกชันของฉัน
+          <CollectionIcon className="w-4 h-4 mr-2" /> คอลเลกชันของฉัน
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => navigate("/earnings")} className="rounded-lg">
           <Coins className="w-4 h-4 mr-2 text-primary" /> รายได้ &amp; กระเป๋า Pixel

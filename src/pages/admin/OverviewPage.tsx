@@ -1,6 +1,7 @@
 import BriefcaseIcon from "../../components/icons/BriefcaseIcon";
+import CollectionIcon from "../../components/icons/CollectionIcon";
 import {
-  Users, Building2, FolderKanban, HandshakeIcon, MessageSquare, Bookmark, UserPlus,
+  Users, Building2, FolderKanban, HandshakeIcon, MessageSquare, UserPlus,
   Heart, MessageCircle, Eye, Gift, Flag, Wallet, ShieldCheck, Shield, HeartHandshake,
   Activity,
 } from "lucide-react";
@@ -38,7 +39,7 @@ export default function OverviewPage() {
         <KpiCard label="Pending Hires" value={stats?.pendingHiring ?? "—"} accent icon={HandshakeIcon} />
         <KpiCard label="Pending Collabs" value={stats?.pendingCollabs ?? "—"} accent icon={HeartHandshake} />
         <KpiCard label="Messages 24h" value={stats?.messages24h ?? "—"} icon={MessageSquare} />
-        <KpiCard label="Collections" value={stats?.totalCollections ?? "—"} icon={Bookmark} />
+        <KpiCard label="Collections" value={stats?.totalCollections ?? "—"} icon={CollectionIcon} />
         <KpiCard label="Likes 24h" value={stats?.likes24h ?? "—"} icon={Heart} />
         <KpiCard label="Comments 24h" value={stats?.comments24h ?? "—"} icon={MessageCircle} />
         <KpiCard label="Views 24h" value={stats?.views24h ?? "—"} icon={Eye} />

@@ -1,8 +1,9 @@
 import BriefcaseIcon from "../components/icons/BriefcaseIcon";
+import CollectionIcon from "../components/icons/CollectionIcon";
 import { useMemo, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, Settings, ExternalLink, LayoutGrid, Sparkles, Phone, UserPlus, FileCheck, Plus, Layers3, ArrowDownUp, Eye, Heart, Clock, ChevronDown, ChevronUp, Gift as GiftIcon } from "lucide-react";
+import { ArrowLeft, Settings, ExternalLink, LayoutGrid, Sparkles, Phone, UserPlus, FileCheck, Plus, ArrowDownUp, Eye, Heart, Clock, ChevronDown, ChevronUp, Gift as GiftIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -208,7 +209,7 @@ const PortfolioProfilePage = () => {
 
           {/* My Collections */}
           <Section
-            icon={Layers3}
+            icon={CollectionIcon}
             title="คอลเลกชันของฉัน"
             count={collections.length}
             action={
