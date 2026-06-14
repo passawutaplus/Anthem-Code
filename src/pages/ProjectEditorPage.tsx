@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { ArrowLeft, Eye, ImagePlus, Loader2, Plus, Save, Trash2, Upload, X, ArrowUp, ArrowDown, GripVertical } from "lucide-react";
+import { ArrowLeft, Eye, ImagePlus, Loader2, Plus, Save, Trash2, Upload, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -25,6 +25,16 @@ import ProjectPreviewDialog, { type ProjectPreviewData } from "@/components/proj
 import ThirdPartyAssetsToggle from "@/components/license/ThirdPartyAssetsToggle";
 import OriginalWorkAttestation from "@/components/license/OriginalWorkAttestation";
 import { type LicenseType, isLicenseType } from "@/lib/licenses";
+import {
+  PortfolioEditorModeToggle,
+  type PortfolioEditorMode,
+} from "@/components/project/PortfolioEditorModeToggle";
+import { PortfolioAiAssistPanel } from "@/components/project/PortfolioAiAssistPanel";
+import { SortableGalleryGrid } from "@/components/project/SortableGalleryGrid";
+import {
+  usePortfolioAiAssist,
+  type PortfolioAiAssistResult,
+} from "@/hooks/usePortfolioAiAssist";
 
 type Status = "Published" | "Draft" | "Private";
 
@@ -69,6 +79,16 @@ const ProjectEditorPage = () => {
   const [uploadingGallery, setUploadingGallery] = useState(false);
   const [uploadingVideo, setUploadingVideo] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
+  const [editorMode, setEditorMode] = useState<PortfolioEditorMode>(editing ? "manual" : "ai");
+  const [aiHint, setAiHint] = useState("");
+
+  const {
+    loading: aiLoading,
+    result: aiResult,
+    runAssist,
+    clearResult,
+    limitReached: aiLimitReached,
+  } = usePortfolioAiAssist();
 
   useEffect(() => {
     if (!authLoading && !user) navigate("/auth?redirect=/portfolio/new");
@@ -145,7 +165,13 @@ const ProjectEditorPage = () => {
         const u = await uploadProjectImage(f, user.id, folderRef.current, tier);
         urls.push(u);
       }
-      setGallery((prev) => [...prev, ...urls]);
+      setGallery((prev) => {
+        const next = [...prev, ...urls];
+        return next;
+      });
+      if (editorMode === "ai" && !cover && urls[0]) {
+        setCover(urls[0]);
+      }
       toast.success(`อัปโหลด ${urls.length} ภาพสำเร็จ`);
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "อัปโหลดไม่สำเร็จ");
@@ -154,14 +180,92 @@ const ProjectEditorPage = () => {
     }
   };
 
-  const move = (i: number, dir: -1 | 1) => {
+  const removeGalleryImage = (index: number) => {
     setGallery((prev) => {
-      const next = [...prev];
-      const j = i + dir;
-      if (j < 0 || j >= next.length) return prev;
-      [next[i], next[j]] = [next[j], next[i]];
+      const removed = prev[index];
+      const next = prev.filter((_, j) => j !== index);
+      if (removed && cover === removed) {
+        setCover(next[0] ?? "");
+      }
       return next;
     });
+  };
+
+  const applyAiField = (field: keyof PortfolioAiAssistResult, result: PortfolioAiAssistResult) => {
+    switch (field) {
+      case "image_order": {
+        const reordered = result.image_order.map((i) => gallery[i]).filter(Boolean);
+        if (reordered.length === gallery.length) setGallery(reordered);
+        break;
+      }
+      case "cover_index": {
+        const url = gallery[result.cover_index];
+        if (url) setCover(url);
+        break;
+      }
+      case "title":
+        setTitle(result.title);
+        break;
+      case "subtitle":
+        setSubtitle(result.subtitle);
+        break;
+      case "description":
+        setDescription(result.description);
+        break;
+      case "category":
+        setCategory(result.category);
+        break;
+      case "tags":
+        setTags(result.tags);
+        break;
+      case "tools":
+        setTools(result.tools);
+        break;
+    }
+    toast.success("นำผลลัพธ์ไปใช้แล้ว");
+  };
+
+  const applyAiAll = (result: PortfolioAiAssistResult) => {
+    const reordered = result.image_order.map((i) => gallery[i]).filter(Boolean);
+    const nextGallery = reordered.length === gallery.length ? reordered : gallery;
+    const coverUrl = gallery[result.cover_index] ?? nextGallery[0] ?? "";
+    setGallery(nextGallery);
+    setCover(coverUrl);
+    setTitle(result.title);
+    setSubtitle(result.subtitle);
+    setDescription(result.description);
+    setCategory(result.category);
+    setTags(result.tags);
+    setTools(result.tools);
+    toast.success("นำผลลัพธ์ทั้งหมดไปใช้แล้ว");
+  };
+
+  const handleRunAi = async () => {
+    if (gallery.length < 2) {
+      toast.error("ต้องมีอย่างน้อย 2 รูปเพื่อใช้ AI");
+      return;
+    }
+    if (editing && title.trim()) {
+      const ok = window.confirm("AI จะเติมข้อมูลใหม่ — ข้อความเดิมอาจถูกแทนที่เมื่อกด「ใช้ทั้งหมด」ต่อไป ต้องการดำเนินการต่อ?");
+      if (!ok) return;
+    }
+    try {
+      await runAssist({
+        imageUrls: gallery.slice(0, 8),
+        hint: aiHint,
+        categoryHint: category,
+      });
+      toast.success("AI วิเคราะห์เสร็จแล้ว — กด「ใช้」เพื่อเติมข้อมูล");
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "unknown";
+      if (msg === "limit_reached") {
+        toast.error("เครดิต AI หมดแล้ว — อัปเกรดที่ So1o");
+      } else if (msg === "rate_limited") {
+        toast.error("ใช้งาน AI หนาแน่นเกินไป — ลองใหม่ใน 1 นาที");
+      } else {
+        toast.error("AI ไม่สำเร็จ — ลองใหม่อีกครั้ง");
+      }
+    }
   };
 
   const handleVideo = async (file: File) => {
@@ -325,15 +429,41 @@ const ProjectEditorPage = () => {
         </div>
       </div>
 
+      <PortfolioEditorModeToggle mode={editorMode} onModeChange={setEditorMode} />
+
       <div className="max-w-6xl mx-auto px-4 py-6 grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6">
         {/* Left: content */}
         <div className="space-y-6">
-          {/* Cover */}
-          <section className="space-y-2">
-            <Label className="text-sm font-semibold">ภาพปก *</Label>
-            <CoverDrop url={cover} loading={uploadingCover} onPick={handleCover} onClear={() => setCover("")} />
-            <p className="text-xs text-muted-foreground">ใช้เป็นภาพหลักในฟีดและการค้นหา (จะถูกบีบเป็น WebP คุณภาพ HD)</p>
-          </section>
+          {editorMode === "ai" ? (
+            <PortfolioAiAssistPanel
+              gallery={gallery}
+              coverUrl={cover}
+              category={category}
+              categories={cats}
+              hint={aiHint}
+              onHintChange={setAiHint}
+              onCategoryChange={setCategory}
+              uploadingGallery={uploadingGallery}
+              onPickFiles={handleGallery}
+              onReorder={setGallery}
+              onSetCover={setCover}
+              onRemove={removeGalleryImage}
+              maxGallery={Number.isFinite(limits.galleryImages) ? limits.galleryImages : 20}
+              aiLoading={aiLoading}
+              aiResult={aiResult}
+              limitReached={aiLimitReached}
+              onRunAi={() => void handleRunAi()}
+              onApplyAll={applyAiAll}
+              onApplyField={applyAiField}
+              onClearResult={clearResult}
+            />
+          ) : (
+            <section className="space-y-2">
+              <Label className="text-sm font-semibold">ภาพปก *</Label>
+              <CoverDrop url={cover} loading={uploadingCover} onPick={handleCover} onClear={() => setCover("")} />
+              <p className="text-xs text-muted-foreground">ใช้เป็นภาพหลักในฟีดและการค้นหา (จะถูกบีบเป็น WebP คุณภาพ HD)</p>
+            </section>
+          )}
 
           {/* Title */}
           <section className="space-y-2">
@@ -371,7 +501,8 @@ const ProjectEditorPage = () => {
             <p className="text-xs text-muted-foreground text-right">{description.length}/5000</p>
           </section>
 
-          {/* Gallery */}
+          {/* Gallery — manual mode only (AI mode uses panel above) */}
+          {editorMode === "manual" && (
           <section className="space-y-2">
             <div className="flex items-center justify-between">
               <Label className="text-sm font-semibold">
@@ -387,26 +518,14 @@ const ProjectEditorPage = () => {
               <GalleryDrop loading={uploadingGallery} onPick={handleGallery} />
             ) : (
               <div className="space-y-3">
-                {gallery.map((src, i) => (
-                  <div key={src + i} className="group relative rounded-2xl overflow-hidden border border-border bg-card">
-                    <img src={src} alt={`ภาพที่ ${i + 1}`} className="w-full max-h-[600px] object-contain bg-muted/30" loading="lazy" />
-                    <div className="absolute top-2 left-2 flex items-center gap-1 bg-background/80 backdrop-blur-sm rounded-full px-2 py-1 text-xs">
-                      <GripVertical className="w-3 h-3" /> ภาพที่ {i + 1}
-                    </div>
-                    <div className="absolute top-2 right-2 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <Button size="icon" variant="secondary" className="h-8 w-8 rounded-full" onClick={() => move(i, -1)} disabled={i === 0}>
-                        <ArrowUp className="w-4 h-4" />
-                      </Button>
-                      <Button size="icon" variant="secondary" className="h-8 w-8 rounded-full" onClick={() => move(i, 1)} disabled={i === gallery.length - 1}>
-                        <ArrowDown className="w-4 h-4" />
-                      </Button>
-                      <Button size="icon" variant="destructive" className="h-8 w-8 rounded-full"
-                        onClick={() => setGallery((p) => p.filter((_, j) => j !== i))}>
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </div>
-                ))}
+                <SortableGalleryGrid
+                  items={gallery}
+                  coverUrl={cover}
+                  onReorder={setGallery}
+                  onSetCover={setCover}
+                  onRemove={removeGalleryImage}
+                  layout="list"
+                />
                 {uploadingGallery && (
                   <div className="rounded-2xl border border-dashed border-border bg-card p-8 flex items-center justify-center text-sm text-muted-foreground">
                     <Loader2 className="w-4 h-4 animate-spin mr-2" /> กำลังอัปโหลด...
@@ -415,6 +534,7 @@ const ProjectEditorPage = () => {
               </div>
             )}
           </section>
+          )}
 
           {/* Video */}
           <section className="space-y-2">

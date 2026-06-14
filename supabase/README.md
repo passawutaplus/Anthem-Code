@@ -6,7 +6,7 @@
 |----------|----------|
 | Project ID | `rvnzjiskqliexysicfmh` |
 | Migrations (136) | [`Solo-Code/supabase/migrations/`](../../Solo-Code/supabase/migrations/) |
-| Edge Functions (19) | [`Solo-Code/supabase/functions/`](../../Solo-Code/supabase/functions/) |
+| Edge Functions (20) | [`Solo-Code/supabase/functions/`](../../Solo-Code/supabase/functions/) |
 | Ecosystem docs | [`Solo-Code/supabase/ECOSYSTEM.md`](../../Solo-Code/supabase/ECOSYSTEM.md) |
 | Notifications | [`docs/ecosystem-notifications.md`](../../docs/ecosystem-notifications.md) |
 
@@ -23,7 +23,7 @@ supabase functions deploy \
 
 # Anthem AI + search
 supabase functions deploy embed-project similar-images generate-contract \
-  anthem-assistant ecosystem-ai-usage admin-ai-monitor \
+  anthem-assistant anthem-portfolio-assist ecosystem-ai-usage admin-ai-monitor \
   --project-ref rvnzjiskqliexysicfmh
 ```
 
