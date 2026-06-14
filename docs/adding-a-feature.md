@@ -4,7 +4,11 @@ Walkthrough เพิ่ม feature "notes" สมมุติ
 
 ## 1. Database (ถ้ามี)
 
-ใช้ migration tool ของ Lovable — ห้ามรัน SQL มือ
+เพิ่ม migration ใน `Solo-Code/supabase/migrations/` แล้ว push:
+
+```bash
+cd Solo-Code && ./scripts/supabase-push-via-api.sh
+```
 
 ```sql
 CREATE TABLE public.notes (
@@ -96,3 +100,16 @@ import { useNotes, useCreateNote } from "@/features/notes";
 ```
 
 เสร็จ — ไม่มี supabase import ใน component
+
+## 5. Notifications (ถ้า user-triggered event)
+
+สำหรับเหตุการณ์ที่ต้องแจ้งผู้ใช้อื่น (email + LINE + in-app):
+
+```ts
+import { notifyAnthem } from "@/lib/notifyAnthem";
+
+// หลัง mutation สำเร็จ
+notifyAnthem({ event: "gift", transaction_id: tx.id });
+```
+
+Edge functions อยู่ที่ Solo-Code — ดู [ecosystem-notifications.md](../../docs/ecosystem-notifications.md)

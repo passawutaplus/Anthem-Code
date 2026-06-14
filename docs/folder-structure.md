@@ -19,7 +19,7 @@ src/
 │   └── mutations/
 │
 ├── hooks/          ← generic UI hooks only (use-mobile, use-toast, useIsAdmin)
-├── lib/            ← pure utils (format, validators, mappers)
+├── lib/            ← pure utils + email-templates/, notifyAnthem.ts
 ├── stores/         ← Zustand
 ├── components/     ← presentational (ui/ = shadcn primitives)
 ├── pages/          ← route entry points

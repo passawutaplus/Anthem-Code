@@ -13,7 +13,7 @@
 
 | ชั้น | คำสั่ง | ผล |
 |------|--------|-----|
-| Unit (Vitest) | `npm run test` | ✅ 47 tests |
+| Unit (Vitest) | `npm run test` | ✅ 12 files, 61 tests |
 | Public smoke (curl) | `BASE_URL=https://1px-demo.vercel.app npm run smoke:public` | ✅ |
 | Puppeteer smoke | `npm run e2e:puppeteer:smoke` | ต้อง Chrome + libs |
 | Puppeteer chat | `npm run e2e:puppeteer:chat` | demo account บน demo URL |
@@ -27,7 +27,7 @@
 |-------------|-----|
 | Local | `http://localhost:8080` |
 | Demo | `https://1px-demo.vercel.app` |
-| Production | `https://anthem-freelancehub.lovable.app` |
+| Production | `https://an1hem.app` |
 
 ```bash
 cd Anthem-Code
@@ -92,9 +92,17 @@ npm run e2e                     # Playwright full (ถ้ารองรับ)
 
 ทุก flow: สร้าง → refresh → ยังอยู่; User A ไม่เห็น wallet ของ User B
 
+## Phase 5b — Notifications (email + LINE)
+
+- [ ] `npm run email:preview` — ตรวจ templates ครบ 9 ชนิด
+- [ ] Hire / gift / follow → email + LINE + in-app ที่ผู้รับ
+- [ ] Settings → ปิด `notify_hire` → ไม่ได้ email
+- [ ] LINE connect `/line-link` + test samples จาก Settings
+- [ ] Job match → `job-match-dispatch` notification
+
 ---
 
-## Phase 5 — Admin (manual)
+## Phase 6 — Admin (manual)
 
 - [ ] `/admin` overview + nav ทุกหน้า
 - [ ] users, projects, reports, feedback, audit
@@ -102,13 +110,13 @@ npm run e2e                     # Playwright full (ถ้ารองรับ)
 
 ---
 
-## Phase 6 — Cross-platform
+## Phase 7 — Cross-platform
 
 Browsers + viewports ตาม `qa-checklist.md` — **iPhone จริง** สำหรับ chat + upload
 
 ---
 
-## Phase 7 — Security + Perf
+## Phase 8 — Security + Perf
 
 - Security smoke จาก checklist (service_role, RLS, open redirect)
 - Lighthouse mobile ≥ 70, desktop ≥ 90
@@ -116,12 +124,12 @@ Browsers + viewports ตาม `qa-checklist.md` — **iPhone จริง** ส
 
 ---
 
-## Phase 8 — Sign-off
+## Phase 9 — Sign-off
 
 - Automated gate ผ่าน
 - Blocker/Critical = 0
 - qa-checklist.md ครบ
-- Chat + wallet RLS ผ่บ
+- Chat + wallet RLS ผ่าน
 
 ---
 

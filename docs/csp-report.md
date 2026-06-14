@@ -33,7 +33,9 @@ base-uri     'self';
 form-action  'self';
 ```
 
-`'unsafe-inline'` + `'unsafe-eval'` ยังจำเป็นช่วง report-only เพราะ Vite/React dev tool + lovable-tagger inject runtime — เป้าหมาย Phase 2 คือถอดออกหลัง enforce
+`'unsafe-inline'` + `'unsafe-eval'` ยังจำเป็นช่วง report-only เพราะ Vite/React dev tool inject runtime — เป้าหมาย Phase 2 คือถอดออกหลัง enforce
+
+> Policy ด้านบนเป็น report-only ใน `index.html` — production บน `an1hem.app` ใช้ CSP จาก `vercel.json` / nginx (ไม่มี `*.lovable.app`)
 
 ## วิธีเก็บ report
 
@@ -74,5 +76,5 @@ serve(async (req) => {
 
 ```bash
 # Validate syntax ด้วย Mozilla Observatory หรือ
-curl -sI https://anthem-freelancehub.lovable.app | grep -i content-security
+curl -sI https://an1hem.app | grep -i content-security
 ```

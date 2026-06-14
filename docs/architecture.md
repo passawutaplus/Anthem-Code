@@ -21,12 +21,26 @@
 │  (only allowed import sites: server/ + core/) │
 └─────────────┬────────────────────────────────┘
               │
-        Supabase (Lovable Cloud)
-        - Postgres + RLS
+        Supabase (rvnzjiskqliexysicfmh)
+        - Postgres + RLS (public, shared, anthem schemas)
         - Realtime
         - Storage (bucket: project-media)
-        - Edge Functions
+        - Edge Functions (deployed from Solo-Code)
 ```
+
+## Notification pipeline
+
+```text
+User action (gift, hire, chat, …)
+  → notifyAnthem.ts / direct edge invoke
+  → Solo-Code edge: notify-anthem* / notify-hire-request
+  → dispatchAnthemNotification
+      ├─ enqueueAnthemEmail → transactional_emails queue
+      └─ enqueueLineNotification → LINE queue → line-queue-process
+  → in-app row: shared.notifications
+```
+
+ดูรายละเอียด: [ecosystem-notifications.md](../../docs/ecosystem-notifications.md)
 
 ## กฎเหล็ก
 

@@ -4,7 +4,7 @@
 
 ## บัญชีทดสอบ (ต้องสร้างก่อนส่งให้ external)
 
-> **User action required** — สร้างใน Lovable Cloud → Users แล้วกรอกค่ากลับมาในตารางนี้
+> **User action required** — สร้างใน Supabase Dashboard → Authentication → Users หรือใช้ demo accounts ใน [`demo-catalog.md`](./demo-catalog.md)
 
 | Role            | Email (suggested)            | Password | user_roles.role | Notes |
 | --------------- | ---------------------------- | -------- | --------------- | ----- |
@@ -16,7 +16,7 @@
 | Studio Member   | `qa-studio-member@example.com` | _set_  | `user` + studio member | สำหรับเทส role ภายใน studio |
 | Admin           | `qa-admin@example.com`       | _set_    | `admin`         | เข้า `/admin/*` ได้ |
 
-วิธี grant admin: รัน migration หรือ insert ผ่าน Lovable Cloud Users tab:
+วิธี grant admin: รัน SQL ใน Supabase SQL Editor:
 ```sql
 insert into public.user_roles (user_id, role)
 values ('<auth.users.id>', 'admin');

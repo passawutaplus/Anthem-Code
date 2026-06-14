@@ -70,6 +70,7 @@ const AdminFeedbackPage = lazy(() => import("./pages/admin/AdminFeedbackPage"));
 const AdminAmlPage = lazy(() => import("./pages/admin/AdminAmlPage"));
 const AdminKycPage = lazy(() => import("./pages/admin/AdminKycPage"));
 const AdminInspirePage = lazy(() => import("./pages/admin/AdminInspirePage"));
+const AdminAiMonitorPage = lazy(() => import("./pages/admin/AdminAiMonitorPage"));
 const PrivacyPage = lazy(() => import("./pages/legal/PrivacyPage.tsx"));
 const TermsPage = lazy(() => import("./pages/legal/TermsPage.tsx"));
 const CookiesPage = lazy(() => import("./pages/legal/CookiesPage.tsx"));
@@ -159,6 +160,7 @@ const App = () => (
                 <Route path="reports" element={<AdminReportsPage />} />
                 <Route path="feedback" element={<AdminFeedbackPage />} />
                 <Route path="system" element={<AdminSystemPage />} />
+                <Route path="ai" element={<AdminAiMonitorPage />} />
               </Route>
               <Route path="/jobs" element={<JobsPage />} />
               <Route path="/advertise" element={<AdvertisePage />} />

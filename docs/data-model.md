@@ -1,6 +1,6 @@
 # Data Model
 
-ปัจจุบันทุก table อยู่ใน `public` schema (Phase 2 จะแยกเป็น `shared`/`anthem`/`so1o` — ดู `schema-reorganize.md`)
+ปัจจุบันใช้ multi-schema บน unified project `rvnzjiskqliexysicfmh` — `shared`, `anthem`, `so1o` (Phase 2 ย้ายครบแล้วส่วนใหญ่ — ดู `schema-reorganize.md`)
 
 ## Target placement
 
@@ -12,7 +12,7 @@
 - `gifts`, `gift_transactions`
 - `contracts`, `admin_audit_log`
 - `conversations`, `messages`
-- `notifications` *(new Phase 3)*
+- `shared.notifications` / `ecosystem_notifications` — in-app notifications (shipped)
 
 ### `anthem` (Anthem only)
 - **Portfolio:** `projects`, `project_likes`, `project_comments`, `project_views`, `project_bookmarks`

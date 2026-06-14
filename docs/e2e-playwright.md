@@ -59,4 +59,4 @@ e2e/
 
 ## CI (อนาคต)
 
-ดู `.github/workflows/e2e.yml` (TODO) — รัน smoke ทุก PR, รัน E2E เต็มก่อน deploy production
+ดู `.github/workflows/e2e.yml` — รัน smoke ทุก PR

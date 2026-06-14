@@ -16,6 +16,8 @@
 
 ## Bundle size
 
+- `ChatInboxPage` → `React.lazy()` (June 2026 fix — main chunk 468 KB)
+- `vite.config.ts` → `manualChunks` (supabase, radix, recharts, tanstack, lucide)
 - หน้า admin / legal / earnings / advertise → `React.lazy()` ใน `App.tsx`
 - Mock data (`src/data/mock*.ts`) ตอนนี้ถูก bundle อยู่ — TODO: แยก type ออกจาก data แล้ว lazy-load data เฉพาะตอน dev/empty state
 - รูป asset ใหญ่ → import เป็น `?url` หรือใช้ `<img loading="lazy">`

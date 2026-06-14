@@ -88,6 +88,15 @@ For every form: register, login, password reset, project editor, job post, ad ap
 - [ ] Admin → AdminFeedbackPage มีกราฟแนวโน้ม, ตัวกรองช่วงเวลา, ส่งออก CSV
 - [ ] Admin ได้รับ in-app notification เมื่อมี report/feedback ใหม่ (ลิงก์ไปหน้าที่เกี่ยวข้อง)
 
+## Notifications (email + LINE + in-app)
+
+- [ ] Settings → email toggles (`notify_email`, `notify_hire`, `notify_job_match`) ทำงาน
+- [ ] Settings → LINE section แสดงเมื่อ Pro+ · test samples ส่งได้
+- [ ] Hire request → recipient ได้ email + LINE + in-app (ถ้าเปิด prefs)
+- [ ] Gift / follow → ตรวจ `npm run email:preview` templates ตรงกับที่ส่ง
+- [ ] ปิด `notify_hire` → ส่ง hire อีกครั้ง → ไม่ได้ email
+- [ ] `/notifications` แสดง in-app rows + mark read
+
 ## Microcopy (ดู [microcopy-style-guide.md](../../docs/microcopy-style-guide.md))
 
 - [ ] `/research` — warning อ่านครั้งเดียวเข้าใจ ไม่ซ้ำ tagline + concept

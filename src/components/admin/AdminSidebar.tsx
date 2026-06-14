@@ -4,7 +4,7 @@ import {
   LayoutDashboard, Users, Building2, FolderKanban,
   HandshakeIcon, HeartHandshake, MessageSquare, MessageCircle,
   Bookmark, Bell, HardDrive, ScrollText, Activity, Gift, Megaphone, Sparkles,
-  Flag, MessageSquareHeart, Shield, ShieldCheck, FileText, Wallet, BarChart3, ClipboardList,
+  Flag, MessageSquareHeart, Shield, ShieldCheck, FileText, Wallet, BarChart3, ClipboardList, Bot,
 } from "lucide-react";
 import { useAdminRealtime } from "@/hooks/admin/useAdminRealtime";
 import { useAdminAlertCounts } from "@/hooks/admin/useAdminAlerts";
@@ -80,6 +80,7 @@ const sections: { title: string; items: Item[] }[] = [
   {
     title: "ระบบ",
     items: [
+      { to: "/admin/ai", label: "AI Monitor", icon: Bot },
       { to: "/admin/storage", label: "พื้นที่เก็บไฟล์", icon: HardDrive },
       { to: "/admin/audit", label: "บันทึกการใช้งาน", icon: ScrollText },
       { to: "/admin/system", label: "สุขภาพระบบ", icon: Activity },

@@ -7,11 +7,14 @@ Browser (React 18 + Vite)
   │
   ├─ Supabase JS client  ──►  Postgres + RLS (public, shared schemas)
   │                            └─ SECURITY DEFINER RPCs (admin_*, wallet_*, has_role)
-  └─ supabase.functions.invoke ──►  Edge Functions (Deno)
+  └─ supabase.functions.invoke ──►  Edge Functions (Deno, Solo-Code)
                                      ├─ generate-contract   (auth required)
                                      ├─ similar-images      (auth required)
                                      ├─ embed-project       (owner/admin only)
-                                     └─ job-match-dispatch  (internal, from DB trigger)
+                                     ├─ job-match-dispatch  (internal, from DB trigger)
+                                     ├─ notify-anthem*      (gift, follow, topup, cashout, …)
+                                     ├─ notify-hire-request / notify-anthem-chat / notify-anthem-collab
+                                     └─ line-connect / line-webhook / line-queue-process
 ```
 
 ## Trust boundaries

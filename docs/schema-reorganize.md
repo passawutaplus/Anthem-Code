@@ -24,8 +24,8 @@
 - `contracts` (currently in `public`)
 - `admin_audit_log`
 - `conversations`, `messages` (cross-app chat)
-- *(new in Phase 3)* `notifications`
-- *(new in Phase 3)* `contacts` (lightweight client book shared by both)
+- `shared.notifications` / `ecosystem_notifications` (shipped)
+- `contacts` (lightweight client book shared by both)
 
 ### → `anthem`
 - `projects`, `project_likes`, `project_comments`, `project_views`, `project_bookmarks`

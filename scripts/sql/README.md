@@ -1,18 +1,33 @@
-# รัน migration บน remote ด้วยมือ (เมื่อ `npm run db:push` ใช้ไม่ได้)
+# รัน migration บน remote ด้วยมือ (fallback)
 
-โปรเจกต์: **uutbvwyoivqojozrangi**
+โปรเจกต์ unified: **`rvnzjiskqliexysicfmh`**
 
-เปิด [SQL Editor](https://supabase.com/dashboard/project/uutbvwyoivqojozrangi/sql/new) แล้วรันไฟล์ตามลำดับ
+เปิด [SQL Editor](https://supabase.com/dashboard/project/rvnzjiskqliexysicfmh/sql/new)
 
-## ลำดับที่แนะนำ (ชุดงานล่าสุด)
+> **แนะนำ:** ใช้ `cd Solo-Code && ./scripts/supabase-push-via-api.sh` เป็นหลัก — ไฟล์นี้สำหรับกรณี CLI ใช้ไม่ได้
 
-1. `supabase/migrations/20260604180000_notifications_cashout_prep.sql`
-2. `supabase/migrations/20260604220000_admin_operations.sql`
-3. `supabase/migrations/20260604230000_fix_cashout_paid_status.sql`
-4. `supabase/migrations/20260604240000_public_feed_stats.sql`
-5. *(demo 50 users + กิจกรรมครบ)* `20260604130100_seed_community_catalog.sql` → `20260604200000_seed_art_design_enriched.sql` → `20260604250000_seed_50_users_full_activity.sql`
+## Canonical migration path
 
-ลบ demo ภายหลัง: `purge-demo-users.sql`
+Migrations ทั้งหมดอยู่ที่ `Solo-Code/supabase/migrations/` (136 ไฟล์)
+
+Anthem-specific SQL bundles (รันใน SQL Editor ถ้าจำเป็น):
+
+| ไฟล์ | ใช้เมื่อ |
+|------|---------|
+| `Solo-Code/supabase/manual/apply-anthem-ecosystem.sql` | ตาราง anthem ทั้งชุด (ครั้งเดียว) |
+| `scripts/ecosystem/ecosystem-phase1.sql` | ecosystem links, tier, storage |
+| `scripts/ecosystem/inhouse-workspace.sql` | In-House MVP |
+| `scripts/ecosystem/stripe-payments.sql` | PX wallet + Stripe RPCs |
+| `scripts/ecosystem/seed-catalog.sql` | seed demo community |
+
+## Seed demo
+
+```bash
+cd Anthem-Code
+npm run seed:demo
+# หรือ
+node scripts/run-seed.mjs
+```
 
 ## ตั้ง admin
 
@@ -21,5 +36,10 @@
 ## หลังรัน SQL
 
 ```bash
-npx supabase gen types typescript --project-id uutbvwyoivqojozrangi > src/integrations/supabase/types.ts
+cd Solo-Code
+npx supabase gen types typescript --project-id rvnzjiskqliexysicfmh > ../Anthem-Code/src/integrations/supabase/types.ts
 ```
+
+## โปรเจกต์เก่า (ปิดแล้ว)
+
+`uutbvwyoivqojozrangi` — อย่าใช้

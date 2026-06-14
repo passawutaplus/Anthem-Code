@@ -1,61 +1,77 @@
-# Anthem — Developer Docs
+# Anthem (1PX) — Developer Docs
 
-Entry point สำหรับ dev ใหม่ อ่านเรียงตามนี้:
+Entry point สำหรับ dev ใหม่:
 
-1. [`architecture.md`](./architecture.md) — ภาพรวมการไหลของข้อมูล client → server → supabase
-2. [`folder-structure.md`](./folder-structure.md) — ทำไม folder วางแบบนี้
-3. [`conventions.md`](./conventions.md) — code style + กติกาที่บังคับ
-4. [`data-model.md`](./data-model.md) — table list + schema target (shared/anthem/so1o)
-5. [`adding-a-feature.md`](./adding-a-feature.md) — step-by-step เพิ่ม feature ใหม่
-6. [`performance.md`](./performance.md) — กฎ performance ที่ต้องตามทุก PR
-7. [`schema-reorganize.md`](./schema-reorganize.md) — แผนรวม schema (Phase 2)
+1. [`architecture.md`](./architecture.md) — data flow + notify pipeline
+2. [`folder-structure.md`](./folder-structure.md) — folder layout
+3. [`conventions.md`](./conventions.md) — code style
+4. [`data-model.md`](./data-model.md) — tables (shared/anthem/so1o)
+5. [`adding-a-feature.md`](./adding-a-feature.md) — step-by-step + `notifyAnthem()`
+6. [`performance.md`](./performance.md) — performance rules
+7. [`schema-reorganize.md`](./schema-reorganize.md) — schema migration plan
+
+## Ecosystem / platform
+
+| Doc | สรุป |
+|-----|------|
+| [`../../docs/ecosystem-notifications.md`](../../docs/ecosystem-notifications.md) | Email + LINE + in-app |
+| [`aml-compliance.md`](./aml-compliance.md) | PX wallet, KYC, cashout |
+| [`admin-pending.md`](./admin-pending.md) | Admin feature status |
+| [`demo-catalog.md`](./demo-catalog.md) | Demo accounts |
+| [`../supabase/README.md`](../supabase/README.md) | Canonical backend (Solo-Code) |
 
 ## QA / Testing
 
 | Doc | ใช้เมื่อ |
 |-----|---------|
 | [`full-test-plan.md`](./full-test-plan.md) | แผนเทสจัดเต็ม |
-| [`../../docs/MANUAL-TESTING.md`](../../docs/MANUAL-TESTING.md) | รายการเทส manual (64 ข้อ) |
+| [`../../docs/MANUAL-TESTING.md`](../../docs/MANUAL-TESTING.md) | Manual QA |
 | [`qa-checklist.md`](./qa-checklist.md) | Checklist ก่อน release |
 | [`qa-onboarding.md`](./qa-onboarding.md) | Onboarding QA |
 | [`test-accounts.md`](./test-accounts.md) | Role matrix |
 | [`e2e-playwright.md`](./e2e-playwright.md) | Playwright |
-| [`e2e-puppeteer.md`](./e2e-puppeteer.md) | Puppeteer (WSL fallback) |
+| [`e2e-puppeteer.md`](./e2e-puppeteer.md) | Puppeteer (WSL) |
+| [`ux-demo-guide.md`](./ux-demo-guide.md) | UX research walkthrough |
+| [`seo-deploy.md`](./seo-deploy.md) | SEO checklist an1hem.app |
 
 ```bash
 npm install
 npm run dev              # → http://localhost:8080
-npm run test             # vitest
+npm run test             # vitest (61 tests)
+npm run test:gate
 npm run smoke:public
+npm run email:preview    # notification email previews
 npm run e2e:puppeteer:smoke
-npm run e2e:puppeteer:chat   # demo chat on demo URL
+npm run e2e:puppeteer:chat
 ```
 
-## Quick start
+## URLs
 
-```bash
-npm install
-npm run dev              # → http://localhost:8080
-npm run test
-npm run smoke:public
-```
-
-Env vars (.env auto-generated โดย Lovable Cloud — อย่าแก้):
-- `VITE_SUPABASE_URL`
-- `VITE_SUPABASE_PUBLISHABLE_KEY`
-- `VITE_SUPABASE_PROJECT_ID`
+| บริบท | URL |
+|--------|-----|
+| Production | https://an1hem.app |
+| Demo | https://1px-demo.vercel.app |
+| So1o | https://solofreelancer.com |
 
 ## Tech stack
 
 - React 18 + Vite 5 + TypeScript 5
 - Tailwind CSS v3 + shadcn/ui + Lucide
-- React Query (server state) + Zustand (client state)
-- Supabase (Lovable Cloud) — Postgres + RLS + Realtime + Storage + Edge Functions
+- React Query + Zustand
+- Supabase `rvnzjiskqliexysicfmh` (unified with So1o)
+- React Email templates (`src/lib/email-templates/`)
+
+Env vars (.env auto-generated — อย่าแก้):
+- `VITE_SUPABASE_URL`
+- `VITE_SUPABASE_PUBLISHABLE_KEY`
+- `VITE_SUPABASE_PROJECT_ID`
+- `VITE_SITE_URL` → `https://an1hem.app` (production)
 
 ## หา code ไม่เจอ?
 
-- หน้าเว็บ (route) → `src/pages/`
-- ตรรกะ business + supabase query → `src/features/<domain>/` (re-export จาก `src/hooks/`)
-- ของที่ใช้ร่วมกับ So1o → `src/core/`
-- supabase wrapper (queries/mutations แบบ pure) → `src/server/`
-- utilities → `src/lib/`
+- Routes → `src/pages/`
+- Business logic → `src/features/<domain>/`
+- Shared with So1o → `src/core/`
+- Supabase queries → `src/server/`
+- Email templates → `src/lib/email-templates/`
+- Notify helper → `src/lib/notifyAnthem.ts`
