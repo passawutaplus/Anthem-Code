@@ -379,6 +379,13 @@ const ProjectEditorPage = () => {
   const cats = categories.filter((c) => c !== "Explore");
   const saving = create.isPending || update.isPending;
 
+  const handleEditorModeChange = (mode: PortfolioEditorMode) => {
+    if (mode === "ai" && cover && !gallery.includes(cover)) {
+      setGallery((prev) => [cover, ...prev]);
+    }
+    setEditorMode(mode);
+  };
+
   const previewData: ProjectPreviewData = {
     title,
     subtitle,
@@ -429,7 +436,7 @@ const ProjectEditorPage = () => {
         </div>
       </div>
 
-      <PortfolioEditorModeToggle mode={editorMode} onModeChange={setEditorMode} />
+      <PortfolioEditorModeToggle mode={editorMode} onModeChange={handleEditorModeChange} />
 
       <div className="max-w-6xl mx-auto px-4 py-6 grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6">
         {/* Left: content */}
