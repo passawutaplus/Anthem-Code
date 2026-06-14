@@ -5,20 +5,20 @@ type ToolEntry = {
   desc?: string;
 };
 
-/** Canonical tools with Simple Icons slugs + common aliases (case-insensitive). */
+/** Canonical tools with theSVG slugs + common aliases (case-insensitive). */
 const TOOL_CATALOG: ToolEntry[] = [
   // Adobe Creative Cloud
-  { label: "Photoshop", slug: "adobephotoshop", aliases: ["adobe photoshop", "ps"], desc: "Adobe Photoshop — แต่งภาพ & composite" },
-  { label: "Illustrator", slug: "adobeillustrator", aliases: ["adobe illustrator", "ai"], desc: "Adobe Illustrator — งาน vector" },
-  { label: "After Effects", slug: "adobeaftereffects", aliases: ["adobe after effects", "ae"], desc: "Motion graphics & VFX" },
-  { label: "Premiere", slug: "adobepremierepro", aliases: ["premiere pro", "adobe premiere", "adobe premiere pro", "pr"], desc: "ตัดต่อวิดีโอระดับโปร" },
-  { label: "Lightroom", slug: "adobelightroom", aliases: ["adobe lightroom", "lr"], desc: "แต่งสีภาพถ่าย" },
-  { label: "Audition", slug: "adobeaudition", aliases: ["adobe audition"], desc: "ตัดต่อเสียงระดับโปร" },
-  { label: "InDesign", slug: "adobeindesign", aliases: ["indesign", "adobe indesign", "id"], desc: "จัดหน้าเล่ม & สิ่งพิมพ์" },
-  { label: "Adobe XD", slug: "adobexd", aliases: ["xd"], desc: "ออกแบบ UI/UX prototype" },
-  { label: "Animate", slug: "adobeanimate", aliases: ["adobe animate", "flash"], desc: "แอนิเมชัน 2D" },
-  { label: "Adobe Firefly", slug: "adobefirefly", aliases: ["firefly"], desc: "AI สร้างภาพจาก Adobe" },
-  { label: "Substance Painter", slug: "adobesubstance3d", aliases: ["substance painter", "substance"], desc: "เทกเจอร์ 3D painting" },
+  { label: "Photoshop", slug: "photoshop", aliases: ["adobe photoshop", "ps"], desc: "Adobe Photoshop — แต่งภาพ & composite" },
+  { label: "Illustrator", slug: "illustrator", aliases: ["adobe illustrator", "ai"], desc: "Adobe Illustrator — งาน vector" },
+  { label: "After Effects", slug: "after-effects", aliases: ["adobe after effects", "ae"], desc: "Motion graphics & VFX" },
+  { label: "Premiere", slug: "premierepro", aliases: ["premiere pro", "adobe premiere", "adobe premiere pro", "pr"], desc: "ตัดต่อวิดีโอระดับโปร" },
+  { label: "Lightroom", slug: "lightroom", aliases: ["adobe lightroom", "lr"], desc: "แต่งสีภาพถ่าย" },
+  { label: "Audition", slug: "audition", aliases: ["adobe audition"], desc: "ตัดต่อเสียงระดับโปร" },
+  { label: "InDesign", slug: "indesign", aliases: ["indesign", "adobe indesign", "id"], desc: "จัดหน้าเล่ม & สิ่งพิมพ์" },
+  { label: "Adobe XD", slug: "xd", aliases: ["xd"], desc: "ออกแบบ UI/UX prototype" },
+  { label: "Animate", slug: "animate", aliases: ["adobe animate", "flash"], desc: "แอนิเมชัน 2D" },
+  { label: "Adobe Firefly", slug: "firefly-adobe", aliases: ["firefly"], desc: "AI สร้างภาพจาก Adobe" },
+  { label: "Substance Painter", slug: "substance-3d-painter", aliases: ["substance painter", "substance"], desc: "เทกเจอร์ 3D painting" },
 
   // Design & UI
   { label: "Figma", slug: "figma", desc: "ออกแบบ UI/UX collaborative" },
@@ -32,44 +32,44 @@ const TOOL_CATALOG: ToolEntry[] = [
 
   // 3D & Motion
   { label: "Blender", slug: "blender", desc: "3D modeling & rendering ฟรี" },
-  { label: "Cinema 4D", slug: "cinema4d", aliases: ["cinema4d", "c4d"], desc: "3D motion graphics" },
+  { label: "Cinema 4D", slug: "cinema-4d", aliases: ["cinema4d", "c4d"], desc: "3D motion graphics" },
   { label: "ZBrush", slug: "zbrush", aliases: ["z brush"], desc: "Sculpt 3D ระดับโปร" },
-  { label: "Maya", slug: "autodeskmaya", aliases: ["autodesk maya"], desc: "3D animation ระดับสตูดิโอ" },
+  { label: "Maya", slug: "autodesk-maya", aliases: ["autodesk maya"], desc: "3D animation ระดับสตูดิโอ" },
   { label: "3ds Max", slug: "autodesk", aliases: ["3dsmax", "3d studio max"], desc: "3D modeling & rendering" },
   { label: "Rhino", slug: "rhinoceros", aliases: ["rhino 3d", "rhinoceros 3d"], desc: "CAD & 3D modeling" },
-  { label: "Houdini", slug: "sidefx", aliases: ["sidefx houdini"], desc: "VFX procedural 3D" },
+  { label: "Houdini", slug: "houdini", aliases: ["sidefx houdini"], desc: "VFX procedural 3D" },
   { label: "Spline", slug: "spline", desc: "3D บนเว็บแบบ real-time" },
   { label: "Unity", slug: "unity", desc: "เกม & interactive 3D" },
-  { label: "Unreal", slug: "unrealengine", aliases: ["unreal engine", "ue5", "ue4"], desc: "เกม & real-time 3D" },
+  { label: "Unreal", slug: "unreal-engine", aliases: ["unreal engine", "ue5", "ue4"], desc: "เกม & real-time 3D" },
 
   // Video
-  { label: "DaVinci Resolve", slug: "davinciresolve", aliases: ["davinci", "resolve"], desc: "ตัดต่อ & color grade" },
-  { label: "Final Cut Pro", slug: "finalcutpro", aliases: ["final cut", "fcp"], desc: "ตัดต่อวิดีโอบน Mac" },
+  { label: "DaVinci Resolve", slug: "davinci-resolve", aliases: ["davinci", "resolve"], desc: "ตัดต่อ & color grade" },
+  { label: "Final Cut Pro", slug: "final-cut-pro", aliases: ["final cut", "fcp"], desc: "ตัดต่อวิดีโอบน Mac" },
   { label: "CapCut", slug: "capcut", desc: "ตัดต่อวิดีโอสายโซเชียล" },
-  { label: "OBS Studio", slug: "obsstudio", aliases: ["obs"], desc: "สตรีม & บันทึกหน้าจอ" },
+  { label: "OBS Studio", slug: "obs-studio", aliases: ["obs"], desc: "สตรีม & บันทึกหน้าจอ" },
 
   // Illustration & Photo
   { label: "Procreate", slug: "procreate", desc: "วาดภาพดิจิทัลบน iPad" },
-  { label: "Affinity Designer", slug: "affinitydesigner", aliases: ["affinity"], desc: "งาน vector ทางเลือก Adobe" },
-  { label: "Affinity Photo", slug: "affinityphoto", desc: "แต่งภาพทางเลือก Photoshop" },
+  { label: "Affinity Designer", slug: "affinity-designer", aliases: ["affinity"], desc: "งาน vector ทางเลือก Adobe" },
+  { label: "Affinity Photo", slug: "affinity-photo", desc: "แต่งภาพทางเลือก Photoshop" },
   { label: "CorelDRAW", slug: "coreldraw", aliases: ["corel draw"], desc: "งาน vector & layout" },
 
   // Audio
-  { label: "Logic Pro", slug: "applelogicpro", aliases: ["logic"], desc: "DAW บน macOS" },
-  { label: "Ableton", slug: "abletonlive", aliases: ["ableton live"], desc: "DAW สาย electronic" },
-  { label: "FL Studio", slug: "flstudio", aliases: ["fl"], desc: "DAW สร้างบีท & เพลง" },
-  { label: "Pro Tools", slug: "protools", aliases: ["avid pro tools"], desc: "DAW มาตรฐานสตูดิโอ" },
+  { label: "Logic Pro", slug: "logic-pro", aliases: ["logic"], desc: "DAW บน macOS" },
+  { label: "Ableton", slug: "ableton-live", aliases: ["ableton live"], desc: "DAW สาย electronic" },
+  { label: "FL Studio", slug: "fl-studio", aliases: ["fl"], desc: "DAW สร้างบีท & เพลง" },
+  { label: "Pro Tools", slug: "pro-tools", aliases: ["avid pro tools"], desc: "DAW มาตรฐานสตูดิโอ" },
   { label: "GarageBand", slug: "garageband", desc: "DAW เริ่มต้นบน Apple" },
 
   // Web & Dev
   { label: "React", slug: "react", desc: "UI library สำหรับเว็บ" },
   { label: "Next.js", slug: "nextdotjs", aliases: ["nextjs", "next"], desc: "React framework full-stack" },
-  { label: "Vue", slug: "vuedotjs", aliases: ["vue.js", "vuejs"], desc: "JavaScript framework" },
+  { label: "Vue", slug: "vue", aliases: ["vue.js", "vuejs", "vuedotjs"], desc: "JavaScript framework" },
   { label: "Angular", slug: "angular", desc: "TypeScript web framework" },
   { label: "Svelte", slug: "svelte", desc: "Compiler-based UI framework" },
   { label: "TypeScript", slug: "typescript", aliases: ["ts"], desc: "JavaScript + types" },
   { label: "JavaScript", slug: "javascript", aliases: ["js"], desc: "ภาษาหลักของเว็บ" },
-  { label: "Tailwind", slug: "tailwindcss", aliases: ["tailwind css", "tailwindcss"], desc: "Utility-first CSS" },
+  { label: "Tailwind", slug: "tailwind-css", aliases: ["tailwind css", "tailwindcss"], desc: "Utility-first CSS" },
   { label: "HTML5", slug: "html5", aliases: ["html"], desc: "โครงสร้างเว็บ" },
   { label: "CSS3", slug: "css3", aliases: ["css"], desc: "สไตล์เว็บ" },
   { label: "Node.js", slug: "nodedotjs", aliases: ["nodejs", "node"], desc: "JavaScript runtime" },
@@ -77,7 +77,7 @@ const TOOL_CATALOG: ToolEntry[] = [
   { label: "PHP", slug: "php", desc: "ภาษา backend เว็บ" },
   { label: "Rust", slug: "rust", desc: "ภาษาระบบประสิทธิภาพสูง" },
   { label: "Go", slug: "go", aliases: ["golang"], desc: "ภาษา backend จาก Google" },
-  { label: "VS Code", slug: "visualstudiocode", aliases: ["visual studio code", "vscode"], desc: "ตัวแก้โค้ดยอดนิยม" },
+  { label: "VS Code", slug: "visual-studio-code", aliases: ["visual studio code", "vscode"], desc: "ตัวแก้โค้ดยอดนิยม" },
   { label: "Git", slug: "git", desc: "ระบบ version control" },
   { label: "GitHub", slug: "github", desc: "โฮสต์โค้ด & collaboration" },
   { label: "GitLab", slug: "gitlab", desc: "DevOps & โฮสต์โค้ด" },
@@ -106,9 +106,9 @@ const TOOL_CATALOG: ToolEntry[] = [
   { label: "ChatGPT", slug: "openai", aliases: ["gpt", "gpt-4", "gpt4"], desc: "AI ช่วยเขียน & ไอเดีย" },
   { label: "OpenAI", slug: "openai", desc: "แพลตฟอร์ม AI จาก OpenAI" },
   { label: "Midjourney", slug: "midjourney", aliases: ["mj"], desc: "สร้างภาพจาก prompt" },
-  { label: "Stable Diffusion", slug: "stabilityai", aliases: ["sd"], desc: "โมเดลสร้างภาพ open" },
+  { label: "Stable Diffusion", slug: "stability-ai", aliases: ["sd"], desc: "โมเดลสร้างภาพ open" },
   { label: "DALL·E", slug: "openai", aliases: ["dalle", "dall-e", "dall e"], desc: "สร้างภาพจาก OpenAI" },
-  { label: "Runway", slug: "runwayml", aliases: ["runway ml"], desc: "AI วิดีโอ & creative" },
+  { label: "Runway", slug: "runway", aliases: ["runway ml"], desc: "AI วิดีโอ & creative" },
   { label: "Claude", slug: "anthropic", desc: "AI assistant จาก Anthropic" },
 ];
 
@@ -184,5 +184,5 @@ export function getToolDescription(name: string): string | undefined {
 }
 
 export function toolIconUrl(slug: string): string {
-  return `https://cdn.simpleicons.org/${slug}`;
+  return `https://thesvg.org/icons/${slug}/default.svg`;
 }

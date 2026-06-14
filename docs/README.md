@@ -18,6 +18,7 @@ Entry point สำหรับ dev ใหม่:
 | [`aml-compliance.md`](./aml-compliance.md) | PX wallet, KYC, cashout |
 | [`admin-pending.md`](./admin-pending.md) | Admin feature status |
 | [`demo-catalog.md`](./demo-catalog.md) | Demo accounts |
+| [`brand-icons-thesvg.md`](./brand-icons-thesvg.md) | โลโกแบรนด์เครื่องมือ (theSVG.org) |
 | [`../supabase/README.md`](../supabase/README.md) | Canonical backend (Solo-Code) |
 
 ## QA / Testing
@@ -31,7 +32,8 @@ Entry point สำหรับ dev ใหม่:
 | [`test-accounts.md`](./test-accounts.md) | Role matrix |
 | [`e2e-playwright.md`](./e2e-playwright.md) | Playwright |
 | [`e2e-puppeteer.md`](./e2e-puppeteer.md) | Puppeteer (WSL) |
-| [`ux-demo-guide.md`](./ux-demo-guide.md) | UX research walkthrough |
+| [`ux-demo-guide.md`](./ux-demo-guide.md) | UX research walkthrough + seed |
+| [`ux-research-review.md`](./ux-research-review.md) | **เช็คลิส UX/UI ครบทุกระบบ (A–T)** |
 | [`seo-deploy.md`](./seo-deploy.md) | SEO checklist an1hem.app |
 
 ```bash
