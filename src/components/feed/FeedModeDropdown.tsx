@@ -1,4 +1,5 @@
-import { ChevronDown, Check, Compass, Sparkles, UserCheck, Clock, Layers3, Trophy, type LucideIcon } from "lucide-react";
+import CollectionIcon from "@/components/icons/CollectionIcon";
+import { ChevronDown, Check, Compass, Sparkles, UserCheck, Clock, Trophy, type LucideIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -18,7 +19,7 @@ const ICONS: Record<ModeOption, LucideIcon> = {
   Following: UserCheck,
   Newest: Clock,
   "Top 1": Trophy,
-  Collections: Layers3,
+  Collections: CollectionIcon,
 };
 
 interface Props {

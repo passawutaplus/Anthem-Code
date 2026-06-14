@@ -1,6 +1,7 @@
+import CollectionIcon from "@/components/icons/CollectionIcon";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Plus, Layers3 } from "lucide-react";
+import { ArrowLeft, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { useCollections } from "@/hooks/useCollections";
@@ -37,7 +38,7 @@ const CollectionsPage = () => {
       <div className="max-w-6xl mx-auto px-4 pt-6 space-y-6">
         <header className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-primary/15 text-primary flex items-center justify-center">
-            <Layers3 className="w-5 h-5" />
+            <CollectionIcon className="w-5 h-5" />
           </div>
           <div>
             <h1 className="text-xl md:text-2xl font-medium text-foreground">คอลเลกชันของฉัน</h1>
@@ -49,7 +50,7 @@ const CollectionsPage = () => {
           <p className="text-center text-muted-foreground py-12">กำลังโหลด...</p>
         ) : collections.length === 0 ? (
           <div className="text-center py-16 glass-panel rounded-2xl">
-            <Layers3 className="w-12 h-12 text-muted-foreground/40 mx-auto mb-3" />
+            <CollectionIcon className="w-12 h-12 text-muted-foreground/40 mx-auto mb-3" />
             <p className="text-foreground font-medium mb-1">ยังไม่มีคอลเลกชัน</p>
             <p className="text-sm text-muted-foreground mb-4">สร้างคอลเลกชันแรก แล้วเริ่มเก็บผลงานที่คุณรัก</p>
             <Button onClick={() => setFormOpen(true)} className="rounded-full bg-primary text-primary-foreground hover:bg-primary/90">

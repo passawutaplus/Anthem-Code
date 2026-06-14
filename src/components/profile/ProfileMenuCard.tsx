@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
-import { LayoutGrid, Layers3, Coins, MessageCircle, Settings, LogOut, Plus, Building2, Flag, MessageSquare, ShieldCheck, Sparkles } from "lucide-react";
+import CollectionIcon from "@/components/icons/CollectionIcon";
+import { LayoutGrid, Coins, MessageCircle, Settings, LogOut, Plus, Building2, Flag, MessageSquare, ShieldCheck, Sparkles } from "lucide-react";
 import { useSubscription } from "@/core/subscription";
 import BriefcaseIcon from "@/components/icons/BriefcaseIcon";
 import { supabase } from "@/integrations/supabase/client";
@@ -23,7 +24,7 @@ const ProfileMenuCard = () => {
         <LayoutGrid className="w-4 h-4 text-primary" /> โปรไฟล์ของฉัน
       </button>
       <button onClick={() => navigate("/collections")} className={item}>
-        <Layers3 className="w-4 h-4 text-primary" /> คอลเลกชันของฉัน
+        <CollectionIcon className="w-4 h-4 text-primary" /> คอลเลกชันของฉัน
       </button>
       <button onClick={() => navigate("/earnings")} className={item}>
         <Coins className="w-4 h-4 text-primary" /> รายได้ &amp; กระเป๋า Pixel

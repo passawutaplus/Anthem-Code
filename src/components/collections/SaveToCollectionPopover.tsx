@@ -1,5 +1,6 @@
+import CollectionIcon from "@/components/icons/CollectionIcon";
 import { useState } from "react";
-import { Layers3, Plus, Check, Lock } from "lucide-react";
+import { Plus, Check, Lock } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -75,7 +76,7 @@ const SaveToCollectionPopover = ({ projectId, children, triggerClassName, align 
         triggerClassName,
       )}
     >
-      <Layers3 className="w-4 h-4" />
+      <CollectionIcon className="w-4 h-4" />
     </button>
   );
 
@@ -91,7 +92,7 @@ const SaveToCollectionPopover = ({ projectId, children, triggerClassName, align 
         >
           <div className="px-3 py-2.5 border-b border-border/60 flex items-center justify-between">
             <p className="text-sm font-semibold">เก็บเข้าคอลเลกชัน</p>
-            <Layers3 className="w-4 h-4 text-primary" />
+            <CollectionIcon className="w-4 h-4 text-primary" />
           </div>
 
           <ScrollArea className="max-h-64">
@@ -116,7 +117,7 @@ const SaveToCollectionPopover = ({ projectId, children, triggerClassName, align 
                           ))}
                           {c.covers.length === 0 && (
                             <div className="col-span-2 row-span-2 flex items-center justify-center">
-                              <Layers3 className="w-4 h-4 text-muted-foreground" />
+                              <CollectionIcon className="w-4 h-4 text-muted-foreground" />
                             </div>
                           )}
                         </div>

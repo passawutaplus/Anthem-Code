@@ -1,7 +1,8 @@
 import BriefcaseIcon from "./icons/BriefcaseIcon";
+import CollectionIcon from "./icons/CollectionIcon";
 import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
-import { Heart, Eye, MoreHorizontal, Layers3, Share2, Handshake } from "lucide-react";
+import { Heart, Eye, MoreHorizontal, Share2, Handshake } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import type { Project } from "@/data/projectTypes";
 import { useProjectLike } from "@/hooks/useProjectInteractions";
@@ -125,7 +126,7 @@ const ProjectCard = ({ project, onHireClick, onCollabClick }: ProjectCardProps) 
               title="เก็บเข้าคอลเลกชัน"
               className="p-1.5 rounded-full text-white hover:bg-white/15 transition-colors"
             >
-              <Layers3 className="w-4 h-4" />
+              <CollectionIcon className="w-4 h-4" />
             </button>
           </SaveToCollectionPopover>
           <button

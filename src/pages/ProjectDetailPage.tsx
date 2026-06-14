@@ -1,9 +1,9 @@
+import CollectionIcon from "@/components/icons/CollectionIcon";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowLeft, Share2 } from "lucide-react";
 import SaveToCollectionPopover from "@/components/collections/SaveToCollectionPopover";
-import { Layers3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import HireDialog from "@/components/HireDialog";
 import CollabDialog from "@/components/CollabDialog";
@@ -187,7 +187,7 @@ const ProjectDetailPage = () => {
           <div className="flex items-center gap-1">
             <SaveToCollectionPopover projectId={dbProject?.id}>
               <Button variant="ghost" size="icon">
-                <Layers3 className="w-5 h-5" />
+                <CollectionIcon className="w-5 h-5" />
               </Button>
             </SaveToCollectionPopover>
             <Button variant="ghost" size="icon" onClick={handleShare}>

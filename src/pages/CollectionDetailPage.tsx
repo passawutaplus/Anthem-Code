@@ -1,6 +1,7 @@
+import CollectionIcon from "@/components/icons/CollectionIcon";
 import { useState } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
-import { ArrowLeft, Pencil, Trash2, Layers3, Lock, Globe2, X } from "lucide-react";
+import { ArrowLeft, Pencil, Trash2, Lock, Globe2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -87,7 +88,7 @@ const CollectionDetailPage = () => {
       <div className="max-w-6xl mx-auto px-4 pt-8 space-y-6">
         <header className="space-y-3">
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <Layers3 className="w-3.5 h-3.5" /> คอลเลกชัน
+            <CollectionIcon className="w-3.5 h-3.5" /> คอลเลกชัน
             {collection.is_public ? (
               <span className="inline-flex items-center gap-1"><Globe2 className="w-3 h-3" /> สาธารณะ</span>
             ) : (
@@ -110,7 +111,7 @@ const CollectionDetailPage = () => {
 
         {items.length === 0 ? (
           <div className="text-center py-16 glass-panel rounded-2xl">
-            <Layers3 className="w-12 h-12 text-muted-foreground/40 mx-auto mb-3" />
+            <CollectionIcon className="w-12 h-12 text-muted-foreground/40 mx-auto mb-3" />
             <p className="text-foreground font-medium mb-1">ยังไม่มีผลงานในคอลเลกชันนี้</p>
             <p className="text-sm text-muted-foreground">เลื่อนดูฟีดแล้วกดไอคอน Layers เพื่อเก็บเข้านี่</p>
           </div>
