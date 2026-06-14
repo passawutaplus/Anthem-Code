@@ -48,6 +48,16 @@ export function SettingsPreferencesSection() {
         </p>
         <p className="text-xs text-muted-foreground">รายงานและฟีดแบ็กที่ส่งให้ทีมงาน</p>
         <div className="grid sm:grid-cols-2 gap-2">
+          <Link
+            to="/legal/community"
+            className="flex items-center justify-between gap-2 rounded-xl bg-secondary hover:bg-accent px-4 py-2.5 text-sm font-medium text-foreground transition-colors"
+          >
+            <span className="inline-flex items-center gap-2">
+              <Shield className="w-4 h-4 text-primary" />
+              กฎชุมชน
+            </span>
+            <ChevronRight className="w-4 h-4 text-muted-foreground" />
+          </Link>
           <button
             type="button"
             onClick={() => navigate("/me/reports")}

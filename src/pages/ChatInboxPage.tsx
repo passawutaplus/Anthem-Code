@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { MessageCircle } from "lucide-react";
-import { useConversation, useMessages, type ChatKind } from "@/hooks/useChat";
+import { useConversation, useMessages, useStudioConversation, type ChatKind } from "@/hooks/useChat";
 import ChatSidebar from "@/components/chat/ChatSidebar";
 import ChatThreadView from "@/components/chat/ChatThreadView";
 import ChatPartnerPanel from "@/components/chat/ChatPartnerPanel";
@@ -10,7 +10,9 @@ import { cn } from "@/lib/utils";
 
 const ChatInboxPage = () => {
   const { id } = useParams<{ id?: string }>();
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const studioChat = useStudioConversation();
   const [tab, setTab] = useState<"all" | ChatKind>("all");
   const [search, setSearch] = useState("");
   const [showPartnerMobile, setShowPartnerMobile] = useState(false);
@@ -21,6 +23,17 @@ const ChatInboxPage = () => {
   useEffect(() => {
     setShowPartnerMobile(false);
   }, [id]);
+
+  useEffect(() => {
+    const studioId = searchParams.get("studio");
+    if (!studioId || id) return;
+    let cancelled = false;
+    void studioChat.mutateAsync(studioId).then((convId) => {
+      if (!cancelled) navigate(`/chat/${convId}`, { replace: true });
+    });
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams.get("studio"), id]);
 
   const hasThread = !!id;
   const showSidebarMobile = !hasThread;

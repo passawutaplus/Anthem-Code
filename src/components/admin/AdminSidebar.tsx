@@ -4,7 +4,7 @@ import {
   LayoutDashboard, Users, Building2, FolderKanban,
   HandshakeIcon, HeartHandshake, MessageSquare, MessageCircle,
   Bookmark, Bell, HardDrive, ScrollText, Activity, Gift, Megaphone, Sparkles,
-  Flag, MessageSquareHeart, Shield, ShieldCheck, FileText, Wallet, BarChart3, ClipboardList, Bot,
+  Flag, MessageSquareHeart, Shield, ShieldCheck, FileText, Wallet, BarChart3, ClipboardList, Bot, Map,
 } from "lucide-react";
 import { useAdminRealtime } from "@/hooks/admin/useAdminRealtime";
 import { useAdminAlertCounts } from "@/hooks/admin/useAdminAlerts";
@@ -23,6 +23,7 @@ const sections: { title: string; items: Item[] }[] = [
     title: "ภาพรวม",
     items: [
       { to: "/admin", label: "Dashboard", icon: LayoutDashboard, end: true },
+      { to: "/admin/dev-tasks", label: "แผนพัฒนา", icon: Map },
       { to: "/admin/activity", label: "กิจกรรมทั้งเว็บ", icon: Activity },
       { to: "/admin/analytics", label: "Analytics", icon: BarChart3 },
     ],
@@ -74,6 +75,8 @@ const sections: { title: string; items: Item[] }[] = [
       { to: "/admin/aml", label: "AML / ฟอกเงิน", icon: Shield, badgeKey: "aml" },
       { to: "/admin/kyc", label: "ยืนยันตัวตน (KYC)", icon: ShieldCheck, badgeKey: "kyc" },
       { to: "/admin/reports", label: "รายงานเนื้อหา", icon: Flag, badgeKey: "reports" },
+      { to: "/admin/moderation", label: "Moderation", icon: Shield },
+      { to: "/admin/community", label: "โพสต์ชุมชน", icon: MessageSquare },
       { to: "/admin/feedback", label: "ฟีดแบ็กผู้ใช้", icon: MessageSquareHeart },
     ],
   },

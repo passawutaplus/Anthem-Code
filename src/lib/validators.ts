@@ -28,6 +28,21 @@ export const experienceItemSchema = z.object({
 });
 export type ExperienceItem = z.infer<typeof experienceItemSchema>;
 
+export const profileFaqItemSchema = z.object({
+  question: z.string().trim().min(1, "กรอกคำถาม").max(120),
+  answer: z.string().trim().min(1, "กรอกคำตอบ").max(500),
+});
+export type ProfileFaqItem = z.infer<typeof profileFaqItemSchema>;
+
+export const communityPostSchema = z.object({
+  postKind: z.enum(["tip", "question"]),
+  title: z.string().trim().min(3, "อย่างน้อย 3 ตัวอักษร").max(120),
+  body: z.string().trim().min(10, "อย่างน้อย 10 ตัวอักษร").max(3000),
+  category: z.string().trim().min(1, "เลือกหมวด"),
+});
+
+export type CommunityPostInput = z.infer<typeof communityPostSchema>;
+
 export const profileSchema = z.object({
   displayName: z.string().trim().min(1, "กรุณากรอกชื่อ").max(60),
   username: z
@@ -74,6 +89,7 @@ export const profileSchema = z.object({
   preferredEmploymentTypes: z.array(z.string().trim().min(1).max(20)).max(10).default([]),
   skills: z.array(z.string().trim().min(1).max(40)).max(30).default([]),
   experience: z.array(experienceItemSchema).max(20).default([]),
+  profileFaq: z.array(profileFaqItemSchema).max(10).default([]),
 });
 
 export type ProfileInput = z.infer<typeof profileSchema>;

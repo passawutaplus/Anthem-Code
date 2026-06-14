@@ -1,10 +1,11 @@
 import { useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useModerationState, useRecordProfanityStrike } from "@/hooks/useModeration";
 import { useAuth } from "./useAuth";
 import type { Database } from "@/integrations/supabase/types";
 
-export type ChatKind = "hire" | "collab" | "group";
+export type ChatKind = "hire" | "collab" | "group" | "studio";
 export type MessageType = "text" | "image" | "project";
 export type ConversationType = "direct" | "group";
 
@@ -33,7 +34,11 @@ export type ConversationPin = {
 const UNSEND_WINDOW_MS = 24 * 60 * 60 * 1000;
 
 export function isGroupConversation(conv: Conversation): boolean {
-  return conv.conversation_type === "group" || conv.kind === "group";
+  return conv.conversation_type === "group" || conv.kind === "group" || conv.kind === "studio";
+}
+
+export function isStudioConversation(conv: Conversation): boolean {
+  return conv.kind === "studio";
 }
 
 export function conversationParticipantIds(conv: Conversation, userId: string): string[] {
@@ -193,11 +198,15 @@ export type SendMessageArgs = {
   replyToId?: string;
   messageType?: MessageType;
   projectId?: string;
+  hadProfanity?: boolean;
 };
 
 export const useSendMessage = () => {
   const { user } = useAuth();
   const qc = useQueryClient();
+  const { refetch: refetchMod } = useModerationState();
+  const recordStrike = useRecordProfanityStrike();
+
   return useMutation({
     mutationFn: async ({
       conversationId,
@@ -206,8 +215,22 @@ export const useSendMessage = () => {
       replyToId,
       messageType = "text",
       projectId,
+      hadProfanity,
     }: SendMessageArgs) => {
       if (!user?.id) throw new Error("ต้องเข้าสู่ระบบ");
+
+      const { data: gate } = await refetchMod();
+      if (gate && !gate.allowed) {
+        const until = gate.banned_until
+          ? new Date(gate.banned_until).toLocaleString("th-TH")
+          : "";
+        throw new Error(`คุณถูกจำกัดการโพสต์${until ? ` จนถึง ${until}` : ""}`);
+      }
+
+      if (hadProfanity) {
+        await recordStrike.mutateAsync("chat_message");
+      }
+
       const row: Record<string, unknown> = {
         conversation_id: conversationId,
         sender_id: user.id,
@@ -476,6 +499,23 @@ export const useFindConversationByRequest = () => {
       .maybeSingle();
     return (data?.id as string | undefined) ?? null;
   };
+};
+
+export const useStudioConversation = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (studioId: string) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data, error } = await (supabase.rpc as any)("find_or_create_studio_chat", {
+        p_studio_id: studioId,
+      });
+      if (error) throw error;
+      return data as string;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["conversations"] });
+    },
+  });
 };
 
 export { UNSEND_WINDOW_MS };

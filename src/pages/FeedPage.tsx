@@ -36,10 +36,12 @@ import {
 } from "@/hooks/useProjects";
 import { useAuth } from "@/hooks/useAuth";
 import { useAuthDialog } from "@/stores/authDialogStore";
-import { isCategoryAllowed } from "@/lib/cookieConsent";
+import { useCommunityPosts } from "@/hooks/useCommunityPosts";
+import CommunityPostCard from "@/components/feed/CommunityPostCard";
 
 type FeedMode2 = "Explore" | SpecialFilter;
 const requiresAuth = (m: FeedMode2) => m === "For You" || m === "Following";
+const isCommunityMode = (m: FeedMode2) => m === "Tips" || m === "Q&A";
 
 const CATEGORY_CHIPS: Category[] = allCategories.filter((c) => c !== "Explore");
 
@@ -104,9 +106,13 @@ const FeedPage = (_props: { onMyPortClick: () => void }) => {
   const top = useTopProjects();
   const following = useFollowingProjects(feedMode === "Following" ? user?.id : undefined);
   const forYou = useForYouProjects(feedMode === "For You" ? user?.id : undefined);
+  const communityKind = feedMode === "Tips" ? "tip" : feedMode === "Q&A" ? "question" : undefined;
+  const community = useCommunityPosts(communityKind);
 
   const projectsLoading =
-    feedMode === "Top 1"
+    isCommunityMode(feedMode)
+      ? community.isLoading
+      : feedMode === "Top 1"
       ? top.isLoading
       : feedMode === "Following"
         ? following.isLoading
@@ -279,6 +285,38 @@ const FeedPage = (_props: { onMyPortClick: () => void }) => {
             />
           ) : mode === "studios" ? (
             <StudioGrid search={search} />
+          ) : isCommunityMode(feedMode) ? (
+            <div className="space-y-3">
+              <div className="flex justify-end">
+                <Button
+                  variant="outline"
+                  className="rounded-full"
+                  onClick={() => (user ? navigate("/community/new") : useAuthDialog.getState().openSignup("/community/new"))}
+                >
+                  <Plus className="w-4 h-4 mr-1" /> โพสต์{feedMode}
+                </Button>
+              </div>
+              {community.isLoading ? (
+                <ProjectGridSkeleton />
+              ) : (community.data ?? []).length === 0 ? (
+                <EmptyState
+                  icon={SearchX}
+                  title={`ยังไม่มีโพสต์ ${feedMode}`}
+                  description="มาเป็นคนแรกที่แชร์เทคนิคหรือถามคำถามกันเถอะ"
+                  action={
+                    <Button className="rounded-full" onClick={() => navigate("/community/new")}>
+                      สร้างโพสต์
+                    </Button>
+                  }
+                />
+              ) : (
+                <div className="grid gap-3 md:grid-cols-2">
+                  {(community.data ?? []).map((post) => (
+                    <CommunityPostCard key={post.id} post={post} />
+                  ))}
+                </div>
+              )}
+            </div>
           ) : projectsLoading ? (
             <ProjectGridSkeleton />
           ) : (

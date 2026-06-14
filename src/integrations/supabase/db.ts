@@ -55,6 +55,8 @@ const SHARED_TABLES = new Set([
   "aml_flags",
   "kyc_requests",
   "notifications",
+  "user_moderation_state",
+  "moderation_actions",
 ]);
 
 export function schemaForTable(table: string): "public" | "anthem" | "shared" {

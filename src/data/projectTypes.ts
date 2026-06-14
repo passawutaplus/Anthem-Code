@@ -11,7 +11,7 @@ export type Category =
   | "Video"
   | "Music/Audio";
 
-export type SpecialFilter = "For You" | "Following" | "Newest" | "Collections" | "Top 1";
+export type SpecialFilter = "For You" | "Following" | "Newest" | "Collections" | "Top 1" | "Tips" | "Q&A";
 export type FeedFilter = Category | SpecialFilter;
 
 export type ProjectStatus = "Published" | "Draft" | "Private";
@@ -63,7 +63,7 @@ export const categories: Category[] = [
   "Music/Audio",
 ];
 
-export const specialFilters: SpecialFilter[] = ["For You", "Following", "Newest", "Collections", "Top 1"];
+export const specialFilters: SpecialFilter[] = ["For You", "Following", "Newest", "Collections", "Top 1", "Tips", "Q&A"];
 export const feedFilters: FeedFilter[] = [
   "Explore",
   ...specialFilters,

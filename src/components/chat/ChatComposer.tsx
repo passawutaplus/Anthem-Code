@@ -9,10 +9,12 @@ import {
 import { useSendMessage, type Message } from "@/hooks/useChat";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import ModerationBanBanner from "@/components/moderation/ModerationBanBanner";
+import { maskProfanity, detectProfanity, PROFANITY_WARNING, COMMUNITY_GUIDELINES_PATH } from "@/lib/profanity";
 
 interface Props {
   conversationId: string;
-  kind: "hire" | "collab" | "group";
+  kind: "hire" | "collab" | "group" | "studio";
   quickReplies?: string[];
   replyTo?: Message | null;
   onClearReply?: () => void;
@@ -33,7 +35,7 @@ const ChatComposer = ({
   const placeholder =
     kind === "hire"
       ? "พิมพ์ข้อความถึงลูกค้าอย่างสุภาพ…"
-      : kind === "group"
+      : kind === "group" || kind === "studio"
         ? "ส่งข้อความถึงกลุ่ม…"
         : "คุยเล่นไอเดียกันต่อได้เลย…";
 
@@ -53,11 +55,22 @@ const ChatComposer = ({
   const submit = async (overrideText?: string) => {
     const value = (overrideText ?? text).trim();
     if (!value) return;
+    const { hasProfanity } = detectProfanity(value);
+    const toSend = hasProfanity ? maskProfanity(value) : value;
+    if (hasProfanity && !overrideText) {
+      toast.warning(PROFANITY_WARNING, {
+        action: {
+          label: "กฎชุมชน",
+          onClick: () => { window.location.href = COMMUNITY_GUIDELINES_PATH; },
+        },
+      });
+    }
     try {
       await send.mutateAsync({
         conversationId,
-        content: value,
+        content: toSend,
         replyToId: replyTo?.id,
+        hadProfanity: hasProfanity,
       });
       if (!overrideText) setText("");
       onClearReply?.();
@@ -93,6 +106,7 @@ const ChatComposer = ({
 
   return (
     <div className="border-t border-border bg-background/80 backdrop-blur-md px-3 py-2 pb-[max(env(safe-area-inset-bottom),0.5rem)]">
+      <ModerationBanBanner className="mb-2" />
       {replyTo && (
         <div className="flex items-center gap-2 mb-2 px-3 py-2 rounded-xl bg-muted/80 border border-border">
           <div className="flex-1 min-w-0 text-xs">

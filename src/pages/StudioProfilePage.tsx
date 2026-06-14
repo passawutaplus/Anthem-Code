@@ -1,6 +1,7 @@
 import BriefcaseIcon from "../components/icons/BriefcaseIcon";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { useStudioBySlug, useStudioMembers } from "@/hooks/useStudios";
+import { useStudioBySlug, useStudioMembers, useMyStudios } from "@/hooks/useStudios";
+import { useStudioConversation } from "@/hooks/useChat";
 import { useStudioJobs } from "@/hooks/useJobs";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -22,6 +23,9 @@ const StudioProfilePage = () => {
   const { data: studio, isLoading } = useStudioBySlug(slug);
   const { data: members = [] } = useStudioMembers(studio?.id);
   const { data: jobs = [] } = useStudioJobs(studio?.id);
+  const { data: myStudios = [] } = useMyStudios();
+  const studioChat = useStudioConversation();
+  const isMember = myStudios.some((s) => s.id === studio?.id);
 
   if (isLoading) return <div className="min-h-screen grid place-items-center text-muted-foreground">กำลังโหลด...</div>;
   if (!studio) return <div className="min-h-screen grid place-items-center text-muted-foreground">ไม่พบสตูดิโอ</div>;
@@ -74,12 +78,26 @@ const StudioProfilePage = () => {
               </div>
             </div>
             <div className="flex gap-2 items-center">
-              <Button
-                onClick={() => requireAuth(user, () => navigate(`/chat?studio=${studio.id}`))}
-                className="rounded-xl bg-gradient-brand text-white border-0"
-              >
-                จ้าง Studio
-              </Button>
+              {isMember ? (
+                <Button
+                  onClick={() =>
+                    requireAuth(user, async () => {
+                      const convId = await studioChat.mutateAsync(studio.id);
+                      navigate(`/chat/${convId}`);
+                    })
+                  }
+                  className="rounded-xl bg-gradient-brand text-white border-0"
+                >
+                  แชททีม
+                </Button>
+              ) : (
+                <Button
+                  onClick={() => requireAuth(user, () => navigate(`/chat?studio=${studio.id}`))}
+                  className="rounded-xl bg-gradient-brand text-white border-0"
+                >
+                  จ้าง Studio
+                </Button>
+              )}
               <ReportTrigger
                 targetType="studio"
                 targetId={studio.id}

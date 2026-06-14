@@ -1,6 +1,6 @@
 # คู่มือ UX + ทดสอบด้วยข้อมูล Demo
 
-> **ส่งให้ UX researcher:** ใช้ `docs/ux-research-review.md` หรือหน้าเว็บ `/research`
+> **ส่งให้ UX researcher:** ใช้ **[`ux-research-review.md`](./ux-research-review.md)** (เช็คลิสครบ A–T) หรือหน้าเว็บ **`/research`**
 
 ## เปิดโหมดทดสอบบนเครื่อง
 

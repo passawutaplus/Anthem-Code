@@ -1,4 +1,4 @@
-import { ChevronDown, Check, Compass, Sparkles, UserCheck, Clock, Layers3, Trophy, type LucideIcon } from "lucide-react";
+import { ChevronDown, Check, Compass, Sparkles, UserCheck, Clock, Layers3, Trophy, Lightbulb, HelpCircle, type LucideIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -10,7 +10,7 @@ import type { FeedFilter, SpecialFilter } from "@/data/projectTypes";
 
 type ModeOption = "Explore" | SpecialFilter;
 
-const ORDER: ModeOption[] = ["Explore", "For You", "Following", "Newest", "Top 1", "Collections"];
+const ORDER: ModeOption[] = ["Explore", "For You", "Following", "Newest", "Top 1", "Tips", "Q&A", "Collections"];
 
 const ICONS: Record<ModeOption, LucideIcon> = {
   Explore: Compass,
@@ -18,6 +18,8 @@ const ICONS: Record<ModeOption, LucideIcon> = {
   Following: UserCheck,
   Newest: Clock,
   "Top 1": Trophy,
+  Tips: Lightbulb,
+  "Q&A": HelpCircle,
   Collections: Layers3,
 };
 

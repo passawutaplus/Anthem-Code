@@ -1,56 +1,33 @@
 import { Link } from "react-router-dom";
-import { ArrowLeft, ClipboardList, LogIn, Map, Users } from "lucide-react";
+import {
+  ArrowLeft,
+  ClipboardList,
+  LayoutGrid,
+  LogIn,
+  Map,
+  Palette,
+  Route,
+  Users,
+  MessageSquareWarning,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { BRAND_NAME, BRAND_TAGLINE } from "@/lib/brandConfig";
 import { DEMO_WARNING_BULLETS } from "@/lib/copyConstants";
-import {
-  DEMO_RESEARCH_ACCOUNTS,
-  getDemoPassword,
-  isDemoMode,
-} from "@/lib/demoMode";
+import { getDemoPassword, isDemoMode } from "@/lib/demoMode";
 import SeoHead from "@/components/SeoHead";
-
-const TASKS = [
-  {
-    id: "T1",
-    title: "ค้นหาดีไซเนอร์จากฟีด",
-    steps: ["เปิดหน้าแรก", "สลับแท็บ ผลงาน / ดีไซเนอร์ / สตูดิโอ", "เปิดโปรไฟล์และผลงาน 2–3 รายการ"],
-    success: "เข้าใจว่าฟีดช่วยค้นหาและประเมินครีเอเตอร์ได้เร็วแค่ไหน",
-  },
-  {
-    id: "T2",
-    title: "ล็อกอินและจัดการพอร์ตโฟลิโอ",
-    steps: [
-      "Login ด้วยบัญชี demo",
-      "ไป /portfolio ดู Welcome checklist",
-      "ลองแก้ bio หรือเพิ่มผลงาน (ถ้าต้องการทดสอบบันทึก)",
-    ],
-    success: "รู้ว่าหลังล็อกอินทำอะไรต่อได้ทันที",
-  },
-  {
-    id: "T3",
-    title: "จ้างงาน / ขอคอลแลป",
-    steps: ["เปิดผลงานใดผลงานหนึ่ง", "กดจ้างงานหรือขอคอลแลป", "ดู flow ฟอร์มและข้อความยืนยัน"],
-    success: "ฟอร์มชัด ไม่สับสนระหว่างจ้าง vs คอลแลป",
-  },
-  {
-    id: "T4",
-    title: "สำรวจงานและชุมชน",
-    steps: ["ไป /jobs", "อ่านประกาศจ้างและโหมดหางาน", "กลับฟีด ลองไลก์/คอมเมนต์ (ถ้าล็อกอินแล้ว)"],
-    success: "เห็นภาพรวมชุมชนครีเอทีฟไทย",
-  },
-] as const;
-
-const PAGES = [
-  { path: "/", label: "ฟีดหลัก" },
-  { path: "/jobs", label: "งาน" },
-  { path: "/auth", label: "เข้าสู่ระบบ" },
-  { path: "/portfolio", label: "พอร์ตโฟลิโอของฉัน (ต้อง login)" },
-  { path: "/notifications", label: "การแจ้งเตือน" },
-  { path: "/chat", label: "แชท" },
-  { path: "/collections", label: "คอลเลกชัน" },
-  { path: "/s/doi-studio", label: "สตูดิโอตัวอย่าง" },
-] as const;
+import ResearchChecklistSection from "@/components/research/ResearchChecklistSection";
+import {
+  ADMIN_APPENDIX,
+  DESIGN_CHECKLIST,
+  FEATURE_SECTIONS,
+  FEEDBACK_TEMPLATE,
+  MODERATED_TASKS,
+  NEW_USER_JOURNEY,
+  OUT_OF_SCOPE,
+  PAGE_MAP,
+  RESEARCH_INTRO,
+  RESEARCH_PERSONAS,
+} from "@/data/uxResearchGuide";
 
 export default function ResearchPage() {
   const demo = isDemoMode();
@@ -59,7 +36,7 @@ export default function ResearchPage() {
     <div className="min-h-screen bg-background">
       <SeoHead
         title="คู่มือ UX Research"
-        description={`คู่มือทดสอบ ${BRAND_NAME} สำหรับ UX/UI researcher — บัญชี demo, ภารกิจ, และแผนที่หน้า`}
+        description={`คู่มือทดสอบ ${BRAND_NAME} สำหรับ UX/UI researcher — เช็คลิสครบทุกระบบ, บัญชี demo, และ journey ผู้ใช้ใหม่`}
         path="/research"
       />
 
@@ -75,13 +52,17 @@ export default function ResearchPage() {
         </div>
       </header>
 
-      <main className="max-w-3xl mx-auto px-4 py-8 space-y-10 thai-body">
+      <main className="max-w-3xl mx-auto px-4 py-8 space-y-10 thai-body pb-24">
         <section className="space-y-3">
           <p className="text-xs font-medium text-primary tracking-wide uppercase">Research brief</p>
           <h1 className="text-3xl font-semibold thai-display tracking-tight">
             {BRAND_NAME} — คู่มือทดสอบ UX/UI
           </h1>
           <p className="text-muted-foreground leading-relaxed">{BRAND_TAGLINE}</p>
+          <p className="text-sm text-muted-foreground">
+            Quick {RESEARCH_INTRO.quickMinutes} นาที · Full {RESEARCH_INTRO.fullHours} ชม. · Viewports:{" "}
+            {RESEARCH_INTRO.viewports.join(", ")}
+          </p>
         </section>
 
         <section className="rounded-2xl border border-amber-500/30 bg-amber-500/8 p-4 space-y-2">
@@ -105,11 +86,14 @@ export default function ResearchPage() {
         <section className="space-y-4">
           <h2 className="font-semibold flex items-center gap-2">
             <LogIn className="w-4 h-4 text-primary" />
-            บัญชีสำหรับทดสอบ
+            Persona & บัญชีทดสอบ
           </h2>
-          <p className="text-sm text-muted-foreground">รหัสผ่านทุกบัญชี: <code className="bg-muted px-1.5 py-0.5 rounded text-xs">{getDemoPassword()}</code></p>
+          <p className="text-sm text-muted-foreground">
+            รหัสผ่านทุกบัญชี:{" "}
+            <code className="bg-muted px-1.5 py-0.5 rounded text-xs">{getDemoPassword() || "an1hem-demo-seed"}</code>
+          </p>
           <div className="grid gap-3">
-            {DEMO_RESEARCH_ACCOUNTS.map((acc) => (
+            {RESEARCH_PERSONAS.map((acc) => (
               <div key={acc.email} className="rounded-xl border border-border p-4 space-y-1">
                 <p className="font-medium text-sm">{acc.label}</p>
                 <code className="text-xs text-primary break-all">{acc.email}</code>
@@ -124,13 +108,38 @@ export default function ResearchPage() {
 
         <section className="space-y-4">
           <h2 className="font-semibold flex items-center gap-2">
+            <Route className="w-4 h-4 text-primary" />
+            Journey ผู้ใช้ใหม่
+          </h2>
+          <p className="text-sm text-muted-foreground">ตอบโจทย์: คนใหม่รู้ว่าต้องทำอะไรต่อไหม?</p>
+          <ol className="space-y-3">
+            {NEW_USER_JOURNEY.map((step) => (
+              <li key={step.step} className="rounded-xl border border-border p-4 space-y-1">
+                <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
+                  ขั้น {step.step}
+                </p>
+                <p className="font-medium text-sm">{step.title}</p>
+                <p className="text-xs text-primary">{step.where}</p>
+                <p className="text-xs text-muted-foreground">{step.criteria}</p>
+              </li>
+            ))}
+          </ol>
+        </section>
+
+        <section className="space-y-4">
+          <h2 className="font-semibold flex items-center gap-2">
             <Users className="w-4 h-4 text-primary" />
-            ภารกิจที่แนะนำ (30–45 นาที)
+            Moderated tasks (T1–T8)
           </h2>
           <div className="space-y-4">
-            {TASKS.map((task) => (
+            {MODERATED_TASKS.map((task) => (
               <article key={task.id} className="rounded-xl border border-border p-4 space-y-2">
-                <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">{task.id}</p>
+                <div className="flex flex-wrap items-center gap-2">
+                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
+                    {task.id}
+                  </p>
+                  <span className="text-xs text-muted-foreground">· {task.persona}</span>
+                </div>
                 <h3 className="font-medium">{task.title}</h3>
                 <ol className="text-sm text-muted-foreground list-decimal pl-5 space-y-1">
                   {task.steps.map((step) => (
@@ -140,36 +149,116 @@ export default function ResearchPage() {
                 <p className="text-xs text-foreground/70">
                   <span className="font-medium text-foreground">สำเร็จเมื่อ:</span> {task.success}
                 </p>
+                {task.interviewQuestions.length > 0 && (
+                  <ul className="text-xs text-muted-foreground list-disc pl-5 space-y-0.5">
+                    {task.interviewQuestions.map((q) => (
+                      <li key={q}>
+                        <span className="font-medium text-foreground/80">ถาม:</span> {q}
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </article>
             ))}
           </div>
         </section>
 
-        <section className="space-y-3">
+        <section className="space-y-4">
           <h2 className="font-semibold flex items-center gap-2">
-            <Map className="w-4 h-4 text-primary" />
-            แผนที่หน้าหลัก
+            <Palette className="w-4 h-4 text-primary" />
+            Design & UI foundation
           </h2>
-          <ul className="text-sm space-y-2">
-            {PAGES.map((p) => (
-              <li key={p.path} className="flex items-center justify-between gap-3 border-b border-border/50 pb-2">
-                <span>{p.label}</span>
-                <Link to={p.path} className="text-primary text-xs hover:underline shrink-0">
-                  {p.path}
-                </Link>
+          <ul className="space-y-2 text-sm">
+            {DESIGN_CHECKLIST.map((item) => (
+              <li key={item.id} className="flex items-start gap-2 rounded-lg border border-border/60 px-3 py-2">
+                <span
+                  className="mt-0.5 inline-flex h-4 w-4 shrink-0 rounded border border-border bg-muted/50"
+                  aria-hidden
+                />
+                <span className="text-foreground/85">{item.text}</span>
               </li>
             ))}
           </ul>
         </section>
 
-        <section className="rounded-2xl glass-panel p-4 space-y-2 text-sm">
-          <h2 className="font-semibold">สิ่งที่อยากได้ feedback</h2>
+        <section className="space-y-4">
+          <h2 className="font-semibold flex items-center gap-2">
+            <LayoutGrid className="w-4 h-4 text-primary" />
+            Feature checklist (A–T)
+          </h2>
+          <p className="text-sm text-muted-foreground">
+            Tick เองขณะทดสอบ — ไม่บันทึกในระบบ
+          </p>
+          <ResearchChecklistSection sections={FEATURE_SECTIONS} />
+        </section>
+
+        <section className="space-y-4">
+          <h2 className="font-semibold flex items-center gap-2">
+            <Map className="w-4 h-4 text-primary" />
+            แผนที่หน้า
+          </h2>
+          <div className="space-y-5">
+            {PAGE_MAP.map((group) => (
+              <div key={group.group}>
+                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
+                  {group.group}
+                </p>
+                <ul className="text-sm space-y-2">
+                  {group.pages.map((p) => (
+                    <li
+                      key={p.path}
+                      className="flex items-center justify-between gap-3 border-b border-border/50 pb-2"
+                    >
+                      <span>
+                        {p.label}
+                        {p.auth && (
+                          <span className="ml-1.5 text-[10px] text-muted-foreground">(login)</span>
+                        )}
+                      </span>
+                      {p.path.includes(":") ? (
+                        <code className="text-xs text-muted-foreground shrink-0">{p.path}</code>
+                      ) : (
+                        <Link to={p.path} className="text-primary text-xs hover:underline shrink-0">
+                          {p.path}
+                        </Link>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section className="rounded-2xl glass-panel p-4 space-y-3 text-sm">
+          <h2 className="font-semibold flex items-center gap-2">
+            <MessageSquareWarning className="w-4 h-4 text-primary" />
+            Feedback template
+          </h2>
+          <p className="text-muted-foreground text-xs">บันทึก: {FEEDBACK_TEMPLATE.fields.join(" · ")}</p>
           <ul className="text-muted-foreground space-y-1 list-disc pl-5">
-            <li>ภาษาไทยอ่านง่ายไหม — คำศัพท์ tech/ฟรีแลนซ์</li>
-            <li>คอนเซปต์ &quot;ทุกคนคือ 1 PX&quot; สื่อสารได้หรือยัง</li>
-            <li>ลำดับขั้นตอนจ้างงาน / คอลแลป / โพสต์งาน</li>
-            <li>ความแตกต่างหน้าร้าน (1PX) vs หลังบ้าน (So1o) เข้าใจไหม</li>
-            <li>Mobile vs Desktop — จุดที่ใช้ยาก</li>
+            {FEEDBACK_TEMPLATE.prompts.map((prompt) => (
+              <li key={prompt}>{prompt}</li>
+            ))}
+          </ul>
+        </section>
+
+        <section className="rounded-xl border border-border/60 p-4 space-y-2 text-sm">
+          <h2 className="font-semibold text-muted-foreground">Out of scope</h2>
+          <ul className="text-muted-foreground space-y-1 list-disc pl-5">
+            {OUT_OF_SCOPE.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ul>
+        </section>
+
+        <section className="rounded-xl border border-dashed border-border p-4 space-y-2 text-sm text-muted-foreground">
+          <h2 className="font-semibold text-foreground">ภาคผนวก — Admin (staff only)</h2>
+          <p className="text-xs">{ADMIN_APPENDIX.note}</p>
+          <ul className="space-y-1 list-disc pl-5">
+            {ADMIN_APPENDIX.items.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
           </ul>
         </section>
       </main>

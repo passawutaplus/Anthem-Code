@@ -6,7 +6,7 @@
 |----------|----------|
 | Project ID | `rvnzjiskqliexysicfmh` |
 | Migrations (136) | [`Solo-Code/supabase/migrations/`](../../Solo-Code/supabase/migrations/) |
-| Edge Functions (20) | [`Solo-Code/supabase/functions/`](../../Solo-Code/supabase/functions/) |
+| Edge Functions (21) | [`Solo-Code/supabase/functions/`](../../Solo-Code/supabase/functions/) |
 | Ecosystem docs | [`Solo-Code/supabase/ECOSYSTEM.md`](../../Solo-Code/supabase/ECOSYSTEM.md) |
 | Notifications | [`docs/ecosystem-notifications.md`](../../docs/ecosystem-notifications.md) |
 
@@ -23,8 +23,11 @@ supabase functions deploy \
 
 # Anthem AI + search
 supabase functions deploy embed-project similar-images generate-contract \
-  anthem-assistant anthem-portfolio-assist ecosystem-ai-usage admin-ai-monitor \
+  anthem-assistant anthem-portfolio-assist ecosystem-ai-usage admin-ai-monitor admin-supabase-usage \
   --project-ref rvnzjiskqliexysicfmh
+
+# Secret สำหรับ admin-supabase-usage (ชื่อต้องไม่ขึ้นต้น SUPABASE_)
+supabase secrets set MGMT_ACCESS_TOKEN=sbp_... --project-ref rvnzjiskqliexysicfmh
 ```
 
 Do **not** deploy from `Anthem-Code/supabase/functions/` — that directory was removed to avoid stale copies.

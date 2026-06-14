@@ -7,10 +7,12 @@ import DataTable, { Column } from "@/components/admin/DataTable";
 import StatusPill from "@/components/admin/StatusPill";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/hooks/useAuth";
 import { Download } from "lucide-react";
 import { toCsv, downloadCsv } from "@/lib/csv";
 import { getLicenseMeta } from "@/lib/licenses";
+import { useAdminApplyModeration } from "@/hooks/useModeration";
 
 type EvidenceFile = { url: string; type: string; name: string; size: number };
 type ReportRow = {
@@ -40,6 +42,10 @@ const targetLink = (r: ReportRow) => {
       return `/jobs/${r.target_id}`;
     case "studio":
       return `/admin/studios`;
+    case "comment":
+      return `/admin/comments`;
+    case "message":
+      return `/admin/chats`;
     default:
       return "#";
   }
@@ -49,6 +55,8 @@ export default function AdminReportsPage() {
   const { user } = useAuth();
   const qc = useQueryClient();
   const [tab, setTab] = useState<(typeof STATUSES)[number]>("open");
+  const [notes, setNotes] = useState<Record<string, string>>({});
+  const applyMod = useAdminApplyModeration();
 
   const { data: rows = [], isLoading } = useQuery({
     queryKey: ["admin", "reports", tab],
@@ -82,8 +90,9 @@ export default function AdminReportsPage() {
   });
 
   const update = useMutation({
-    mutationFn: async ({ id, status }: { id: string; status: ReportRow["status"] }) => {
+    mutationFn: async ({ id, status, adminNote }: { id: string; status: ReportRow["status"]; adminNote?: string }) => {
       const patch: Record<string, unknown> = { status };
+      if (adminNote !== undefined) patch.admin_note = adminNote;
       if (status === "resolved" || status === "dismissed") {
         patch.resolved_by = user?.id ?? null;
         patch.resolved_at = new Date().toISOString();
@@ -169,30 +178,71 @@ export default function AdminReportsPage() {
         key: "actions",
         header: "จัดการ",
         render: (r) => (
-          <div className="flex gap-1 flex-wrap">
+          <div className="flex flex-col gap-2 max-w-xs">
+            <Textarea
+              placeholder="บันทึกแอดมิน (แสดงให้ผู้รายงานเห็น)"
+              value={notes[r.id] ?? r.admin_note ?? ""}
+              onChange={(e) => setNotes((n) => ({ ...n, [r.id]: e.target.value }))}
+              rows={2}
+              className="text-xs"
+            />
+            <div className="flex gap-1 flex-wrap">
             {r.status !== "reviewing" && (
-              <Button size="sm" variant="outline" onClick={() => update.mutate({ id: r.id, status: "reviewing" })}>
+              <Button size="sm" variant="outline" onClick={() => update.mutate({ id: r.id, status: "reviewing", adminNote: notes[r.id] })}>
                 ตรวจสอบ
               </Button>
             )}
             {r.status !== "resolved" && (
-              <Button size="sm" variant="default" onClick={() => update.mutate({ id: r.id, status: "resolved" })}>
+              <Button size="sm" variant="default" onClick={() => update.mutate({ id: r.id, status: "resolved", adminNote: notes[r.id] })}>
                 ดำเนินการแล้ว
               </Button>
             )}
             {r.status !== "dismissed" && (
-              <Button size="sm" variant="ghost" onClick={() => update.mutate({ id: r.id, status: "dismissed" })}>
+              <Button size="sm" variant="ghost" onClick={() => update.mutate({ id: r.id, status: "dismissed", adminNote: notes[r.id] })}>
                 ปัด
               </Button>
+            )}
+            {r.target_owner_id && (
+              <>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={async () => {
+                    try {
+                      await applyMod.mutateAsync({ userId: r.target_owner_id!, action: "strike", note: `report:${r.id}` });
+                      toast.success("เพิ่ม strike แล้ว");
+                    } catch (e) {
+                      toast.error(e instanceof Error ? e.message : "ล้มเหลว");
+                    }
+                  }}
+                >
+                  +Strike
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={async () => {
+                    try {
+                      await applyMod.mutateAsync({ userId: r.target_owner_id!, action: "ban", days: 3, note: `report:${r.id}` });
+                      toast.success("แบน 3 วัน");
+                    } catch (e) {
+                      toast.error(e instanceof Error ? e.message : "ล้มเหลว");
+                    }
+                  }}
+                >
+                  แบน 3d
+                </Button>
+              </>
             )}
             <Button size="sm" variant="ghost" className="text-destructive" onClick={() => remove.mutate(r.id)}>
               ลบ
             </Button>
+            </div>
           </div>
         ),
       },
     ],
-    [update, remove]
+    [update, remove, notes, applyMod]
   );
 
   return (

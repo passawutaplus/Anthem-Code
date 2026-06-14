@@ -17,6 +17,7 @@ import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/useAuth";
 import {
   isGroupConversation,
+  isStudioConversation,
   otherParticipantId,
   useUnsendMessage,
   type Conversation,
@@ -71,8 +72,9 @@ const ChatThreadView = ({
   const unsend = useUnsendMessage();
 
   const isGroup = isGroupConversation(conv);
+  const isStudio = isStudioConversation(conv);
   const otherId = otherParticipantId(conv, user?.id ?? "");
-  const kind = (isGroup ? "group" : conv.kind) as "hire" | "collab" | "group";
+  const kind = (isStudio ? "studio" : isGroup ? "group" : conv.kind) as "hire" | "collab" | "group" | "studio";
   const isHire = kind === "hire";
 
   const { data: other } = useQuery({
@@ -233,14 +235,21 @@ const ChatThreadView = ({
                   {tierLabel(partnerTier)}
                 </Badge>
               )}
-              {isGroup && (
+              {isStudio && (
+                <Badge variant="secondary" className="text-[10px] px-2 py-0 h-5 shrink-0">
+                  สตูดิโอ
+                </Badge>
+              )}
+              {isGroup && !isStudio && (
                 <Badge variant="secondary" className="text-[10px] px-2 py-0 h-5 shrink-0">
                   กลุ่ม
                 </Badge>
               )}
             </div>
             <p className="text-[11px] text-muted-foreground truncate">
-              {isGroup
+              {isStudio
+                ? "แชททีมสตูดิโอ"
+                : isGroup
                 ? "แชทกลุ่ม"
                 : conv.project_title || (isHire ? "พูดคุยรายละเอียดงาน" : "พูดคุยแนวทางคอลแลป")}
             </p>

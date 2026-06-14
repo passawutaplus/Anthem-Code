@@ -275,6 +275,9 @@ const PublicProfilePage = () => {
             <TabsTrigger value="works" className="rounded-full data-[state=active]:bg-gradient-brand data-[state=active]:text-white">ผลงาน ({projects.length})</TabsTrigger>
             <TabsTrigger value="collections" className="rounded-full data-[state=active]:bg-gradient-brand data-[state=active]:text-white">คอลเลกชัน ({collections.length})</TabsTrigger>
             <TabsTrigger value="about" className="rounded-full data-[state=active]:bg-gradient-brand data-[state=active]:text-white">เกี่ยวกับ</TabsTrigger>
+            <TabsTrigger value="faq" className="rounded-full data-[state=active]:bg-gradient-brand data-[state=active]:text-white">
+              ถาม-ตอบ ({((profile as { profile_faq?: { question: string; answer: string }[] }).profile_faq ?? []).length})
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="works" className="mt-6">
@@ -303,12 +306,20 @@ const PublicProfilePage = () => {
               <p className="text-sm text-foreground/80 leading-7 whitespace-pre-wrap">
                 {profile.bio || "ยังไม่มีข้อมูลแนะนำตัว"}
               </p>
-              {profile.email && (
-                <p className="text-sm text-muted-foreground pt-3 border-t border-white/30">
-                  ติดต่อ: <span className="text-foreground">{profile.email}</span>
-                </p>
-              )}
             </div>
+          </TabsContent>
+
+          <TabsContent value="faq" className="mt-6 space-y-3">
+            {(((profile as { profile_faq?: { question: string; answer: string }[] }).profile_faq) ?? []).length === 0 ? (
+              <div className="text-center py-16 text-muted-foreground glass-panel rounded-2xl">ยังไม่มีคำถาม-ตอบ</div>
+            ) : (
+              ((profile as { profile_faq?: { question: string; answer: string }[] }).profile_faq ?? []).map((item, i) => (
+                <div key={i} className="rounded-2xl glass-panel p-5 space-y-2">
+                  <p className="font-medium text-foreground">{item.question}</p>
+                  <p className="text-sm text-foreground/80 whitespace-pre-wrap">{item.answer}</p>
+                </div>
+              ))
+            )}
           </TabsContent>
         </Tabs>
       </div>

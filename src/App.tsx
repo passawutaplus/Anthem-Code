@@ -71,11 +71,17 @@ const AdminAmlPage = lazy(() => import("./pages/admin/AdminAmlPage"));
 const AdminKycPage = lazy(() => import("./pages/admin/AdminKycPage"));
 const AdminInspirePage = lazy(() => import("./pages/admin/AdminInspirePage"));
 const AdminAiMonitorPage = lazy(() => import("./pages/admin/AdminAiMonitorPage"));
+const AdminDevTasksPage = lazy(() => import("./pages/admin/AdminDevTasksPage"));
 const PrivacyPage = lazy(() => import("./pages/legal/PrivacyPage.tsx"));
 const TermsPage = lazy(() => import("./pages/legal/TermsPage.tsx"));
 const CookiesPage = lazy(() => import("./pages/legal/CookiesPage.tsx"));
 const DataRightsPage = lazy(() => import("./pages/legal/DataRightsPage.tsx"));
 const IntellectualPropertyPage = lazy(() => import("./pages/legal/IntellectualPropertyPage.tsx"));
+const CommunityGuidelinesPage = lazy(() => import("./pages/legal/CommunityGuidelinesPage.tsx"));
+const CommunityPostDetailPage = lazy(() => import("./pages/CommunityPostDetailPage.tsx"));
+const CommunityPostEditorPage = lazy(() => import("./pages/CommunityPostEditorPage.tsx"));
+const AdminCommunityPage = lazy(() => import("./pages/admin/AdminCommunityPage"));
+const AdminModerationPage = lazy(() => import("./pages/admin/AdminModerationPage"));
 const ExploreProjectsPage = lazy(() => import("./pages/ExploreProjectsPage.tsx"));
 const EarningsPage = lazy(() => import("./pages/EarningsPage.tsx"));
 const ResearchPage = lazy(() => import("./pages/ResearchPage.tsx"));
@@ -128,6 +134,8 @@ const App = () => (
               <Route path="/settings" element={<RequireAuth><SettingsPage /></RequireAuth>} />
               <Route path="/notifications" element={<RequireAuth><NotificationsPage /></RequireAuth>} />
               <Route path="/chat/:id?" element={<RequireAuth><ChatInboxPage /></RequireAuth>} />
+              <Route path="/community/new" element={<RequireAuth><CommunityPostEditorPage /></RequireAuth>} />
+              <Route path="/community/:id" element={<CommunityPostDetailPage />} />
               <Route path="/collections" element={<RequireAuth><CollectionsPage /></RequireAuth>} />
               <Route path="/collections/:id" element={<RequireAuth><CollectionDetailPage /></RequireAuth>} />
               <Route path="/me/reports" element={<RequireAuth><MyReportsPage /></RequireAuth>} />
@@ -135,6 +143,7 @@ const App = () => (
               <Route path="/verify" element={<RequireAuth><VerificationPage /></RequireAuth>} />
               <Route path="/admin" element={<AdminLayout />}>
                 <Route index element={<OverviewPage />} />
+                <Route path="dev-tasks" element={<AdminDevTasksPage />} />
                 <Route path="activity" element={<AdminActivityPage />} />
                 <Route path="analytics" element={<AdminAnalyticsPage />} />
                 <Route path="contracts" element={<AdminContractsPage />} />
@@ -158,6 +167,8 @@ const App = () => (
                 <Route path="storage" element={<AdminStoragePage />} />
                 <Route path="audit" element={<AdminAuditPage />} />
                 <Route path="reports" element={<AdminReportsPage />} />
+                <Route path="community" element={<AdminCommunityPage />} />
+                <Route path="moderation" element={<AdminModerationPage />} />
                 <Route path="feedback" element={<AdminFeedbackPage />} />
                 <Route path="system" element={<AdminSystemPage />} />
                 <Route path="ai" element={<AdminAiMonitorPage />} />
@@ -178,6 +189,7 @@ const App = () => (
               <Route path="/legal/cookies" element={<CookiesPage />} />
               <Route path="/legal/rights" element={<DataRightsPage />} />
               <Route path="/legal/ip" element={<IntellectualPropertyPage />} />
+              <Route path="/legal/community" element={<CommunityGuidelinesPage />} />
               <Route path="/error" element={<ErrorPage />} />
               <Route path="/error/404" element={<ErrorPage defaultKind="404" />} />
               <Route path="/error/405" element={<ErrorPage defaultKind="405" />} />

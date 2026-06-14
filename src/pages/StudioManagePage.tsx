@@ -13,7 +13,8 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { Building2, Loader2, Plus, Users, ArrowLeft } from "lucide-react";
+import { Building2, Loader2, Plus, Users, ArrowLeft, MessageCircle } from "lucide-react";
+import { useStudioConversation } from "@/hooks/useChat";
 import JobCard from "@/components/jobs/JobCard";
 import JobCoverUploadField from "@/components/jobs/JobCoverUploadField";
 import JobCardPreview from "@/components/jobs/JobCardPreview";
@@ -37,6 +38,7 @@ const StudioManageInner = () => {
 
   const { data: members = [] } = useStudioMembers(studio?.id);
   const { data: jobs = [] } = useStudioJobs(studio?.id);
+  const studioChat = useStudioConversation();
   const [jobDialogOpen, setJobDialogOpen] = useState(params.get("new") === "1");
 
   if (isLoading) return <div className="min-h-screen grid place-items-center text-muted-foreground">กำลังโหลด...</div>;
@@ -93,6 +95,7 @@ const StudioManageInner = () => {
           <TabsList className="rounded-xl">
             <TabsTrigger value="jobs" className="rounded-lg"><BriefcaseIcon className="w-3.5 h-3.5 mr-1.5" />ประกาศงาน</TabsTrigger>
             <TabsTrigger value="members" className="rounded-lg"><Users className="w-3.5 h-3.5 mr-1.5" />สมาชิก</TabsTrigger>
+            <TabsTrigger value="chat" className="rounded-lg"><MessageCircle className="w-3.5 h-3.5 mr-1.5" />แชททีม</TabsTrigger>
             <TabsTrigger value="settings" className="rounded-lg">ตั้งค่า</TabsTrigger>
           </TabsList>
 
@@ -129,6 +132,21 @@ const StudioManageInner = () => {
                 </div>
               </div>
             ))}
+          </TabsContent>
+
+          <TabsContent value="chat" className="space-y-4">
+            <p className="text-sm text-muted-foreground">ห้องแชทภายในสำหรับสมาชิกสตูดิโอเท่านั้น</p>
+            <Button
+              className="rounded-xl bg-gradient-brand text-white border-0"
+              disabled={studioChat.isPending}
+              onClick={async () => {
+                const convId = await studioChat.mutateAsync(studio.id);
+                navigate(`/chat/${convId}`);
+              }}
+            >
+              <MessageCircle className="w-4 h-4 mr-1.5" />
+              {studioChat.isPending ? "กำลังเปิด..." : "เปิดแชททีม"}
+            </Button>
           </TabsContent>
 
           <TabsContent value="settings">

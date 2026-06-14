@@ -7,10 +7,12 @@ import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile, useUpdateProfile, useUpdateProfileMedia } from "@/hooks/useProfile";
 import { uploadProjectImage } from "@/lib/uploadImage";
-import { profileSchema, type ExperienceItem, type ProfileInput } from "@/lib/validators";
+import { profileSchema, type ExperienceItem, type ProfileFaqItem, type ProfileInput } from "@/lib/validators";
 import { supabase } from "@/integrations/supabase/client";
 import SkillsEditor from "@/components/profile/SkillsEditor";
 import ExperienceEditor from "@/components/profile/ExperienceEditor";
+import ProfileFaqEditor from "@/components/profile/ProfileFaqEditor";
+import { detectProfanity } from "@/lib/profanity";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { TierMembershipCard } from "@/components/tier/TierMembershipCard";
 import { StorageUsageSection } from "@/components/settings/StorageUsageSection";
@@ -38,6 +40,7 @@ const empty: ProfileInput = {
   preferredEmploymentTypes: [],
   skills: [],
   experience: [],
+  profileFaq: [],
 };
 
 const SettingsPage = () => {
@@ -84,6 +87,7 @@ const SettingsPage = () => {
         preferredEmploymentTypes: (profile as any).preferred_employment_types ?? [],
         skills: profile.skills ?? [],
         experience: ((profile.experience as unknown as ExperienceItem[]) ?? []),
+        profileFaq: ((profile as { profile_faq?: ProfileFaqItem[] }).profile_faq ?? []),
       });
     }
   }, [profile, user]);
@@ -110,6 +114,11 @@ const SettingsPage = () => {
     const parsed = profileSchema.safeParse(form);
     if (!parsed.success) {
       toast.error(parsed.error.issues[0]?.message ?? "ข้อมูลไม่ถูกต้อง");
+      return;
+    }
+    const faqText = form.profileFaq.map((f) => `${f.question} ${f.answer}`).join(" ");
+    if (detectProfanity(faqText).hasProfanity) {
+      toast.error("FAQ มีคำที่ไม่เหมาะสม — กรุณาแก้ไขก่อนบันทึก");
       return;
     }
     try {
@@ -223,6 +232,11 @@ const SettingsPage = () => {
         <section className="rounded-2xl glass-panel p-6 space-y-4">
           <SectionTitle icon={BriefcaseIcon} title="ประสบการณ์ทำงาน" />
           <ExperienceEditor value={form.experience} onChange={(v) => update("experience", v)} />
+        </section>
+
+        <section className="rounded-2xl glass-panel p-6 space-y-4">
+          <SectionTitle icon={MessageCircle} title="ถาม-ตอบบนโปรไฟล์" />
+          <ProfileFaqEditor value={form.profileFaq} onChange={(v) => update("profileFaq", v)} />
         </section>
 
         <section className="rounded-2xl glass-panel p-6 space-y-5">
