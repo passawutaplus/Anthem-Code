@@ -13,6 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { MapPin, Calendar, Users, ArrowLeft, Loader2, CheckCircle2, UserSearch } from "lucide-react";
 import { getPosterInfo, roleCategoryGradient } from "@/components/jobs/jobCardUtils";
 import { cn } from "@/lib/utils";
+import ReportTrigger from "@/components/report/ReportTrigger";
 
 const fmt = (n: number | null) => (n ? `฿${n.toLocaleString()}` : "");
 
@@ -141,7 +142,7 @@ const JobDetailPage = () => {
             <p className="whitespace-pre-wrap leading-relaxed thai-body">{job.description || "ไม่มีรายละเอียดเพิ่มเติม"}</p>
           </div>
 
-          <div className="flex flex-wrap gap-2 pt-2 border-t border-border/40">
+          <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-border/40">
             {isAdmin ? (
               <>
                 <Button
@@ -167,6 +168,14 @@ const JobDetailPage = () => {
               >
                 สมัครงานนี้
               </Button>
+            )}
+            {!isAdmin && (
+              <ReportTrigger
+                targetType="job"
+                targetId={job.id}
+                targetOwnerId={job.posted_by}
+                variant="text"
+              />
             )}
           </div>
         </div>

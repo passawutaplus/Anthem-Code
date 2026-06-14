@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import ToolIcon from "@/components/ToolIcon";
 import { useToolSuggestions, normalizeToolKey } from "@/hooks/useToolSuggestions";
 import { cn } from "@/lib/utils";
 
@@ -15,6 +16,30 @@ interface Props {
   setInput: (v: string) => void;
   max?: number;
 }
+
+const SuggestionChip = ({
+  label,
+  onClick,
+  variant = "muted",
+}: {
+  label: string;
+  onClick: () => void;
+  variant?: "muted" | "primary";
+}) => (
+  <button
+    type="button"
+    onClick={onClick}
+    className={cn(
+      "inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full border transition-colors",
+      variant === "muted"
+        ? "border-border/80 bg-muted/40 text-foreground/80 hover:border-primary/50 hover:bg-primary/5 hover:text-primary"
+        : "border-primary/30 bg-primary/5 text-primary hover:bg-primary/10",
+    )}
+  >
+    <ToolIcon name={label} size="xs" />
+    {label}
+  </button>
+);
 
 const ToolPicker = ({ userId, tools, onChange, input, setInput, max = 20 }: Props) => {
   const suggestions = useToolSuggestions(userId);
@@ -46,12 +71,13 @@ const ToolPicker = ({ userId, tools, onChange, input, setInput, max = 20 }: Prop
       {tools.length > 0 && (
         <div className="flex flex-wrap gap-1.5">
           {tools.map((t, i) => (
-            <Badge key={t + i} variant="secondary" className="rounded-full pl-3 pr-1 py-1 text-xs">
+            <Badge key={t + i} variant="secondary" className="rounded-full pl-1.5 pr-1 py-1 text-xs gap-1.5">
+              <ToolIcon name={t} size="xs" />
               {t}
               <button
                 type="button"
                 onClick={() => onChange(tools.filter((_, j) => j !== i))}
-                className="ml-1 hover:text-destructive"
+                className="ml-0.5 hover:text-destructive"
                 aria-label={`ลบ ${t}`}
               >
                 <X className="w-3 h-3" />
@@ -90,17 +116,7 @@ const ToolPicker = ({ userId, tools, onChange, input, setInput, max = 20 }: Prop
           <p className="text-[10px] text-muted-foreground uppercase tracking-wide">เครื่องมือที่ใช้บ่อย</p>
           <div className="flex flex-wrap gap-1.5">
             {filteredSuggestions.map((s) => (
-              <button
-                key={s}
-                type="button"
-                onClick={() => addTool(s)}
-                className={cn(
-                  "text-xs px-2.5 py-1 rounded-full border border-border/80 bg-muted/40",
-                  "text-foreground/80 hover:border-primary/50 hover:bg-primary/5 hover:text-primary transition-colors",
-                )}
-              >
-                {s}
-              </button>
+              <SuggestionChip key={s} label={s} onClick={() => addTool(s)} />
             ))}
           </div>
         </div>
@@ -111,14 +127,7 @@ const ToolPicker = ({ userId, tools, onChange, input, setInput, max = 20 }: Prop
           <p className="text-[10px] text-muted-foreground">แนะนำ</p>
           <div className="flex flex-wrap gap-1.5">
             {filteredSuggestions.map((s) => (
-              <button
-                key={s}
-                type="button"
-                onClick={() => addTool(s)}
-                className="text-xs px-2.5 py-1 rounded-full border border-primary/30 bg-primary/5 text-primary hover:bg-primary/10"
-              >
-                {s}
-              </button>
+              <SuggestionChip key={s} label={s} onClick={() => addTool(s)} variant="primary" />
             ))}
           </div>
         </div>

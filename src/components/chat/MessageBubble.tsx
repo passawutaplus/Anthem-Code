@@ -3,6 +3,7 @@ import { cn } from "@/lib/utils";
 import { format, isToday, isYesterday } from "date-fns";
 import { th } from "date-fns/locale";
 import { ExternalLink, Reply, Undo2 } from "lucide-react";
+import ReportTrigger from "@/components/report/ReportTrigger";
 import {
   ContextMenu,
   ContextMenuContent,
@@ -69,7 +70,7 @@ const MessageBubble = ({ message, mine, kind, onReply, onUnsend }: Props) => {
         : "bg-muted text-foreground border border-border";
 
   const bubble = (
-    <div className={cn("flex", mine ? "justify-end" : "justify-start")}>
+    <div className={cn("flex group/msg", mine ? "justify-end" : "justify-start")}>
       <div className={cn("max-w-[78%] md:max-w-[60%]")}>
         {deleted ? (
           <div className="px-3.5 py-2 rounded-2xl text-sm italic text-muted-foreground bg-muted/60">
@@ -133,6 +134,14 @@ const MessageBubble = ({ message, mine, kind, onReply, onUnsend }: Props) => {
         >
           <span>{time}</span>
           {mine && !deleted && <span>{message.read_at ? "อ่านแล้ว" : "ส่งแล้ว"}</span>}
+          {!mine && !deleted && (
+            <ReportTrigger
+              targetType="message"
+              targetId={message.id}
+              targetOwnerId={message.sender_id}
+              className="opacity-0 group-hover/msg:opacity-100 ml-0.5"
+            />
+          )}
         </div>
       </div>
     </div>

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { ArrowLeft, Eye, ImagePlus, Loader2, Plus, Save, Trash2, Upload, X } from "lucide-react";
+import { ArrowLeft, Eye, ImagePlus, Loader2, Save, Upload, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -24,13 +24,24 @@ import ToolPicker from "@/components/tools/ToolPicker";
 import ProjectPreviewDialog, { type ProjectPreviewData } from "@/components/project/ProjectPreviewDialog";
 import ThirdPartyAssetsToggle from "@/components/license/ThirdPartyAssetsToggle";
 import OriginalWorkAttestation from "@/components/license/OriginalWorkAttestation";
+import { LEGAL_ATTESTATION_VERSION } from "@/lib/legalConfig";
 import { type LicenseType, isLicenseType } from "@/lib/licenses";
 import {
   PortfolioEditorModeToggle,
   type PortfolioEditorMode,
 } from "@/components/project/PortfolioEditorModeToggle";
 import { PortfolioAiAssistPanel } from "@/components/project/PortfolioAiAssistPanel";
+import { GalleryMediaButtons } from "@/components/project/GalleryMediaButtons";
 import { SortableGalleryGrid } from "@/components/project/SortableGalleryGrid";
+import {
+  applyImageOrderToMedia,
+  countMediaByKind,
+  imageUrlsFromMedia,
+  mediaItemFromUrl,
+  mediaItemsFromProject,
+  splitMediaItems,
+  type PortfolioMediaItem,
+} from "@/lib/portfolioMedia";
 import {
   usePortfolioAiAssist,
   type PortfolioAiAssistResult,
@@ -57,8 +68,7 @@ const ProjectEditorPage = () => {
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState<string>("Graphic");
   const [cover, setCover] = useState<string>("");
-  const [gallery, setGallery] = useState<string[]>([]);
-  const [videoUrls, setVideoUrls] = useState<string[]>([]);
+  const [mediaItems, setMediaItems] = useState<PortfolioMediaItem[]>([]);
   const [tools, setTools] = useState<string[]>([]);
   const [tags, setTags] = useState<string[]>([]);
   const [price, setPrice] = useState<string>("");
@@ -116,8 +126,12 @@ const ProjectEditorPage = () => {
       setDescription(existing.description ?? "");
       setCategory(existing.category);
       setCover(existing.cover_url ?? "");
-      setGallery(existing.gallery_urls ?? []);
-      setVideoUrls(((existing as { video_urls?: string[] }).video_urls) ?? []);
+      setMediaItems(
+        mediaItemsFromProject(
+          existing.gallery_urls ?? [],
+          ((existing as { video_urls?: string[] }).video_urls) ?? [],
+        ),
+      );
       setTools(existing.tools ?? []);
       setTags(existing.tags ?? []);
       setPrice(existing.price_thb ? String(existing.price_thb) : "");
@@ -154,7 +168,8 @@ const ProjectEditorPage = () => {
     if (!user) return;
     const arr = Array.from(files);
     const maxGallery = Number.isFinite(limits.galleryImages) ? limits.galleryImages : 20;
-    if (gallery.length + arr.length > maxGallery) {
+    const imageCount = countMediaByKind(mediaItems, "image");
+    if (imageCount + arr.length > maxGallery) {
       toast.error(`รวมแล้วต้องไม่เกิน ${maxGallery} ภาพ`);
       return;
     }
@@ -165,10 +180,8 @@ const ProjectEditorPage = () => {
         const u = await uploadProjectImage(f, user.id, folderRef.current, tier);
         urls.push(u);
       }
-      setGallery((prev) => {
-        const next = [...prev, ...urls];
-        return next;
-      });
+      const added = urls.map(mediaItemFromUrl);
+      setMediaItems((prev) => [...prev, ...added]);
       if (editorMode === "ai" && !cover && urls[0]) {
         setCover(urls[0]);
       }
@@ -180,12 +193,13 @@ const ProjectEditorPage = () => {
     }
   };
 
-  const removeGalleryImage = (index: number) => {
-    setGallery((prev) => {
+  const removeMediaItem = (index: number) => {
+    setMediaItems((prev) => {
       const removed = prev[index];
       const next = prev.filter((_, j) => j !== index);
-      if (removed && cover === removed) {
-        setCover(next[0] ?? "");
+      if (removed?.kind === "image" && removed.url === cover) {
+        const nextCover = next.find((m) => m.kind === "image")?.url ?? "";
+        setCover(nextCover);
       }
       return next;
     });
@@ -194,12 +208,12 @@ const ProjectEditorPage = () => {
   const applyAiField = (field: keyof PortfolioAiAssistResult, result: PortfolioAiAssistResult) => {
     switch (field) {
       case "image_order": {
-        const reordered = result.image_order.map((i) => gallery[i]).filter(Boolean);
-        if (reordered.length === gallery.length) setGallery(reordered);
+        setMediaItems((prev) => applyImageOrderToMedia(prev, result.image_order));
         break;
       }
       case "cover_index": {
-        const url = gallery[result.cover_index];
+        const images = imageUrlsFromMedia(mediaItems);
+        const url = images[result.cover_index];
         if (url) setCover(url);
         break;
       }
@@ -226,10 +240,9 @@ const ProjectEditorPage = () => {
   };
 
   const applyAiAll = (result: PortfolioAiAssistResult) => {
-    const reordered = result.image_order.map((i) => gallery[i]).filter(Boolean);
-    const nextGallery = reordered.length === gallery.length ? reordered : gallery;
-    const coverUrl = gallery[result.cover_index] ?? nextGallery[0] ?? "";
-    setGallery(nextGallery);
+    const images = imageUrlsFromMedia(mediaItems);
+    const coverUrl = images[result.cover_index] ?? images[0] ?? "";
+    setMediaItems((prev) => applyImageOrderToMedia(prev, result.image_order));
     setCover(coverUrl);
     setTitle(result.title);
     setSubtitle(result.subtitle);
@@ -241,7 +254,8 @@ const ProjectEditorPage = () => {
   };
 
   const handleRunAi = async () => {
-    if (gallery.length < 2) {
+    const imageCount = countMediaByKind(mediaItems, "image");
+    if (imageCount < 2) {
       toast.error("ต้องมีอย่างน้อย 2 รูปเพื่อใช้ AI");
       return;
     }
@@ -251,7 +265,7 @@ const ProjectEditorPage = () => {
     }
     try {
       await runAssist({
-        imageUrls: gallery.slice(0, 8),
+        imageUrls: imageUrlsFromMedia(mediaItems).slice(0, 8),
         hint: aiHint,
         categoryHint: category,
       });
@@ -270,14 +284,14 @@ const ProjectEditorPage = () => {
 
   const handleVideo = async (file: File) => {
     if (!user) return;
-    if (videoUrls.length >= limits.videosPerProject) {
+    if (countMediaByKind(mediaItems, "video") >= limits.videosPerProject) {
       toast.error(`แพ็กเกจนี้อัปโหลดวิดีโอได้สูงสุด ${limits.videosPerProject} คลิป/ผลงาน`);
       return;
     }
     setUploadingVideo(true);
     try {
       const url = await uploadProjectVideo(file, user.id, folderRef.current, tier);
-      setVideoUrls((prev) => [...prev, url]);
+      setMediaItems((prev) => [...prev, mediaItemFromUrl(url)]);
       toast.success("อัปโหลดวิดีโอสำเร็จ");
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "อัปโหลดไม่สำเร็จ");
@@ -318,14 +332,16 @@ const ProjectEditorPage = () => {
 
     const rightsAttestedAt = rightsAttested ? new Date().toISOString() : null;
 
+    const { gallery_urls, video_urls } = splitMediaItems(mediaItems);
+
     const payload = {
       title: title.trim(),
       subtitle: subtitle.trim(),
       description: description.trim(),
       category,
       cover_url: cover,
-      gallery_urls: gallery,
-      video_urls: videoUrls,
+      gallery_urls,
+      video_urls,
       tools,
       tags,
       price_thb: price ? Number(price) : null,
@@ -340,6 +356,7 @@ const ProjectEditorPage = () => {
       third_party_note: thirdPartyNote.trim(),
       copyright_holder: copyrightHolder.trim(),
       rights_attested_at: rightsAttestedAt,
+      rights_attestation_version: rightsAttested ? LEGAL_ATTESTATION_VERSION : null,
     };
 
     const parsed = projectSchema.safeParse(payload);
@@ -378,13 +395,26 @@ const ProjectEditorPage = () => {
 
   const cats = categories.filter((c) => c !== "Explore");
   const saving = create.isPending || update.isPending;
+  const canPublish = !!cover && rightsAttested;
+  const publishBlockedReason = !cover
+    ? "ต้องมีภาพปกก่อนเผยแพร่"
+    : !rightsAttested
+      ? "กรุณายืนยันสิทธิ์ในผลงานก่อนเผยแพร่"
+      : undefined;
 
   const handleEditorModeChange = (mode: PortfolioEditorMode) => {
-    if (mode === "ai" && cover && !gallery.includes(cover)) {
-      setGallery((prev) => [cover, ...prev]);
+    if (mode === "ai" && cover) {
+      const images = imageUrlsFromMedia(mediaItems);
+      if (!images.includes(cover)) {
+        setMediaItems((prev) => [mediaItemFromUrl(cover), ...prev]);
+      }
     }
     setEditorMode(mode);
   };
+
+  const imageCount = countMediaByKind(mediaItems, "image");
+  const videoCount = countMediaByKind(mediaItems, "video");
+  const maxGallery = Number.isFinite(limits.galleryImages) ? limits.galleryImages : 20;
 
   const previewData: ProjectPreviewData = {
     title,
@@ -392,7 +422,7 @@ const ProjectEditorPage = () => {
     description,
     category,
     cover,
-    gallery,
+    gallery: mediaItems.map((m) => m.url),
     tools,
     tags,
     price: price ? `฿${Number(price).toLocaleString("th-TH")}` : undefined,
@@ -429,7 +459,13 @@ const ProjectEditorPage = () => {
               {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4 mr-1" />}
               บันทึกฉบับร่าง
             </Button>
-            <Button size="sm" onClick={() => handleSubmit(true)} disabled={saving} className="rounded-full bg-primary text-primary-foreground hover:bg-primary/90">
+            <Button
+              size="sm"
+              onClick={() => handleSubmit(true)}
+              disabled={saving || !canPublish}
+              title={publishBlockedReason}
+              className="rounded-full bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+            >
               เผยแพร่
             </Button>
           </div>
@@ -443,7 +479,7 @@ const ProjectEditorPage = () => {
         <div className="space-y-6">
           {editorMode === "ai" ? (
             <PortfolioAiAssistPanel
-              gallery={gallery}
+              mediaItems={mediaItems}
               coverUrl={cover}
               category={category}
               categories={cats}
@@ -451,11 +487,14 @@ const ProjectEditorPage = () => {
               onHintChange={setAiHint}
               onCategoryChange={setCategory}
               uploadingGallery={uploadingGallery}
+              uploadingVideo={uploadingVideo}
               onPickFiles={handleGallery}
-              onReorder={setGallery}
+              onPickVideo={(f) => void handleVideo(f)}
+              onReorder={setMediaItems}
               onSetCover={setCover}
-              onRemove={removeGalleryImage}
-              maxGallery={Number.isFinite(limits.galleryImages) ? limits.galleryImages : 20}
+              onRemove={removeMediaItem}
+              maxGallery={maxGallery}
+              maxVideos={limits.videosPerProject}
               aiLoading={aiLoading}
               aiResult={aiResult}
               limitReached={aiLimitReached}
@@ -511,29 +550,37 @@ const ProjectEditorPage = () => {
           {/* Gallery — manual mode only (AI mode uses panel above) */}
           {editorMode === "manual" && (
           <section className="space-y-2">
-            <div className="flex items-center justify-between">
-              <Label className="text-sm font-semibold">
-                แกลเลอรีรูปผลงาน ({gallery.length}/{Number.isFinite(limits.galleryImages) ? limits.galleryImages : 20})
-              </Label>
-              <GalleryAddButton
-                disabled={uploadingGallery || gallery.length >= (Number.isFinite(limits.galleryImages) ? limits.galleryImages : 20)}
-                onPick={handleGallery}
+            <div className="flex items-center justify-between gap-2">
+              <div>
+                <Label className="text-sm font-semibold">
+                  แกลเลอรีผลงาน ({imageCount}/{maxGallery} ภาพ
+                  {limits.videosPerProject > 0 ? `, ${videoCount}/${limits.videosPerProject} วิดีโอ` : ""})
+                </Label>
+                <p className="text-xs text-muted-foreground mt-0.5">ลากเพื่อเรียงลำดับ · วิดีโอสูงสุด ~15MB/คลิป</p>
+              </div>
+              <GalleryMediaButtons
+                imageDisabled={uploadingGallery || imageCount >= maxGallery}
+                videoDisabled={uploadingVideo || videoCount >= limits.videosPerProject}
+                uploadingImage={uploadingGallery}
+                uploadingVideo={uploadingVideo}
+                onPickImages={handleGallery}
+                onPickVideo={(f) => void handleVideo(f)}
               />
             </div>
 
-            {gallery.length === 0 ? (
+            {mediaItems.length === 0 ? (
               <GalleryDrop loading={uploadingGallery} onPick={handleGallery} />
             ) : (
               <div className="space-y-3">
                 <SortableGalleryGrid
-                  items={gallery}
+                  items={mediaItems}
                   coverUrl={cover}
-                  onReorder={setGallery}
+                  onReorder={setMediaItems}
                   onSetCover={setCover}
-                  onRemove={removeGalleryImage}
+                  onRemove={removeMediaItem}
                   layout="list"
                 />
-                {uploadingGallery && (
+                {(uploadingGallery || uploadingVideo) && (
                   <div className="rounded-2xl border border-dashed border-border bg-card p-8 flex items-center justify-center text-sm text-muted-foreground">
                     <Loader2 className="w-4 h-4 animate-spin mr-2" /> กำลังอัปโหลด...
                   </div>
@@ -542,38 +589,6 @@ const ProjectEditorPage = () => {
             )}
           </section>
           )}
-
-          {/* Video */}
-          <section className="space-y-2">
-            <Label className="text-sm font-semibold">
-              วิดีโอผลงาน ({videoUrls.length}/{limits.videosPerProject})
-            </Label>
-            <p className="text-xs text-muted-foreground">สั้นๆ สูงสุด ~15MB/คลิป (mp4, webm, mov)</p>
-            {videoUrls.map((url, i) => (
-              <div key={url} className="flex items-center gap-2 rounded-xl border border-border p-2">
-                <video src={url} className="h-16 w-28 rounded-lg object-cover bg-muted" controls />
-                <span className="text-xs text-muted-foreground flex-1 truncate">คลิปที่ {i + 1}</span>
-                <Button size="icon" variant="ghost" onClick={() => setVideoUrls((p) => p.filter((_, j) => j !== i))}>
-                  <Trash2 className="w-4 h-4" />
-                </Button>
-              </div>
-            ))}
-            <label className="inline-flex items-center gap-2 cursor-pointer text-sm text-primary hover:underline">
-              <input
-                type="file"
-                accept="video/mp4,video/webm,video/quicktime"
-                className="hidden"
-                disabled={uploadingVideo || videoUrls.length >= limits.videosPerProject}
-                onChange={(e) => {
-                  const f = e.target.files?.[0];
-                  if (f) void handleVideo(f);
-                  e.target.value = "";
-                }}
-              />
-              {uploadingVideo ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
-              {uploadingVideo ? "กำลังอัปโหลด..." : "เพิ่มวิดีโอ"}
-            </label>
-          </section>
         </div>
 
         {/* Right: sidebar */}
@@ -624,7 +639,6 @@ const ProjectEditorPage = () => {
               <OriginalWorkAttestation
                 checked={rightsAttested}
                 onCheckedChange={setRightsAttested}
-                required={status === "Published"}
               />
             </div>
 
@@ -746,18 +760,6 @@ const GalleryDrop = ({ loading, onPick }: { loading: boolean; onPick: (f: FileLi
       <p className="text-xs text-muted-foreground">เพิ่มได้สูงสุด 20 ภาพ — เรียงลำดับได้ภายหลัง</p>
       <input ref={ref} type="file" accept="image/*" multiple hidden onChange={(e) => e.target.files && onPick(e.target.files)} />
     </div>
-  );
-};
-
-const GalleryAddButton = ({ disabled, onPick }: { disabled: boolean; onPick: (f: FileList) => void }) => {
-  const ref = useRef<HTMLInputElement>(null);
-  return (
-    <>
-      <Button size="sm" variant="outline" className="rounded-full" disabled={disabled} onClick={() => ref.current?.click()}>
-        <Plus className="w-4 h-4 mr-1" /> เพิ่มภาพ
-      </Button>
-      <input ref={ref} type="file" accept="image/*" multiple hidden onChange={(e) => { if (e.target.files) onPick(e.target.files); e.target.value = ""; }} />
-    </>
   );
 };
 

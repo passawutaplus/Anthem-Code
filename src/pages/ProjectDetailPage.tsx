@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, Flag, Share2 } from "lucide-react";
-import ReportDialog from "@/components/report/ReportDialog";
+import { ArrowLeft, Share2 } from "lucide-react";
 import SaveToCollectionPopover from "@/components/collections/SaveToCollectionPopover";
 import { Layers3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -26,6 +25,7 @@ import { truncateDescription } from "@/lib/seo";
 import LicenseDetailBlock from "@/components/license/LicenseDetailBlock";
 import { FadeUp } from "@/components/motion/FadeUp";
 import { staggerReveal, viewportOnce } from "@/lib/motion";
+import { isVideoUrl, mediaItemsFromProject } from "@/lib/portfolioMedia";
 
 const ProjectDetailPage = () => {
   const { id } = useParams();
@@ -83,13 +83,20 @@ const ProjectDetailPage = () => {
     },
   });
 
+  const mediaItems = dbProject
+    ? mediaItemsFromProject(
+        dbProject.gallery_urls ?? [],
+        ((dbProject as { video_urls?: string[] }).video_urls) ?? [],
+      )
+    : [];
+
   const project = dbProject
     ? {
         id: dbProject.id,
         title: dbProject.title,
         gallery:
-          dbProject.gallery_urls && dbProject.gallery_urls.length > 0
-            ? dbProject.gallery_urls
+          mediaItems.length > 0
+            ? mediaItems.map((m) => m.url)
             : dbProject.cover_url
               ? [dbProject.cover_url]
               : [],
@@ -112,7 +119,6 @@ const ProjectDetailPage = () => {
         copyrightHolder: dbProject.copyright_holder ?? "",
         hasThirdPartyAssets: dbProject.has_third_party_assets ?? false,
         thirdPartyNote: dbProject.third_party_note ?? "",
-        videos: ((dbProject as { video_urls?: string[] }).video_urls ?? []).filter(Boolean),
       }
     : null;
 
@@ -148,7 +154,10 @@ const ProjectDetailPage = () => {
     }
   };
 
-  const coverImage = project.gallery[0] ?? "";
+  const coverImage =
+    dbProject?.cover_url ??
+    project.gallery.find((url) => !isVideoUrl(url)) ??
+    "";
 
   return (
     <div className="min-h-screen bg-app-ambient">
@@ -184,17 +193,6 @@ const ProjectDetailPage = () => {
             <Button variant="ghost" size="icon" onClick={handleShare}>
               <Share2 className="w-5 h-5" />
             </Button>
-            {dbProject?.id && (
-              <ReportDialog
-                targetType="project"
-                targetId={dbProject.id}
-                targetOwnerId={dbProject.owner_id}
-              >
-                <Button variant="ghost" size="icon" aria-label="รายงานผลงาน">
-                  <Flag className="w-5 h-5" />
-                </Button>
-              </ReportDialog>
-            )}
           </div>
         </div>
       </div>
@@ -212,26 +210,10 @@ const ProjectDetailPage = () => {
               />
             )}
             {project.gallery.length > 0 ? (
-              <GalleryWithLightbox images={project.gallery} project={project} />
+              <GalleryWithLightbox items={mediaItems} project={project} />
             ) : (
               <div className="aspect-video rounded-2xl bg-muted flex items-center justify-center text-muted-foreground">
                 ยังไม่มีรูปภาพ
-              </div>
-            )}
-            {project.videos.length > 0 && (
-              <div className="space-y-2">
-                <p className="text-sm font-medium text-foreground">วิดีโอ</p>
-                <div className="grid gap-3">
-                  {project.videos.map((src) => (
-                    <video
-                      key={src}
-                      src={src}
-                      controls
-                      playsInline
-                      className="w-full rounded-2xl bg-black max-h-[480px]"
-                    />
-                  ))}
-                </div>
               </div>
             )}
           </div>
@@ -304,35 +286,52 @@ const ProjectDetailPage = () => {
 
 
 type GalleryProject = { id: string; title: string };
-const GalleryWithLightbox = ({ images, project }: { images: string[]; project: GalleryProject }) => {
+const GalleryWithLightbox = ({
+  items,
+  project,
+}: {
+  items: ReturnType<typeof mediaItemsFromProject>;
+  project: GalleryProject;
+}) => {
   const [lightboxSrc, setLightboxSrc] = useState<string | null>(null);
   const imgIndex = (i: number) =>
     project.id.split("").reduce((a, c) => a + c.charCodeAt(0), 0) + i;
   return (
     <>
-      {images.map((src, i) => (
+      {items.map((item, i) => (
         <motion.div
-          key={src + i}
+          key={item.id}
           className="relative group"
           initial={{ opacity: 0, y: 18 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={viewportOnce}
           transition={staggerReveal(i)}
         >
-          <SafeDemoImage
-            src={src}
-            index={imgIndex(i)}
-            alt={`${project.title} ${i + 1}`}
-            onClick={() => setLightboxSrc(src)}
-            className="w-full rounded-2xl border border-border/60 bg-card object-contain cursor-zoom-in"
-            loading="lazy"
-          />
-          <ImageActionBar
-            projectId={project.id}
-            projectTitle={project.title}
-            imageUrl={src}
-            imageIndex={i}
-          />
+          {item.kind === "video" ? (
+            <video
+              src={item.url}
+              controls
+              playsInline
+              className="w-full rounded-2xl border border-border/60 bg-black max-h-[480px]"
+            />
+          ) : (
+            <>
+              <SafeDemoImage
+                src={item.url}
+                index={imgIndex(i)}
+                alt={`${project.title} ${i + 1}`}
+                onClick={() => setLightboxSrc(item.url)}
+                className="w-full rounded-2xl border border-border/60 bg-card object-contain cursor-zoom-in"
+                loading="lazy"
+              />
+              <ImageActionBar
+                projectId={project.id}
+                projectTitle={project.title}
+                imageUrl={item.url}
+                imageIndex={i}
+              />
+            </>
+          )}
         </motion.div>
       ))}
       <ImageLightbox

@@ -19,8 +19,18 @@ const STATUS_LABEL: Record<string, string> = {
   dismissed: "ยกคำร้อง",
 };
 
-const targetLink = (t: string, id: string) =>
-  t === "project" ? `/project/${id}` : t === "user" ? `/u/${id}` : "#";
+const targetLink = (t: string, id: string) => {
+  switch (t) {
+    case "project":
+      return `/project/${id}`;
+    case "user":
+      return `/u/${id}`;
+    case "job":
+      return `/jobs/${id}`;
+    default:
+      return "#";
+  }
+};
 
 const MyReportsPage = () => {
   const { data: rows = [], isLoading } = useMyReports();

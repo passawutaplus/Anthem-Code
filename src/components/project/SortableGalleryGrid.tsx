@@ -17,8 +17,9 @@ import {
   useSortable,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { ArrowDown, ArrowUp, GripVertical, Star, Trash2 } from "lucide-react";
+import { ArrowDown, ArrowUp, Film, GripVertical, Star, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import type { PortfolioMediaItem } from "@/lib/portfolioMedia";
 import { cn } from "@/lib/utils";
 
 const REORDER_HINT_KEY = "anthem-gallery-reorder-hint-seen";
@@ -26,9 +27,9 @@ const REORDER_HINT_KEY = "anthem-gallery-reorder-hint-seen";
 export type GalleryLayout = "grid" | "list";
 
 interface SortableGalleryGridProps {
-  items: string[];
+  items: PortfolioMediaItem[];
   coverUrl: string;
-  onReorder: (items: string[]) => void;
+  onReorder: (items: PortfolioMediaItem[]) => void;
   onSetCover: (url: string) => void;
   onRemove: (index: number) => void;
   layout?: GalleryLayout;
@@ -71,8 +72,8 @@ export function SortableGalleryGrid({
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     if (!over || active.id === over.id) return;
-    const oldIndex = items.indexOf(String(active.id));
-    const newIndex = items.indexOf(String(over.id));
+    const oldIndex = items.findIndex((m) => m.id === active.id);
+    const newIndex = items.findIndex((m) => m.id === over.id);
     if (oldIndex < 0 || newIndex < 0) return;
     onReorder(arrayMove(items, oldIndex, newIndex));
     dismissHint();
@@ -90,11 +91,11 @@ export function SortableGalleryGrid({
     <div className="space-y-2">
       {showHint && (
         <p className="text-xs text-muted-foreground bg-muted/50 rounded-lg px-3 py-2">
-          จิ้มค้างแล้วลากเพื่อสลับลำดับ · กดดาวเพื่อตั้งเป็นภาพปก
+          จิ้มค้างแล้วลากเพื่อสลับลำดับ · กดดาวเพื่อตั้งภาพปก (เฉพาะรูป)
         </p>
       )}
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-        <SortableContext items={items} strategy={rectSortingStrategy}>
+        <SortableContext items={items.map((m) => m.id)} strategy={rectSortingStrategy}>
           <div
             className={cn(
               layout === "grid"
@@ -102,16 +103,15 @@ export function SortableGalleryGrid({
                 : "space-y-3",
             )}
           >
-            {items.map((src, i) => (
+            {items.map((item, i) => (
               <SortableThumb
-                key={src}
-                id={src}
-                src={src}
+                key={item.id}
+                item={item}
                 index={i}
-                isCover={coverUrl === src}
+                isCover={item.kind === "image" && coverUrl === item.url}
                 layout={layout}
                 total={items.length}
-                onSetCover={() => onSetCover(src)}
+                onSetCover={() => onSetCover(item.url)}
                 onRemove={() => onRemove(i)}
                 onMoveUp={() => move(i, -1)}
                 onMoveDown={() => move(i, 1)}
@@ -125,8 +125,7 @@ export function SortableGalleryGrid({
 }
 
 function SortableThumb({
-  id,
-  src,
+  item,
   index,
   isCover,
   layout,
@@ -136,8 +135,7 @@ function SortableThumb({
   onMoveUp,
   onMoveDown,
 }: {
-  id: string;
-  src: string;
+  item: PortfolioMediaItem;
   index: number;
   isCover: boolean;
   layout: GalleryLayout;
@@ -147,12 +145,16 @@ function SortableThumb({
   onMoveUp: () => void;
   onMoveDown: () => void;
 }) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: item.id,
+  });
 
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
   };
+
+  const label = item.kind === "video" ? `วิดีโอ ${index + 1}` : `ภาพที่ ${index + 1}`;
 
   if (layout === "list") {
     return (
@@ -164,18 +166,25 @@ function SortableThumb({
           isDragging && "opacity-60 shadow-lg z-10",
         )}
       >
-        <img src={src} alt={`ภาพที่ ${index + 1}`} className="w-full max-h-[600px] object-contain bg-muted/30" loading="lazy" />
+        {item.kind === "video" ? (
+          <video src={item.url} className="w-full max-h-[600px] object-contain bg-black" controls playsInline />
+        ) : (
+          <img src={item.url} alt={label} className="w-full max-h-[600px] object-contain bg-muted/30" loading="lazy" />
+        )}
         <div className="absolute top-2 left-2 flex items-center gap-1 bg-background/80 backdrop-blur-sm rounded-full px-2 py-1 text-xs">
           <button type="button" className="touch-none cursor-grab active:cursor-grabbing" {...attributes} {...listeners}>
             <GripVertical className="w-3 h-3" />
           </button>
-          ภาพที่ {index + 1}
+          {item.kind === "video" && <Film className="w-3 h-3 text-muted-foreground" />}
+          {label}
           {isCover && <span className="text-primary font-semibold ml-1">· ปก</span>}
         </div>
         <div className="absolute top-2 right-2 flex items-center gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
-          <Button size="icon" variant="secondary" className="h-8 w-8 rounded-full" onClick={onSetCover} title="ตั้งเป็นภาพปก">
-            <Star className={cn("w-4 h-4", isCover && "fill-primary text-primary")} />
-          </Button>
+          {item.kind === "image" && (
+            <Button size="icon" variant="secondary" className="h-8 w-8 rounded-full" onClick={onSetCover} title="ตั้งเป็นภาพปก">
+              <Star className={cn("w-4 h-4", isCover && "fill-primary text-primary")} />
+            </Button>
+          )}
           <Button size="icon" variant="secondary" className="h-8 w-8 rounded-full" onClick={onMoveUp} disabled={index === 0}>
             <ArrowUp className="w-4 h-4" />
           </Button>
@@ -200,7 +209,16 @@ function SortableThumb({
         isDragging && "opacity-60 shadow-lg z-10",
       )}
     >
-      <img src={src} alt={`ภาพที่ ${index + 1}`} className="w-full h-full object-cover" loading="lazy" />
+      {item.kind === "video" ? (
+        <>
+          <video src={item.url} className="w-full h-full object-cover bg-black" muted playsInline />
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <Film className="w-8 h-8 text-white/90 drop-shadow" />
+          </div>
+        </>
+      ) : (
+        <img src={item.url} alt={label} className="w-full h-full object-cover" loading="lazy" />
+      )}
       <button
         type="button"
         className="absolute top-1.5 left-1.5 p-1 rounded-md bg-background/80 backdrop-blur-sm touch-none cursor-grab active:cursor-grabbing"
@@ -214,10 +232,17 @@ function SortableThumb({
           ปก
         </span>
       )}
+      {item.kind === "video" && !isCover && (
+        <span className="absolute top-1.5 right-1.5 text-[10px] font-semibold bg-black/70 text-white px-1.5 py-0.5 rounded-full">
+          วิดีโอ
+        </span>
+      )}
       <div className="absolute bottom-0 inset-x-0 flex justify-center gap-0.5 p-1.5 bg-gradient-to-t from-black/60 to-transparent opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
-        <Button size="icon" variant="secondary" className="h-7 w-7 rounded-full" onClick={onSetCover} title="ตั้งเป็นภาพปก">
-          <Star className={cn("w-3.5 h-3.5", isCover && "fill-primary text-primary")} />
-        </Button>
+        {item.kind === "image" && (
+          <Button size="icon" variant="secondary" className="h-7 w-7 rounded-full" onClick={onSetCover} title="ตั้งเป็นภาพปก">
+            <Star className={cn("w-3.5 h-3.5", isCover && "fill-primary text-primary")} />
+          </Button>
+        )}
         <Button size="icon" variant="destructive" className="h-7 w-7 rounded-full" onClick={onRemove}>
           <Trash2 className="w-3.5 h-3.5" />
         </Button>

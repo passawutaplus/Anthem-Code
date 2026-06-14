@@ -6,7 +6,6 @@ import {
   ArrowLeft,
   Building2,
   FileText,
-  Flag,
   Handshake,
   Info,
   Users,
@@ -25,7 +24,7 @@ import {
 } from "@/hooks/useChat";
 import MessageBubble, { DateSeparator } from "@/components/chat/MessageBubble";
 import ChatComposer from "@/components/chat/ChatComposer";
-import ReportDialog from "@/components/report/ReportDialog";
+import ReportTrigger from "@/components/report/ReportTrigger";
 import { tierLabel } from "@/lib/tierMembership";
 import type { PlanId } from "@/data/plans";
 import { isSameDay } from "date-fns";
@@ -250,11 +249,7 @@ const ChatThreadView = ({
 
         <div className="flex items-center gap-1 shrink-0">
           {!isGroup && otherId && (
-            <ReportDialog targetType="user" targetId={otherId} targetOwnerId={otherId}>
-              <Button variant="ghost" size="icon" className="rounded-full h-8 w-8" aria-label="รายงาน">
-                <Flag className="w-4 h-4" />
-              </Button>
-            </ReportDialog>
+            <ReportTrigger targetType="user" targetId={otherId} targetOwnerId={otherId} />
           )}
           <Button
             type="button"

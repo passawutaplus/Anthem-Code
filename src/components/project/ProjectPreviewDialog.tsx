@@ -9,6 +9,7 @@ import ToolsGrid from "@/components/ToolsGrid";
 import SafeDemoImage from "@/components/SafeDemoImage";
 import { supabase } from "@/integrations/supabase/client";
 import type { LicenseType } from "@/lib/licenses";
+import { isVideoUrl } from "@/lib/portfolioMedia";
 import { toast } from "sonner";
 
 export interface ProjectPreviewData {
@@ -87,16 +88,26 @@ const ProjectPreviewDialog = ({ open, onOpenChange, data, ownerId }: Props) => {
                   <p className="text-sm text-muted-foreground">{data.subtitle.trim()}</p>
                 )}
                 {images.length > 0 ? (
-                  images.map((src, i) => (
-                    <SafeDemoImage
-                      key={src + i}
-                      src={src}
-                      index={i}
-                      alt={`${displayTitle} ${i + 1}`}
-                      className="w-full rounded-2xl border border-border/60 bg-card object-contain"
-                      loading="lazy"
-                    />
-                  ))
+                  images.map((src, i) =>
+                    isVideoUrl(src) ? (
+                      <video
+                        key={src + i}
+                        src={src}
+                        controls
+                        playsInline
+                        className="w-full rounded-2xl border border-border/60 bg-black max-h-[480px]"
+                      />
+                    ) : (
+                      <SafeDemoImage
+                        key={src + i}
+                        src={src}
+                        index={i}
+                        alt={`${displayTitle} ${i + 1}`}
+                        className="w-full rounded-2xl border border-border/60 bg-card object-contain"
+                        loading="lazy"
+                      />
+                    ),
+                  )
                 ) : (
                   <div className="aspect-video rounded-2xl bg-muted flex items-center justify-center text-sm text-muted-foreground">
                     ยังไม่มีรูปภาพ — อัปโหลดภาพปกหรือแกลเลอรีเพื่อดูพรีวิว

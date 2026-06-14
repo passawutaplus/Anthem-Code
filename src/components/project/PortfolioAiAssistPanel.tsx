@@ -1,17 +1,19 @@
 import { useRef, useState } from "react";
-import { Loader2, Plus, Sparkles, Upload } from "lucide-react";
+import { Loader2, Sparkles, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { GalleryMediaButtons } from "@/components/project/GalleryMediaButtons";
 import { SortableGalleryGrid } from "@/components/project/SortableGalleryGrid";
 import { ANTHEM_PORTFOLIO_FROM_IMAGES_CREDITS } from "@/lib/aiFeatureCredits";
 import { SO1O_PRICING_URL } from "@/lib/productLinks";
+import { countMediaByKind, type PortfolioMediaItem } from "@/lib/portfolioMedia";
 import type { PortfolioAiAssistResult } from "@/hooks/usePortfolioAiAssist";
 import { cn } from "@/lib/utils";
 
 interface PortfolioAiAssistPanelProps {
-  gallery: string[];
+  mediaItems: PortfolioMediaItem[];
   coverUrl: string;
   category: string;
   categories: string[];
@@ -19,11 +21,14 @@ interface PortfolioAiAssistPanelProps {
   onHintChange: (v: string) => void;
   onCategoryChange: (v: string) => void;
   uploadingGallery: boolean;
+  uploadingVideo: boolean;
   onPickFiles: (files: FileList | File[]) => void;
-  onReorder: (items: string[]) => void;
+  onPickVideo: (file: File) => void;
+  onReorder: (items: PortfolioMediaItem[]) => void;
   onSetCover: (url: string) => void;
   onRemove: (index: number) => void;
   maxGallery: number;
+  maxVideos: number;
   aiLoading: boolean;
   aiResult: PortfolioAiAssistResult | null;
   limitReached: boolean;
@@ -34,7 +39,7 @@ interface PortfolioAiAssistPanelProps {
 }
 
 export function PortfolioAiAssistPanel({
-  gallery,
+  mediaItems,
   coverUrl,
   category,
   categories,
@@ -42,11 +47,14 @@ export function PortfolioAiAssistPanel({
   onHintChange,
   onCategoryChange,
   uploadingGallery,
+  uploadingVideo,
   onPickFiles,
+  onPickVideo,
   onReorder,
   onSetCover,
   onRemove,
   maxGallery,
+  maxVideos,
   aiLoading,
   aiResult,
   limitReached,
@@ -57,8 +65,11 @@ export function PortfolioAiAssistPanel({
 }: PortfolioAiAssistPanelProps) {
   const fileRef = useRef<HTMLInputElement>(null);
   const [drag, setDrag] = useState(false);
-  const canRunAi = gallery.length >= 2 && !aiLoading && !limitReached;
-  const atMax = gallery.length >= maxGallery;
+  const imageCount = countMediaByKind(mediaItems, "image");
+  const videoCount = countMediaByKind(mediaItems, "video");
+  const canRunAi = imageCount >= 2 && !aiLoading && !limitReached;
+  const atMaxImages = imageCount >= maxGallery;
+  const atMaxVideos = videoCount >= maxVideos;
 
   return (
     <section className="space-y-4 rounded-2xl border border-primary/20 bg-primary/5 p-4 sm:p-5">
@@ -72,7 +83,7 @@ export function PortfolioAiAssistPanel({
         </p>
       </div>
 
-      {gallery.length === 0 ? (
+      {mediaItems.length === 0 ? (
         <div
           onDragOver={(e) => { e.preventDefault(); setDrag(true); }}
           onDragLeave={() => setDrag(false)}
@@ -107,38 +118,26 @@ export function PortfolioAiAssistPanel({
         <div className="space-y-3">
           <div className="flex items-center justify-between gap-2">
             <Label className="text-sm font-semibold">
-              รูปผลงาน ({gallery.length}/{maxGallery})
+              แกลเลอรีผลงาน ({imageCount} ภาพ{videoCount > 0 ? `, ${videoCount} วิดีโอ` : ""})
             </Label>
-            <Button
-              size="sm"
-              variant="outline"
-              className="rounded-full"
-              disabled={uploadingGallery || atMax}
-              onClick={() => fileRef.current?.click()}
-            >
-              <Plus className="w-4 h-4 mr-1" /> เพิ่มภาพ
-            </Button>
-            <input
-              ref={fileRef}
-              type="file"
-              accept="image/*"
-              multiple
-              hidden
-              onChange={(e) => {
-                if (e.target.files) onPickFiles(e.target.files);
-                e.target.value = "";
-              }}
+            <GalleryMediaButtons
+              imageDisabled={atMaxImages}
+              videoDisabled={atMaxVideos}
+              uploadingImage={uploadingGallery}
+              uploadingVideo={uploadingVideo}
+              onPickImages={(files) => onPickFiles(files)}
+              onPickVideo={onPickVideo}
             />
           </div>
           <SortableGalleryGrid
-            items={gallery}
+            items={mediaItems}
             coverUrl={coverUrl}
             onReorder={onReorder}
             onSetCover={onSetCover}
             onRemove={onRemove}
             layout="grid"
           />
-          {uploadingGallery && (
+          {(uploadingGallery || uploadingVideo) && (
             <div className="text-sm text-muted-foreground flex items-center gap-2">
               <Loader2 className="w-4 h-4 animate-spin" /> กำลังอัปโหลด...
             </div>
@@ -182,7 +181,7 @@ export function PortfolioAiAssistPanel({
           )}
           ให้ AI ช่วยเติม · {ANTHEM_PORTFOLIO_FROM_IMAGES_CREDITS} เครดิต
         </Button>
-        {gallery.length === 1 && (
+        {imageCount === 1 && (
           <p className="text-xs text-muted-foreground">เพิ่มอีก 1 รูปเพื่อใช้ AI</p>
         )}
         {limitReached && (

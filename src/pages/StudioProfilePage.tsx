@@ -13,6 +13,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { requireAuth } from "@/lib/requireAuth";
 import SeoHead from "@/components/SeoHead";
 import { truncateDescription } from "@/lib/seo";
+import ReportTrigger from "@/components/report/ReportTrigger";
 
 const StudioProfilePage = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -72,13 +73,18 @@ const StudioProfilePage = () => {
                 )}
               </div>
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-2 items-center">
               <Button
                 onClick={() => requireAuth(user, () => navigate(`/chat?studio=${studio.id}`))}
                 className="rounded-xl bg-gradient-brand text-white border-0"
               >
                 จ้าง Studio
               </Button>
+              <ReportTrigger
+                targetType="studio"
+                targetId={studio.id}
+                targetOwnerId={studio.created_by}
+              />
             </div>
           </div>
         </div>

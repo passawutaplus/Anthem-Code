@@ -1,25 +1,12 @@
 import { useMemo } from "react";
 import { useMyProjects, usePublishedProjects } from "@/hooks/useProjects";
+import { COMMON_TOOLS } from "@/lib/toolIcons";
 
 const USER_WEIGHT = 4;
 const PLATFORM_WEIGHT = 1;
 const MAX_SUGGESTIONS = 30;
 
-export const COMMON_TOOLS = [
-  "Figma",
-  "Photoshop",
-  "Illustrator",
-  "Procreate",
-  "Blender",
-  "After Effects",
-  "Premiere",
-  "Canva",
-  "Lightroom",
-  "CapCut",
-  "Notion",
-  "React",
-  "Tailwind",
-] as const;
+export { COMMON_TOOLS };
 
 function normalizeTool(raw: string): string {
   return raw.trim().toLowerCase();

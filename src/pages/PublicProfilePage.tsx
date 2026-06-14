@@ -1,7 +1,7 @@
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
-import { ArrowLeft, Globe, Instagram, Facebook, MessageSquare, Flag, UserX } from "lucide-react";
+import { ArrowLeft, Globe, Instagram, Facebook, MessageSquare, UserX } from "lucide-react";
 import PageLoader from "@/components/ui/PageLoader";
 import EmptyState from "@/components/ui/EmptyState";
 import { Button } from "@/components/ui/button";
@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import FollowButton from "@/components/FollowButton";
 import SupportButton from "@/components/gifting/SupportButton";
-import ReportDialog from "@/components/report/ReportDialog";
+import ReportTrigger from "@/components/report/ReportTrigger";
 
 import { useFollowState } from "@/hooks/useFollow";
 import { usePublicCollections } from "@/hooks/useCollections";
@@ -224,6 +224,15 @@ const PublicProfilePage = () => {
                 </div>
               )}
 
+              <div className="mt-3">
+                <ReportTrigger
+                  targetType="user"
+                  targetId={profile.id}
+                  targetOwnerId={profile.id}
+                  variant="text"
+                />
+              </div>
+
             </div>
 
             <div className="flex flex-col gap-2 shrink-0">
@@ -234,11 +243,6 @@ const PublicProfilePage = () => {
                 recipientAvatar={profile.avatar_url ?? undefined}
                 variant="compact"
               />
-              <ReportDialog targetType="user" targetId={profile.id} targetOwnerId={profile.id}>
-                <Button variant="ghost" size="sm" className="text-xs text-muted-foreground hover:text-destructive gap-1">
-                  <Flag className="w-3.5 h-3.5" /> รายงาน
-                </Button>
-              </ReportDialog>
             </div>
           </div>
         </div>

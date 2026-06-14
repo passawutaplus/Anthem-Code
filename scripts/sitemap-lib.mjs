@@ -21,6 +21,7 @@ export const STATIC_PATHS = [
   { loc: "/legal/terms", priority: "0.3", changefreq: "monthly" },
   { loc: "/legal/cookies", priority: "0.2", changefreq: "monthly" },
   { loc: "/legal/rights", priority: "0.2", changefreq: "monthly" },
+  { loc: "/legal/ip", priority: "0.3", changefreq: "monthly" },
 ];
 
 /** Routes that must never appear in the public sitemap. */

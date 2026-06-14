@@ -15,7 +15,11 @@ export const LEGAL_COMPANY_NAME =
   (import.meta.env.VITE_LEGAL_COMPANY_NAME as string | undefined) ?? BRAND_COMPANY;
 
 export const LEGAL_UPDATED_AT =
-  (import.meta.env.VITE_LEGAL_UPDATED_AT as string | undefined) ?? "31 พฤษภาคม 2026";
+  (import.meta.env.VITE_LEGAL_UPDATED_AT as string | undefined) ?? "14 มิถุนายน 2026";
+
+/** รุ่นข้อความคำแถลการยืนยันลิขสิทธิ์ — เก็บใน projects.rights_attestation_version */
+export const LEGAL_ATTESTATION_VERSION =
+  (import.meta.env.VITE_LEGAL_ATTESTATION_VERSION as string | undefined) ?? "2026-06-14";
 
 export const LEGAL_DPO_EMAIL =
   (import.meta.env.VITE_LEGAL_DPO_EMAIL as string | undefined) ?? BRAND_PRIVACY_EMAIL;

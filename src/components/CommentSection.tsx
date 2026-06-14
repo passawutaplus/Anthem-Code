@@ -8,6 +8,7 @@ import { commentSchema } from "@/lib/validators";
 import { toast } from "sonner";
 import { formatThaiDate } from "@/lib/format";
 import { useAuthDialog } from "@/stores/authDialogStore";
+import ReportTrigger from "@/components/report/ReportTrigger";
 
 interface Props {
   projectId: string | undefined;
@@ -97,7 +98,7 @@ const CommentSection = ({ projectId }: Props) => {
               <div className="flex items-center gap-2 flex-wrap">
                 <p className="text-sm font-semibold text-foreground">{c.profile?.display_name ?? "ผู้ใช้"}</p>
                 <span className="text-xs text-muted-foreground">{formatThaiDate(c.created_at)}</span>
-                {user?.id === c.user_id && (
+                {user?.id === c.user_id ? (
                   <button
                     onClick={() => deleteMut.mutate({ id: c.id, project_id: c.project_id })}
                     className="ml-auto text-muted-foreground hover:text-destructive transition-colors"
@@ -105,6 +106,15 @@ const CommentSection = ({ projectId }: Props) => {
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
+                ) : (
+                  user && (
+                    <ReportTrigger
+                      targetType="comment"
+                      targetId={c.id}
+                      targetOwnerId={c.user_id}
+                      className="ml-auto"
+                    />
+                  )
                 )}
               </div>
               <p className="text-sm text-foreground/90 mt-1 whitespace-pre-wrap break-words">{c.content}</p>

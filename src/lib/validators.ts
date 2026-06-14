@@ -99,6 +99,7 @@ export const projectSchema = z.object({
   third_party_note: z.string().trim().max(300).optional().default(""),
   copyright_holder: z.string().trim().max(120).optional().default(""),
   rights_attested_at: z.string().datetime().nullable().optional(),
+  rights_attestation_version: z.string().trim().max(32).nullable().optional(),
 });
 
 export type ProjectInput = z.infer<typeof projectSchema>;

@@ -37,6 +37,11 @@
     <priority>0.2</priority>
   </url>
   <url>
+    <loc>https://1px.app/legal/ip</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
     <loc>https://1px.app/project/00000000-0000-0000-0002-000000000000</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>

@@ -36,6 +36,8 @@ const targetLink = (r: ReportRow) => {
       return `/project/${r.target_id}`;
     case "user":
       return `/u/${r.target_id}`;
+    case "job":
+      return `/jobs/${r.target_id}`;
     case "studio":
       return `/admin/studios`;
     default:

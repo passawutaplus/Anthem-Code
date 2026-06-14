@@ -1,13 +1,13 @@
 import { Link, useNavigate } from "react-router-dom";
 import { exploreProjectsUrl } from "@/lib/exploreRoutes";
-import { Heart, Layers3, Eye, MessageCircle, Sparkles, Calendar, Handshake, Flag } from "lucide-react";
+import { Heart, Layers3, Eye, MessageCircle, Sparkles, Calendar, Handshake } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import ToolsGrid from "@/components/ToolsGrid";
 import FollowButton from "@/components/FollowButton";
 import SaveToCollectionPopover from "@/components/collections/SaveToCollectionPopover";
 import SupportButton from "@/components/gifting/SupportButton";
-import ReportDialog from "@/components/report/ReportDialog";
+import ReportTrigger from "@/components/report/ReportTrigger";
 import { formatThaiDate, formatCompact } from "@/lib/format";
 
 
@@ -45,15 +45,11 @@ const ProjectSidePanel = (p: Props) => {
             <Sparkles className="w-3 h-3 mr-1" /> {p.category}
           </Badge>
           {p.projectId && p.ownerId && (
-            <ReportDialog targetType="project" targetId={p.projectId} targetOwnerId={p.ownerId}>
-              <button
-                type="button"
-                aria-label="รายงานผลงาน"
-                className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-destructive transition-colors"
-              >
-                <Flag className="w-3.5 h-3.5" /> รายงาน
-              </button>
-            </ReportDialog>
+            <ReportTrigger
+              targetType="project"
+              targetId={p.projectId}
+              targetOwnerId={p.ownerId}
+            />
           )}
         </div>
         <h1 className="text-2xl font-medium text-foreground leading-tight">{p.title}</h1>
