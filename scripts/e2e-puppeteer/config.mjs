@@ -49,7 +49,7 @@ export const cookieConsentState = {
 
 export function getDemoAccount() {
   return {
-    email: process.env.E2E_DEMO_EMAIL ?? "phatsawut@demo.an1hem.app",
-    password: process.env.E2E_DEMO_PASSWORD ?? "an1hem-demo-seed",
+    email: process.env.E2E_DEMO_EMAIL ?? "phatsawut@demo.pixel100.com",
+    password: process.env.E2E_DEMO_PASSWORD ?? "pixel100-demo-seed",
   };
 }

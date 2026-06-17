@@ -21,4 +21,4 @@ Disallow: /portfolio/manage
 Disallow: /earnings
 Disallow: /verify
 
-Sitemap: https://1px.app/sitemap.xml
+Sitemap: https://pixel100.com/sitemap.xml

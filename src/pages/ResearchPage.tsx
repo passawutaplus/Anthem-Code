@@ -75,7 +75,7 @@ export default function ResearchPage() {
               <li key={bullet}>{bullet}</li>
             ))}
             <li>
-              ใช้บัญชี <code className="text-xs bg-muted px-1 rounded">*@demo.an1hem.app</code> เท่านั้น
+              ใช้บัญชี <code className="text-xs bg-muted px-1 rounded">*@demo.pixel100.com</code> เท่านั้น
             </li>
             {demo && (
               <li className="text-primary font-medium">โหมดทดสอบเปิดอยู่ — แถบด้านบนจะแสดงตลอด</li>
@@ -90,7 +90,7 @@ export default function ResearchPage() {
           </h2>
           <p className="text-sm text-muted-foreground">
             รหัสผ่านทุกบัญชี:{" "}
-            <code className="bg-muted px-1.5 py-0.5 rounded text-xs">{getDemoPassword() || "an1hem-demo-seed"}</code>
+            <code className="bg-muted px-1.5 py-0.5 rounded text-xs">{getDemoPassword() || "pixel100-demo-seed"}</code>
           </p>
           <div className="grid gap-3">
             {RESEARCH_PERSONAS.map((acc) => (

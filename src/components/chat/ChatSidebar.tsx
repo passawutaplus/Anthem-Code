@@ -274,7 +274,7 @@ const ChatSidebar = ({
                 ข้อมูล demo 5 แชทอยู่ที่บัญชี{" "}
                 <span className="font-medium">{DEMO_RESEARCH_ACCOUNTS[0].email}</span>
                 <br />
-                ออกจากระบบแล้วล็อกอินใหม่ด้วยรหัส <span className="font-mono">an1hem-demo-seed</span>
+                ออกจากระบบแล้วล็อกอินใหม่ด้วยรหัส <span className="font-mono">pixel100-demo-seed</span>
               </p>
             )}
           </div>

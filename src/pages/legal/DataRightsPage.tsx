@@ -5,6 +5,7 @@ import { requestOpenCookiePreferences } from "@/lib/cookieConsent";
 import {
   LEGAL_APP_NAME,
   LEGAL_DPO_EMAIL,
+  LEGAL_SOLO_NAME,
   LEGAL_SUPPORT_EMAIL,
 } from "@/lib/legalConfig";
 import { useAuth } from "@/hooks/useAuth";
@@ -60,10 +61,13 @@ const DataRightsPage = () => {
     <LegalLayout title="สิทธิของเจ้าของข้อมูล (PDPA)">
       <p>
         ตาม พ.ร.บ. คุ้มครองข้อมูลส่วนบุคคล (PDPA) ม.39 คุณมีสิทธิเกี่ยวกับข้อมูลของตนเองบน {LEGAL_APP_NAME}
-        หน้านี้สรุปวิธีใช้สิทธิและช่องทางติดต่อ — เขียนให้เข้าใจง่าย
-      </p>
+      หน้านี้สรุปวิธีใช้สิทธิและช่องทางติดต่อ — เขียนให้เข้าใจง่าย
+    </p>
+    <p className="text-sm text-muted-foreground">
+      บัญชี {LEGAL_APP_NAME} ทำงานคู่กับ {LEGAL_SOLO_NAME} — การลบข้อมูลอาจกระทบทั้ง ecosystem ติดต่อ DPO ก่อนดำเนินการ
+    </p>
 
-      <h2>1. สิทธิที่คุณมี (PDPA ม.39)</h2>
+    <h2>1. สิทธิที่คุณมี (PDPA ม.39)</h2>
       <div className="not-prose space-y-3 my-4">
         {rights.map((r) => (
           <div key={r.title} className="rounded-xl border border-border/60 p-3 space-y-0.5">

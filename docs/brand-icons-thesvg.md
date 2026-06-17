@@ -57,8 +57,21 @@ curl -sI "https://thesvg.org/icons/figma/default.svg" | head -1
 
 ## เครื่องมือที่ยังไม่มีบน theSVG
 
-Catalog ยังเก็บชื่อเหล่านี้ไว้ แต่จะ fallback เป็น **อักษรย่อ** จนกว่า theSVG จะมีไอคอน:
+Catalog ยังเก็บชื่อเหล่านี้ไว้ — ใช้ไฟล์ใน [`public/tool-icons/`](../public/tool-icons/) ก่อน แล้ว fallback ไป theSVG / อักษรย่อ:
 
-Procreate, InVision, Zeplin, ZBrush, Spline, Final Cut Pro, Logic Pro, Ableton, FL Studio, GarageBand
+| เครื่องมือ | ไฟล์ local |
+|-----------|------------|
+| Procreate | `procreate.png` (จาก Procreate CDN) |
+| InVision | `invision.svg` (Simple Icons) |
+| Zeplin | `zeplin.svg` (Zeplin brand) |
+| ZBrush | `zbrush.svg` (styled) |
+| Spline | `spline.webp` (Homarr dashboard-icons) |
+| Final Cut Pro | `final-cut-pro.svg` (styled) |
+| Logic Pro | `logic-pro.svg` (styled) |
+| Ableton | `ableton-live.svg` (styled) |
+| FL Studio | `fl-studio.png` (Homarr dashboard-icons) |
+| GarageBand | `garageband.svg` (styled) |
 
-ถ้าต้องการโลโกครบ 100% สำหรับรายการเหล่านี้ ให้ vendor SVG ลง repo หรือ submit ไอคอนที่ https://thesvg.org/submit
+เพิ่มไฟล์ใหม่ → ลง `public/tool-icons/` แล้ว map ใน `LOCAL_TOOL_ICONS` ที่ [`toolIcons.ts`](../src/lib/toolIcons.ts)
+
+ถ้าต้องการโลโกอย่างเป็นทางการ 100% ให้แทนที่ไฟล์ styled ด้วย asset จาก press kit หรือ submit ที่ https://thesvg.org/submit

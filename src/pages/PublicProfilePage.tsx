@@ -21,6 +21,7 @@ import { safeHttpUrl } from "@/lib/safeUrl";
 import { highlight } from "@/lib/highlight";
 import { PROJECT_FEED_SELECT, PUBLIC_PROFILE_SELECT } from "@/lib/dbSelects";
 import SeoHead from "@/components/SeoHead";
+import { BRAND_NAME } from "@/lib/brandConfig";
 import { truncateDescription } from "@/lib/seo";
 import { isUuid, profilePublicPath } from "@/lib/profileRoutes";
 import { sortPortfolioProjects } from "@/lib/portfolioSort";
@@ -124,7 +125,7 @@ const PublicProfilePage = () => {
 
   const displayName = profile.display_name || profile.username || "ครีเอเตอร์";
   const seoDesc = truncateDescription(
-    profile.bio || `ดูพอร์ตโฟลิโอและผลงานของ ${displayName} บน 1PX`,
+    profile.bio || `ดูพอร์ตโฟลิโอและผลงานของ ${displayName} บน ${BRAND_NAME}`,
   );
 
   return (

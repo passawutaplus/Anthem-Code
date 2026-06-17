@@ -1,7 +1,7 @@
 import BriefcaseIcon from "../components/icons/BriefcaseIcon";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Plus, LayoutGrid, Globe, Eye, Heart, Mail, ArrowLeft, Settings, Phone, ExternalLink, Check, X, MessageCircle } from "lucide-react";
+import { Plus, LayoutGrid, Globe, Eye, Heart, Mail, ArrowLeft, Settings, Phone, ExternalLink, Check, X, MessageCircle, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import StatsCard from "@/components/StatsCard";
@@ -23,6 +23,7 @@ import { timeAgoTH } from "@/lib/format";
 import SeoHead from "@/components/SeoHead";
 import { sortPortfolioProjects } from "@/lib/portfolioSort";
 import OnboardingChecklist from "@/components/onboarding/OnboardingChecklist";
+import { so1oQuotationUrl, trackCrossLink } from "@/lib/crossLink";
 
 type ProjectTab = "ทั้งหมด" | "Published" | "Draft" | "Private";
 type HiringTab = HiringStatusDB | "ทั้งหมด";
@@ -244,6 +245,24 @@ const PortfolioManagePage = () => {
                 if (id) navigate(`/chat/${id}`);
                 else toast.error("ไม่พบห้องสนทนา");
               };
+              const openQuote = async () => {
+                const linkId = await trackCrossLink({
+                  source: "portfolio_hire",
+                  refId: req.id,
+                  meta: { request_id: req.id },
+                });
+                const url = so1oQuotationUrl({
+                  requestId: req.id,
+                  clientName: req.client_name ?? undefined,
+                  projectTitle: req.project_title ?? undefined,
+                  clientEmail: req.email ?? undefined,
+                  clientPhone: req.phone ?? undefined,
+                  message: req.message ?? undefined,
+                  deadline: req.deadline ?? undefined,
+                  linkId,
+                });
+                window.open(url, "_blank", "noopener,noreferrer");
+              };
 
               return (
                 <div key={req.id} className="rounded-xl glass-panel p-4">
@@ -279,9 +298,14 @@ const PortfolioManagePage = () => {
                           </>
                         )}
                         {!isPending && isAccepted && (
-                          <Button size="sm" onClick={openChat} className="rounded-full h-8 text-xs bg-[hsl(var(--chat-hire))] text-white hover:opacity-90">
-                            <MessageCircle className="w-3.5 h-3.5 mr-1" /> เปิดห้องสนทนา
-                          </Button>
+                          <>
+                            <Button size="sm" variant="outline" onClick={openQuote} className="rounded-full h-8 text-xs gap-1">
+                              <FileText className="w-3.5 h-3.5" /> ใบเสนอราคา
+                            </Button>
+                            <Button size="sm" onClick={openChat} className="rounded-full h-8 text-xs bg-[hsl(var(--chat-hire))] text-white hover:opacity-90">
+                              <MessageCircle className="w-3.5 h-3.5 mr-1" /> เปิดห้องสนทนา
+                            </Button>
+                          </>
                         )}
                       </div>
                     </div>

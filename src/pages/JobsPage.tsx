@@ -13,6 +13,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import Footer from "@/components/Footer";
 import { cn } from "@/lib/utils";
 import SeoHead from "@/components/SeoHead";
+import { BRAND_NAME } from "@/lib/brandConfig";
 import { markOnboardingVisit } from "@/lib/onboardingStorage";
 
 const LOCATION_CHIPS = [
@@ -80,7 +81,7 @@ const JobsPage = () => {
     <div className="min-h-screen bg-app-ambient pb-24 lg:pb-12">
       <SeoHead
         title={mode === "hiring" ? "งานจ้างดีไซน์" : "หางานฟรีแลนซ์"}
-        description="ค้นหางานดีไซน์ โพสต์ประกาศจ้าง หรือหาโอกาสร่วมงานจากสตูดิโอและบริษัทบน 1PX"
+        description={`ค้นหางานดีไซน์ โพสต์ประกาศจ้าง หรือหาโอกาสร่วมงานจากสตูดิโอและบริษัทบน ${BRAND_NAME}`}
         path="/jobs"
       />
       <div className="max-w-6xl mx-auto px-4 py-6 space-y-5">

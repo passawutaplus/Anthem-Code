@@ -89,9 +89,9 @@ export const useStudioMembers = (studioId?: string) =>
       if (ids.length === 0) return [];
       const { data: profiles } = await supabase
         .from("profiles")
-        .select("id, display_name, avatar_url, username")
-        .in("id", ids);
-      const map = new Map((profiles ?? []).map((p: any) => [p.id, p]));
+        .select("user_id, display_name, avatar_url, username")
+        .in("user_id", ids);
+      const map = new Map((profiles ?? []).map((p: { user_id: string }) => [p.user_id, p]));
       return (data ?? []).map((m: any) => ({ ...m, profile: map.get(m.user_id) })) as StudioMember[];
     },
   });
@@ -105,7 +105,7 @@ export const useSetActiveStudio = () => {
       const { error } = await supabase
         .from("profiles")
         .update({ active_studio_id: studioId })
-        .eq("id", user.id);
+        .eq("user_id", user.id);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -162,12 +162,66 @@ export const useActiveStudio = () => {
       const { data: profile } = await supabase
         .from("profiles")
         .select("active_studio_id")
-        .eq("id", user!.id)
+        .eq("user_id", user!.id)
         .maybeSingle();
       const sid = (profile as any)?.active_studio_id;
       if (!sid) return null;
       const { data } = await supabase.from("studios").select("*").eq("id", sid).maybeSingle();
       return (data ?? null) as Studio | null;
+    },
+  });
+};
+
+/** Resolve studio context for a studio team chat conversation. */
+export const useStudioForConversation = (
+  conversationId?: string,
+  conversationTitle?: string | null,
+) => {
+  const { user } = useAuth();
+  return useQuery({
+    queryKey: ["studio-for-conversation", conversationId, user?.id],
+    enabled: !!conversationId && !!user,
+    queryFn: async (): Promise<Studio | null> => {
+      const { data: conv, error: convError } = await supabase
+        .from("conversations")
+        .select("studio_id, title, project_title, kind")
+        .eq("id", conversationId!)
+        .maybeSingle();
+      if (convError) throw convError;
+
+      const studioId = (conv as { studio_id?: string | null } | null)?.studio_id;
+      if (studioId) {
+        const { data: studio } = await supabase.from("studios").select("*").eq("id", studioId).maybeSingle();
+        if (studio) return studio as Studio;
+      }
+
+      const { data: memberships } = await supabase
+        .from("studio_members")
+        .select("studio_id")
+        .eq("user_id", user!.id);
+      const studioIds = (memberships ?? []).map((m: { studio_id: string }) => m.studio_id);
+      if (studioIds.length === 0) return null;
+
+      const { data: studios } = await supabase.from("studios").select("*").in("id", studioIds);
+      const list = (studios ?? []) as Studio[];
+      if (list.length === 0) return null;
+
+      const title = conv?.title || conv?.project_title || conversationTitle || "";
+      const byTitle = title ? list.find((s) => s.name === title) : undefined;
+      if (byTitle) return byTitle;
+
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("active_studio_id")
+        .eq("user_id", user!.id)
+        .maybeSingle();
+      const activeId = (profile as { active_studio_id?: string | null } | null)?.active_studio_id;
+      if (activeId) {
+        const active = list.find((s) => s.id === activeId);
+        if (active) return active;
+      }
+
+      return list[0] ?? null;
     },
   });
 };

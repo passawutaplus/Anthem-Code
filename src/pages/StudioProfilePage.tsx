@@ -1,3 +1,4 @@
+import { useState } from "react";
 import BriefcaseIcon from "../components/icons/BriefcaseIcon";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useStudioBySlug, useStudioMembers, useMyStudios } from "@/hooks/useStudios";
@@ -7,14 +8,28 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Building2, MapPin, Globe, CheckCircle2, Users, ArrowLeft } from "lucide-react";
+import { Building2, FileText, MapPin, Globe, CheckCircle2, Users, ArrowLeft } from "lucide-react";
 import { safeHttpUrl } from "@/lib/safeUrl";
 import JobCard from "@/components/jobs/JobCard";
 import { useAuth } from "@/hooks/useAuth";
 import { requireAuth } from "@/lib/requireAuth";
 import SeoHead from "@/components/SeoHead";
+import { BRAND_NAME } from "@/lib/brandConfig";
 import { truncateDescription } from "@/lib/seo";
 import ReportTrigger from "@/components/report/ReportTrigger";
+import { useSubscription } from "@/core/subscription/useSubscription";
+import {
+  canOpenStudioCombinedQuote,
+  canShowStudioQuoteUpsell,
+  openStudioQuotation,
+} from "@/lib/studioQuotationHandoff";
+import HireStudioDialog from "@/components/HireStudioDialog";
+import {
+  StudioClientPickerDialog,
+  type StudioClientContext,
+} from "@/components/studio/StudioClientPickerDialog";
+import { StudioQuoteUpsellDialog } from "@/components/studio/StudioQuoteUpsellDialog";
+import { toast } from "sonner";
 
 const StudioProfilePage = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -25,7 +40,35 @@ const StudioProfilePage = () => {
   const { data: jobs = [] } = useStudioJobs(studio?.id);
   const { data: myStudios = [] } = useMyStudios();
   const studioChat = useStudioConversation();
+  const { tier } = useSubscription();
   const isMember = myStudios.some((s) => s.id === studio?.id);
+  const myMembership = members.find((m) => m.user_id === user?.id);
+  const canCombinedQuote =
+    isMember && canOpenStudioCombinedQuote(tier, myMembership?.role);
+  const showQuoteUpsell =
+    isMember && canShowStudioQuoteUpsell(tier, myMembership?.role);
+  const [hireOpen, setHireOpen] = useState(false);
+  const [clientPickerOpen, setClientPickerOpen] = useState(false);
+  const [upsellOpen, setUpsellOpen] = useState(false);
+
+  const launchStudioQuote = async (ctx: StudioClientContext) => {
+    if (!studio) return;
+    try {
+      await openStudioQuotation({
+        tier,
+        studio,
+        members,
+        source: "studio_profile",
+        projectTitle: ctx.projectTitle ?? studio.name,
+        clientName: ctx.clientName,
+        clientEmail: ctx.clientEmail,
+        clientPhone: ctx.clientPhone,
+        onRequireInHouse: () => setUpsellOpen(true),
+      });
+    } catch {
+      toast.error("เปิด So1o ไม่สำเร็จ");
+    }
+  };
 
   if (isLoading) return <div className="min-h-screen grid place-items-center text-muted-foreground">กำลังโหลด...</div>;
   if (!studio) return <div className="min-h-screen grid place-items-center text-muted-foreground">ไม่พบสตูดิโอ</div>;
@@ -36,7 +79,7 @@ const StudioProfilePage = () => {
     <div className="min-h-screen bg-app-ambient pb-24 lg:pb-12">
       <SeoHead
         title={studio.name}
-        description={truncateDescription(studio.description || `สตูดิโอ ${studio.name} บน 1PX`)}
+        description={truncateDescription(studio.description || `สตูดิโอ ${studio.name} บน ${BRAND_NAME}`)}
         path={`/s/${slug}`}
         image={studio.cover_url ?? studio.avatar_url ?? undefined}
       />
@@ -77,7 +120,29 @@ const StudioProfilePage = () => {
                 )}
               </div>
             </div>
-            <div className="flex gap-2 items-center">
+            <div className="flex flex-wrap gap-2 items-center">
+              {canCombinedQuote && (
+                <Button
+                  variant="outline"
+                  className="rounded-xl gap-1.5"
+                  onClick={() =>
+                    requireAuth(user, () => setClientPickerOpen(true))
+                  }
+                >
+                  <FileText className="w-4 h-4" />
+                  สร้างใบเสนอราคารวม
+                </Button>
+              )}
+              {showQuoteUpsell && (
+                <Button
+                  variant="outline"
+                  className="rounded-xl gap-1.5"
+                  onClick={() => setUpsellOpen(true)}
+                >
+                  <FileText className="w-4 h-4" />
+                  อัปเกรด In-House
+                </Button>
+              )}
               {isMember ? (
                 <Button
                   onClick={() =>
@@ -92,7 +157,7 @@ const StudioProfilePage = () => {
                 </Button>
               ) : (
                 <Button
-                  onClick={() => requireAuth(user, () => navigate(`/chat?studio=${studio.id}`))}
+                  onClick={() => requireAuth(user, () => setHireOpen(true))}
                   className="rounded-xl bg-gradient-brand text-white border-0"
                 >
                   จ้าง Studio
@@ -164,6 +229,25 @@ const StudioProfilePage = () => {
           </TabsContent>
         </Tabs>
       </div>
+
+      <HireStudioDialog
+        open={hireOpen}
+        onOpenChange={setHireOpen}
+        studioId={studio.id}
+        studioName={studio.name}
+        projectTitle={studio.name}
+      />
+      <StudioClientPickerDialog
+        open={clientPickerOpen}
+        onOpenChange={setClientPickerOpen}
+        defaultProjectTitle={studio.name}
+        onConfirm={launchStudioQuote}
+      />
+      <StudioQuoteUpsellDialog
+        open={upsellOpen}
+        onOpenChange={setUpsellOpen}
+        onUpgrade={() => navigate("/upgrade#tier-details")}
+      />
     </div>
   );
 };

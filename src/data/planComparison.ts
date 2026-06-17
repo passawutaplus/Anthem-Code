@@ -85,7 +85,7 @@ export const PLAN_COMPARISON_ROWS: PlanComparisonRow[] = [
     },
   },
   {
-    label: "an1hem Storage",
+    label: "Pixel100 Storage",
     values: {
       free: ANTHEM_STORAGE_LABEL.free,
       pro: ANTHEM_STORAGE_LABEL.pro,
@@ -94,7 +94,7 @@ export const PLAN_COMPARISON_ROWS: PlanComparisonRow[] = [
     },
   },
   {
-    label: "โพสต์ผลงาน an1hem",
+    label: "โพสต์ผลงาน Pixel100",
     values: {
       free: formatPublished(PROJECT_LIMITS.free.published),
       pro: formatPublished(PROJECT_LIMITS.pro.published),
@@ -103,7 +103,7 @@ export const PLAN_COMPARISON_ROWS: PlanComparisonRow[] = [
     },
   },
   {
-    label: "แบบร่าง an1hem",
+    label: "แบบร่าง Pixel100",
     values: {
       free: String(PROJECT_LIMITS.free.draft),
       pro: String(PROJECT_LIMITS.pro.draft),
@@ -130,7 +130,7 @@ export const PLAN_COMPARISON_ROWS: PlanComparisonRow[] = [
     },
   },
   {
-    label: "So1o + an1hem บัญชีเดียว",
+    label: "So1o + Pixel100 บัญชีเดียว",
     values: {
       free: false,
       pro: true,

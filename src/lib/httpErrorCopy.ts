@@ -1,3 +1,5 @@
+import { BRAND_NAME, BRAND_SUPPORT_EMAIL } from '@/lib/brandConfig'
+
 export type HttpErrorKind = '404' | '405' | '500' | '503' | 'generic' | 'token'
 
 export type HttpErrorCopy = {
@@ -21,8 +23,8 @@ export const HTTP_ERROR_COPY: Record<HttpErrorKind, HttpErrorCopy> = {
     descEn: 'The link may be wrong or the page moved.',
     taglineTh: '',
     taglineEn: '',
-    hintTh: 'มั่นใจว่าหน้านี้ควรมีอยู่? แจ้ง support@1px.app',
-    hintEn: 'Think this page should exist? Contact support@1px.app',
+    hintTh: `มั่นใจว่าหน้านี้ควรมีอยู่? แจ้ง ${BRAND_SUPPORT_EMAIL}`,
+    hintEn: `Think this page should exist? Contact ${BRAND_SUPPORT_EMAIL}`,
   },
   '405': {
     code: 405,
@@ -32,8 +34,8 @@ export const HTTP_ERROR_COPY: Record<HttpErrorKind, HttpErrorCopy> = {
     descEn: 'Go back and try the action again.',
     taglineTh: '',
     taglineEn: '',
-    hintTh: 'ยังเจอปัญหา? ติดต่อ support@1px.app',
-    hintEn: 'Still stuck? Contact support@1px.app',
+    hintTh: `ยังเจอปัญหา? ติดต่อ ${BRAND_SUPPORT_EMAIL}`,
+    hintEn: `Still stuck? Contact ${BRAND_SUPPORT_EMAIL}`,
   },
   '500': {
     code: 500,
@@ -43,15 +45,15 @@ export const HTTP_ERROR_COPY: Record<HttpErrorKind, HttpErrorCopy> = {
     descEn: 'Try refreshing. Contact support if it persists.',
     taglineTh: '',
     taglineEn: '',
-    hintTh: 'ติดต่อ support@1px.app',
-    hintEn: 'Contact support@1px.app',
+    hintTh: `ติดต่อ ${BRAND_SUPPORT_EMAIL}`,
+    hintEn: `Contact ${BRAND_SUPPORT_EMAIL}`,
   },
   '503': {
     code: 503,
     titleTh: 'กำลังปรับปรุงระบบ',
     titleEn: 'Under maintenance',
-    descTh: 'อัปเดตเพื่อให้ 1PX ลื่นขึ้น — กลับมาใหม่ในอีกสักครู่',
-    descEn: "We're updating 1PX. Back shortly.",
+    descTh: `อัปเดตเพื่อให้ ${BRAND_NAME} ลื่นขึ้น — กลับมาใหม่ในอีกสักครู่`,
+    descEn: `We're updating ${BRAND_NAME}. Back shortly.`,
     taglineTh: '',
     taglineEn: '',
   },
@@ -63,8 +65,8 @@ export const HTTP_ERROR_COPY: Record<HttpErrorKind, HttpErrorCopy> = {
     descEn: 'Could be a connection issue. Try again.',
     taglineTh: '',
     taglineEn: '',
-    hintTh: 'ยังไม่ได้? ติดต่อ support@1px.app',
-    hintEn: 'Still stuck? Contact support@1px.app',
+    hintTh: `ยังไม่ได้? ติดต่อ ${BRAND_SUPPORT_EMAIL}`,
+    hintEn: `Still stuck? Contact ${BRAND_SUPPORT_EMAIL}`,
   },
   token: {
     code: 404,
@@ -74,8 +76,8 @@ export const HTTP_ERROR_COPY: Record<HttpErrorKind, HttpErrorCopy> = {
     descEn: 'Expired or incomplete. Ask for a new link.',
     taglineTh: '',
     taglineEn: '',
-    hintTh: 'ยังมีปัญหา? แจ้ง support@1px.app',
-    hintEn: 'Still having trouble? Contact support@1px.app',
+    hintTh: `ยังมีปัญหา? แจ้ง ${BRAND_SUPPORT_EMAIL}`,
+    hintEn: `Still having trouble? Contact ${BRAND_SUPPORT_EMAIL}`,
   },
 }
 

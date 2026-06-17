@@ -47,7 +47,7 @@ export const useCreateHireRequest = () => {
     mutationFn: async (payload: Database["public"]["Tables"]["hiring_requests"]["Insert"]) => {
       const { data, error } = await supabase
         .from("hiring_requests")
-        .insert(payload)
+        .insert({ ...payload, target_type: "freelancer" } as never)
         .select("id")
         .single();
       if (error) throw error;
@@ -55,6 +55,80 @@ export const useCreateHireRequest = () => {
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["hiring_requests"] }),
   });
+};
+
+export const useCreateStudioHireRequest = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (payload: {
+      studio_id: string;
+      client_id: string;
+      project_title: string;
+      client_name: string;
+      email: string;
+      phone?: string | null;
+      budget_amount?: number | null;
+      deadline?: string | null;
+      message?: string | null;
+    }) => {
+      const { data, error } = await supabase
+        .from("hiring_requests")
+        .insert({
+          ...payload,
+          target_type: "studio",
+          freelancer_id: null,
+        } as never)
+        .select("id")
+        .single();
+      if (error) throw error;
+      return data.id as string;
+    },
+    onSuccess: (_id, vars) => {
+      qc.invalidateQueries({ queryKey: ["hiring_requests"] });
+      qc.invalidateQueries({ queryKey: ["studio_hiring_requests", vars.studio_id] });
+    },
+  });
+};
+
+export const useStudioHiringRequests = (studioId: string | undefined) => {
+  const qc = useQueryClient();
+
+  const query = useQuery({
+    queryKey: ["studio_hiring_requests", studioId],
+    enabled: !!studioId,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("hiring_requests")
+        .select("*")
+        .eq("studio_id", studioId!)
+        .eq("target_type", "studio")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return data as HiringRow[];
+    },
+  });
+
+  useEffect(() => {
+    if (!studioId) return;
+    const ch = supabase
+      .channel(`studio-hire-${studioId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "anthem",
+          table: "hiring_requests",
+          filter: `studio_id=eq.${studioId}`,
+        },
+        () => qc.invalidateQueries({ queryKey: ["studio_hiring_requests", studioId] }),
+      )
+      .subscribe();
+    return () => {
+      supabase.removeChannel(ch);
+    };
+  }, [studioId, qc]);
+
+  return query;
 };
 
 export const useUpdateHireStatus = () => {

@@ -11,6 +11,10 @@ import {
   Users,
 } from "lucide-react";
 import { so1oQuotationUrl, trackCrossLink } from "@/lib/crossLink";
+import { useStudioForConversation, useStudioMembers } from "@/hooks/useStudios";
+import { useSubscription } from "@/core/subscription/useSubscription";
+import { canOpenStudioCombinedQuote, canShowStudioQuoteUpsell, openStudioQuotation } from "@/lib/studioQuotationHandoff";
+import { StudioQuoteUpsellDialog } from "@/components/studio/StudioQuoteUpsellDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -70,12 +74,32 @@ const ChatThreadView = ({
   const endRef = useRef<HTMLDivElement>(null);
   const [replyTo, setReplyTo] = useState<Message | null>(null);
   const unsend = useUnsendMessage();
+  const { tier } = useSubscription();
 
   const isGroup = isGroupConversation(conv);
   const isStudio = isStudioConversation(conv);
+  const isHire = conv.kind === "hire";
+  const isStudioHire = isHire && !!conv.studio_id;
+  const hasStudioQuoteContext = isStudio || isStudioHire;
+
+  const { data: studioForQuote = null } = useStudioForConversation(
+    hasStudioQuoteContext ? conv.id : undefined,
+    conv.title || conv.project_title,
+  );
+
+  const { data: studioMembers = [] } = useStudioMembers(studioForQuote?.id);
+  const myStudioRole = studioMembers.find((m) => m.user_id === user?.id)?.role;
+  const canStudioCombinedQuote =
+    hasStudioQuoteContext &&
+    !!studioForQuote &&
+    canOpenStudioCombinedQuote(tier, myStudioRole);
+  const showStudioQuoteUpsell =
+    hasStudioQuoteContext &&
+    !!studioForQuote &&
+    canShowStudioQuoteUpsell(tier, myStudioRole);
+  const [upsellOpen, setUpsellOpen] = useState(false);
   const otherId = otherParticipantId(conv, user?.id ?? "");
   const kind = (isStudio ? "studio" : isGroup ? "group" : conv.kind) as "hire" | "collab" | "group" | "studio";
-  const isHire = kind === "hire";
 
   const { data: other } = useQuery({
     queryKey: ["chat-other", otherId],
@@ -172,6 +196,32 @@ const ChatThreadView = ({
     window.open(url, "_blank", "noopener,noreferrer");
   };
 
+  const openStudioQuote = async () => {
+    if (!studioForQuote) {
+      toast.error("ไม่พบข้อมูล Studio");
+      return;
+    }
+    try {
+      await openStudioQuotation({
+        tier,
+        studio: studioForQuote,
+        members: studioMembers,
+        source: "studio_chat",
+        conversationId: conv.id,
+        requestId: conv.request_id ?? undefined,
+        projectTitle: conv.project_title ?? studioForQuote.name,
+        clientName: hireMeta?.client_name ?? "ลูกค้า",
+        clientEmail: hireMeta?.email,
+        clientPhone: hireMeta?.phone,
+        message: hireMeta?.message,
+        deadline: hireMeta?.deadline,
+        onRequireInHouse: () => setUpsellOpen(true),
+      });
+    } catch {
+      toast.error("เปิด So1o ไม่สำเร็จ");
+    }
+  };
+
   const handleUnsend = async (msg: Message) => {
     try {
       await unsend.mutateAsync({
@@ -260,17 +310,46 @@ const ChatThreadView = ({
           {!isGroup && otherId && (
             <ReportTrigger targetType="user" targetId={otherId} targetOwnerId={otherId} />
           )}
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={openQuote}
-            className="hidden sm:inline-flex items-center gap-1 text-xs font-medium px-2.5 h-8 rounded-full"
-            aria-label="สร้างใบเสนอราคาใน So1o"
-          >
-            <FileText className="w-3.5 h-3.5" />
-            Quote
-          </Button>
+          {canStudioCombinedQuote ? (
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={openStudioQuote}
+              className="inline-flex items-center gap-1 text-xs font-medium px-2.5 h-8 rounded-full"
+              aria-label="สร้างใบเสนอราคารวม Studio ใน So1o"
+            >
+              <FileText className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">ใบเสนอราคารวม Studio</span>
+            </Button>
+          ) : showStudioQuoteUpsell ? (
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => setUpsellOpen(true)}
+              className="inline-flex items-center gap-1 text-xs font-medium px-2.5 h-8 rounded-full"
+            >
+              <FileText className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">ใบเสนอราคารวม Studio</span>
+            </Button>
+          ) : (
+            !isGroup &&
+            otherId &&
+            isHire && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={openQuote}
+                className="inline-flex items-center gap-1 text-xs font-medium px-2.5 h-8 rounded-full"
+                aria-label="สร้างใบเสนอราคาใน So1o"
+              >
+                <FileText className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">ใบเสนอราคา</span>
+              </Button>
+            )
+          )}
           {!isGroup && otherId && (
             <Button
               type="button"
@@ -326,6 +405,12 @@ const ChatThreadView = ({
         quickReplies={isGroup ? [] : isHire ? HIRE_QUICK : COLLAB_QUICK}
         replyTo={replyTo}
         onClearReply={() => setReplyTo(null)}
+      />
+
+      <StudioQuoteUpsellDialog
+        open={upsellOpen}
+        onOpenChange={setUpsellOpen}
+        onUpgrade={() => navigate("/upgrade#tier-details")}
       />
     </div>
   );

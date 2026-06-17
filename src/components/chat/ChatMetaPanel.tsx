@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { Conversation } from "@/hooks/useChat";
+import { ChatQuoteActions } from "@/components/chat/ChatQuoteActions";
 
 const COLLAB_TYPE_LABELS: Record<string, string> = {
   "joint-project": "ร่วมโปรเจกต์",
@@ -122,6 +123,9 @@ const ChatMetaPanel = ({
               </div>
             )}
           </>
+        )}
+        {(conversation.kind === "hire" || conversation.studio_id) && (
+          <ChatQuoteActions conversation={conversation} />
         )}
       </div>
     </aside>

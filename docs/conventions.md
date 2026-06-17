@@ -42,3 +42,18 @@
 - ทุก migration ต้องมี: `CREATE TABLE` → `GRANT` → `ENABLE RLS` → `CREATE POLICY`
 - ใช้ `SECURITY DEFINER` + `SET search_path` สำหรับ role-check functions
 - ห้าม `DROP` / `TRUNCATE` table ที่มี user data
+
+## Before adding code
+
+ก่อนสร้างไฟล์ใหม่ abstraction หรือ dependency:
+
+1. **ต้องสร้างจริงไหม?** speculative "ไว้ทีหลัง" → ข้าม ยกเว้นผู้ใช้ขอ
+2. **มีใน stack แล้วไหม?** React Query, Zod, shadcn, hook/util ใน `src/lib/` หรือ `src/server/`
+3. **แก้ไฟล์เดิมได้ไหม?** ขยายไฟล์เดิมดีกว่า module ใหม่ที่มี caller เดียว
+4. **ขั้นต่ำที่ทำงาน** — แล้วหยุด
+
+pattern ใน doc นี้ (React Query, server queries/mutations, RLS, toast/skeleton) **ไม่ใช่** over-engineering
+
+shortcut ที่ตั้งใจ: `// ponytail: <ceiling> — upgrade when <condition>`
+
+หลังแก้ใหญ่ ให้ agent รัน skill **review-bloat** (`.cursor/skills/review-bloat/`) กับ diff

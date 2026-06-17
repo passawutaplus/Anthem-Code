@@ -1,11 +1,12 @@
-# 1PX — Portfolio Hub
+# Pixel100 — Portfolio Hub
 
-ชุมชนครีเอทีฟไทย — ทุกฟรีแลนซ์คือ 1 PX รวมกันเป็นภาพใหญ่ (คู่กับ So1o Freelancer Management)
+ชุมชนฟรีแลนซ์ครีเอทีฟไทย — ทุกคนคือ 1 pixel รวมกันเป็นภาพใหญ่ (คู่กับ So1o Freelancer Management)
 
 | | |
 |---|---|
-| **Production** | https://an1hem.app |
+| **Canonical** | https://pixel100.com (ยังไม่จดโดเมน) |
 | **Demo** | https://1px-demo.vercel.app |
+| **Legacy production** | https://an1hem.app (redirect ภายหลัง) |
 | **Supabase** | `rvnzjiskqliexysicfmh` (canonical backend ใน Solo-Code) |
 
 ## Quick start

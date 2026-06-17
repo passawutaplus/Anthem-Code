@@ -21,6 +21,7 @@ import { useProject } from "@/hooks/useProjects";
 import { useAuth } from "@/hooks/useAuth";
 import { isCategoryAllowed } from "@/lib/cookieConsent";
 import SeoHead from "@/components/SeoHead";
+import { BRAND_NAME } from "@/lib/brandConfig";
 import { truncateDescription } from "@/lib/seo";
 import LicenseDetailBlock from "@/components/license/LicenseDetailBlock";
 import { FadeUp } from "@/components/motion/FadeUp";
@@ -164,7 +165,7 @@ const ProjectDetailPage = () => {
       <SeoHead
         title={project.title}
         description={truncateDescription(
-          project.description || `${project.title} โดย ${project.owner} — ${project.category} บน 1PX`,
+          project.description || `${project.title} โดย ${project.owner} — ${project.category} บน ${BRAND_NAME}`,
         )}
         path={`/project/${project.id}`}
         image={coverImage || undefined}

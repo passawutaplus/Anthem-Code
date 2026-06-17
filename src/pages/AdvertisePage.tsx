@@ -153,7 +153,7 @@ const AdvertisePage = () => {
         {/* Hero */}
         <header className="text-center space-y-3">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium">
-            <Megaphone className="w-3.5 h-3.5" /> ลงโฆษณากับ 1PX
+            <Megaphone className="w-3.5 h-3.5" /> ลงโฆษณากับ Pixel100
           </div>
           <h1 className="text-3xl md:text-5xl font-semibold tracking-tight">
             เข้าถึงครีเอเตอร์และฟรีแลนซ์ตัวจริง

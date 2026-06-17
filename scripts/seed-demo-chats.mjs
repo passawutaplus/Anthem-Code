@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Seed 5 demo chat conversations for phatsawut@demo.an1hem.app
+ * Seed 5 demo chat conversations for phatsawut@demo.pixel100.com
  * — mix of hire (จ้าง) and collab (คอลแลป) badges with 5 different partners.
  *
  * Run: node scripts/seed-demo-chats.mjs
@@ -39,7 +39,7 @@ const shared = createClient(url, key, { ...opts, db: { schema: "shared" } });
 const anthem = createClient(url, key, { ...opts, db: { schema: "anthem" } });
 const admin = createClient(url, key, opts);
 
-const DEMO_PASSWORD = "an1hem-demo-seed";
+const DEMO_PASSWORD = "pixel100-demo-seed";
 
 const uid = (i) => {
   const hex = i.toString(16).padStart(2, "0");
@@ -68,11 +68,11 @@ const names = [
   "ฉัตรชัย วรกุล",
 ];
 const emails = [
-  "napatsara@demo.an1hem.app",
-  "pimchanok@demo.an1hem.app",
-  "wannakorn@demo.an1hem.app",
-  "thanya@demo.an1hem.app",
-  "chatchai@demo.an1hem.app",
+  "napatsara@demo.pixel100.com",
+  "pimchanok@demo.pixel100.com",
+  "wannakorn@demo.pixel100.com",
+  "thanya@demo.pixel100.com",
+  "chatchai@demo.pixel100.com",
 ];
 
 const CHATS = [
@@ -250,7 +250,7 @@ async function main() {
     password: DEMO_PASSWORD,
   });
   if (pwErr) console.warn("  password reset:", pwErr.message);
-  else console.log("  ✓ reset demo password for phatsawut@demo.an1hem.app");
+  else console.log("  ✓ reset demo password for phatsawut@demo.pixel100.com");
 
   for (const chat of CHATS) {
     const requestId =
@@ -277,7 +277,7 @@ async function main() {
     console.log(`  cleaned ${extra.length} extra conversation(s) for phatsawut`);
   }
 
-  console.log("\nDone. Login: phatsawut@demo.an1hem.app / an1hem-demo-seed");
+  console.log("\nDone. Login: phatsawut@demo.pixel100.com / pixel100-demo-seed");
   console.log("Open: /chat");
 }
 

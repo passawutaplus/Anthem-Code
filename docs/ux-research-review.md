@@ -1,8 +1,8 @@
-# 1PX — คู่มือ UX/UI Research (เช็คลิสครบ)
+# Pixel100 — คู่มือ UX/UI Research (เช็คลิสครบ)
 
 > **URL เดโม่:** https://1px-demo.vercel.app  
 > **คู่มือในแอป:** https://1px-demo.vercel.app/research  
-> **Production:** https://an1hem.app
+> **Canonical:** https://pixel100.com · **Demo:** https://1px-demo.vercel.app
 
 ---
 
@@ -10,7 +10,7 @@
 
 | หัวข้อ | รายละเอียด |
 |--------|------------|
-| แบรนด์ | **1PX** — ชุมชนครีเอทีฟ ทุกคนคือ 1 PX |
+| แบรนด์ | **Pixel100** — ชุมชนฟรีแลนซ์ครีเอทีฟ ทุกคนคือ 1 pixel |
 | ประเภท | พอร์ตโฟลิโอ + ชุมชน + จับคู่งานเบา ๆ |
 | ภาษา | ไทยเป็นหลัก |
 | ระยะเวลา | Quick **45–60 นาที** (T1–T4) · Full **2–3 ชม.** (เช็คลิส A–T) |
@@ -37,9 +37,9 @@
 
 ## อ่านก่อนเริ่ม (โหมด demo)
 
-- บัญชี `*@demo.an1hem.app` บันทึกถาวร — ใช้ร่วมกัน **อย่าสมัครใหม่**
+- บัญชี `*@demo.pixel100.com` บันทึกถาวร — ใช้ร่วมกัน **อย่าสมัครใหม่**
 - อย่าใส่ข้อมูลส่วนตัวจริง · ไม่มีการชำระเงินจริง
-- รหัสผ่านทุกบัญชี: `an1hem-demo-seed`
+- รหัสผ่านทุกบัญชี: `pixel100-demo-seed`
 - บัญชีอื่น ๆ ดูใน [`demo-catalog.md`](./demo-catalog.md) (50 ครีเอเตอร์)
 
 ---
@@ -48,9 +48,9 @@
 
 | Persona | อีเมล | ใช้ทดสอบ |
 |---------|--------|----------|
-| **ครีเอเตอร์ใหม่** | `phatsawut@demo.an1hem.app` | Onboarding, Welcome PX, สร้าง/เผยแพร่ผลงาน |
-| **ครีเอเตอร์ยอดนิยม** | `napatsara@demo.an1hem.app` | Engagement, ของขวัญ, คอลเลกชัน |
-| **ผู้จ้าง / สำรวจงาน** | `chatchai@demo.an1hem.app` | Jobs, คำขอจ้าง, แชท |
+| **ครีเอเตอร์ใหม่** | `phatsawut@demo.pixel100.com` | Onboarding, Welcome PX, สร้าง/เผยแพร่ผลงาน |
+| **ครีเอเตอร์ยอดนิยม** | `napatsara@demo.pixel100.com` | Engagement, ของขวัญ, คอลเลกชัน |
+| **ผู้จ้าง / สำรวจงาน** | `chatchai@demo.pixel100.com` | Jobs, คำขอจ้าง, แชท |
 
 ---
 
@@ -91,7 +91,7 @@
 - [ ] **Microcopy** — จ้าง vs คอลแลป vs สมัครงาน ไม่สับสน
 - [ ] **Trust & legal** — cookie banner, footer legal, `/legal/ip` อ่านง่าย
 - [ ] **Accessibility** — focus ring, alt รูป, contrast ปุ่มสำคัญ
-- [ ] **1PX vs So1o** — ผู้ใช้ใหม่เข้าใจความต่างหน้าร้าน vs หลังบ้าน
+- [ ] **Pixel100 vs So1o** — ผู้ใช้ใหม่เข้าใจความต่างหน้าร้าน vs หลังบ้าน
 
 ---
 
@@ -458,7 +458,7 @@
 - ผู้ใช้ใหม่รู้ next step หลัง login ไหม
 - Mobile vs Desktop — จุดที่ใช้ยากที่สุด
 - Empty / loading / error — เข้าใจไหม
-- ความต่าง 1PX vs So1o — เข้าใจไหม
+- ความต่าง Pixel100 vs So1o — เข้าใจไหม
 
 ส่งกลับทีมผ่านช่องทางที่กำหนด (Figma / Notion / Google Form)
 

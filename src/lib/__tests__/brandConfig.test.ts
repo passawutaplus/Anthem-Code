@@ -12,17 +12,17 @@ import { SITE_NAME } from "@/lib/seo";
 import { LEGAL_APP_NAME } from "@/lib/legalConfig";
 
 describe("brandConfig", () => {
-  it("exposes consistent 1PX identity across SEO and legal", () => {
-    expect(BRAND_NAME).toBe("1PX");
+  it("exposes consistent Pixel100 identity across SEO and legal", () => {
+    expect(BRAND_NAME).toBe("Pixel100");
     expect(SITE_NAME).toBe(BRAND_NAME);
     expect(LEGAL_APP_NAME).toBe(BRAND_NAME);
-    expect(BRAND_DOMAIN).toBe("1px.app");
+    expect(BRAND_DOMAIN).toBe("pixel100.com");
     expect(ANTHEM_DEMO_URL).toBe("https://1px-demo.vercel.app");
     expect(defaultSiteUrl()).toBe(ANTHEM_DEMO_URL);
   });
 
-  it("uses a single-pixel mark in the logo box", () => {
-    expect(BRAND_MARK).toBe("1");
+  it("uses brand mark in the logo box", () => {
+    expect(BRAND_MARK).toBe("100");
   });
 
   it("keeps legacy storage keys for backward compatibility", () => {

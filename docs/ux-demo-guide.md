@@ -23,7 +23,7 @@ npm run db:qa-full
 
 | อีเมล | รหัส |
 |--------|------|
-| `phatsawut@demo.an1hem.app` (และ username อื่น ๆ) | `an1hem-demo-seed` |
+| `phatsawut@demo.pixel100.com` (และ username อื่น ๆ) | `pixel100-demo-seed` |
 
 ดูรายชื่อครบใน `docs/demo-catalog.md`
 
@@ -46,4 +46,4 @@ npm run db:qa-full
 
 ## ลบ demo ก่อน production
 
-`scripts/sql/purge-demo-users.sql` + ลบ `auth.users` ที่ `@demo.an1hem.app`
+`scripts/sql/purge-demo-users.sql` + ลบ `auth.users` ที่ `@demo.pixel100.com`

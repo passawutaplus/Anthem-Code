@@ -177,7 +177,7 @@ async function authAdminFetch(path, init = {}) {
 
 async function ensureAuthUser(i) {
   const id = catalogUid(i);
-  const email = `${usernames[i]}@demo.an1hem.app`;
+  const email = `${usernames[i]}@demo.pixel100.com`;
 
   const { res: getRes, body: existing } = await authAdminFetch(`/admin/users/${id}`);
   if (getRes.ok && existing?.id) return id;
@@ -222,7 +222,7 @@ async function main() {
     user_id: catalogUid(i),
     display_name: names[i],
     username: usernames[i],
-    email: `${usernames[i]}@demo.an1hem.app`,
+    email: `${usernames[i]}@demo.pixel100.com`,
     role: roles[i],
     bio: bios[i],
     skills:
@@ -405,7 +405,7 @@ async function main() {
     .eq("status", "Published");
   console.log("Published projects after:", after ?? 0);
   console.log("Seed complete.");
-  console.log("Demo login: phatsawut@demo.an1hem.app / an1hem-demo-seed");
+  console.log("Demo login: phatsawut@demo.pixel100.com / pixel100-demo-seed");
   console.log("See docs/demo-catalog.md");
 }
 

@@ -16,7 +16,7 @@ export default function DemoModeBanner() {
       <Info className="w-3.5 h-3.5 shrink-0 text-primary" aria-hidden />
       <span>
         <strong>{BRAND_NAME}</strong> — {DEMO_BANNER_SHORT} (
-        <code className="text-[11px] bg-muted px-1 rounded">*@demo.an1hem.app</code> /{" "}
+        <code className="text-[11px] bg-muted px-1 rounded">*@demo.pixel100.com</code> /{" "}
         <code className="text-[11px] bg-muted px-1 rounded">{getDemoPassword()}</code>)
       </span>
       <Link to="/research" className="text-primary font-medium hover:underline whitespace-nowrap">

@@ -57,19 +57,19 @@ export const RESEARCH_PERSONAS: ResearchPersona[] = [
   {
     id: "creator-new",
     label: "ครีเอเตอร์ใหม่",
-    email: "phatsawut@demo.an1hem.app",
+    email: "phatsawut@demo.pixel100.com",
     note: "Onboarding, Welcome PX, สร้าง/เผยแพร่ผลงานแรก",
   },
   {
     id: "creator-popular",
     label: "ครีเอเตอร์ยอดนิยม",
-    email: "napatsara@demo.an1hem.app",
+    email: "napatsara@demo.pixel100.com",
     note: "โปรไฟล์ที่มี engagement, ของขวัญ, คอลเลกชัน",
   },
   {
     id: "hirer",
     label: "ผู้จ้าง / สำรวจงาน",
-    email: "chatchai@demo.an1hem.app",
+    email: "chatchai@demo.pixel100.com",
     note: "Jobs, คำขอจ้าง, แชท, สมัครงาน",
   },
 ];
@@ -123,7 +123,7 @@ export const DESIGN_CHECKLIST: ChecklistItem[] = [
   { id: "d-microcopy", text: "Microcopy — จ้าง vs คอลแลป vs สมัครงาน ไม่สับสน" },
   { id: "d-trust", text: "Trust & legal — cookie banner, footer legal, /legal/ip อ่านง่าย" },
   { id: "d-a11y", text: "Accessibility — focus ring, alt รูป demo, contrast ปุ่มสำคัญ" },
-  { id: "d-1px-vs-solo", text: "1PX (หน้าร้านโชว์งาน) vs So1o (หลังบ้านจัดการงาน) — ผู้ใช้ใหม่เข้าใจความต่างไหม" },
+  { id: "d-1px-vs-solo", text: "Pixel100 (หน้าร้านโชว์งาน) vs So1o (หลังบ้านจัดการงาน) — ผู้ใช้ใหม่เข้าใจความต่างไหม" },
 ];
 
 export const FEATURE_SECTIONS: FeatureSection[] = [
@@ -788,7 +788,7 @@ export const FEEDBACK_TEMPLATE = {
     "ผู้ใช้ใหม่รู้ next step หลัง login ไหม",
     "Mobile vs Desktop — จุดที่ใช้ยากที่สุด",
     "Empty / loading / error — เข้าใจไหม",
-    "ความต่าง 1PX vs So1o — เข้าใจไหม",
+    "ความต่าง Pixel100 vs So1o — เข้าใจไหม",
   ],
 };
 

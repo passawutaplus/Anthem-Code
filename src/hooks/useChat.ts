@@ -427,6 +427,25 @@ export const useAcceptRequest = () => {
   });
 };
 
+/** Accept a client → studio hire request (creates hire conversation with studio_id). */
+export const useAcceptStudioHireRequest = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (requestId: string) => {
+      const { data, error } = await supabase.rpc("accept_studio_hire_request", {
+        p_request_id: requestId,
+      });
+      if (error) throw error;
+      return data as string;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["conversations"] });
+      qc.invalidateQueries({ queryKey: ["hiring_requests"] });
+      qc.invalidateQueries({ queryKey: ["studio_hiring_requests"] });
+    },
+  });
+};
+
 export const useRejectRequest = () => {
   const qc = useQueryClient();
   return useMutation({

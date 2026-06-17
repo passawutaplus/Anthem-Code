@@ -1,6 +1,6 @@
 /** Demo / UX research mode — เปิดด้วย VITE_DEMO_MODE=true */
 
-export const DEMO_EMAIL_SUFFIX = "@demo.an1hem.app";
+export const DEMO_EMAIL_SUFFIX = "@demo.pixel100.com";
 
 export const DEMO_RESEARCH_ACCOUNTS = [
   {
@@ -28,7 +28,7 @@ export function isDemoMode(): boolean {
 export function getDemoPassword(): string {
   if (!isDemoMode()) return "";
   const fromEnv = import.meta.env.VITE_DEMO_PASSWORD as string | undefined;
-  return fromEnv?.trim() || "an1hem-demo-seed";
+  return fromEnv?.trim() || "pixel100-demo-seed";
 }
 
 /** @deprecated Prefer getDemoPassword() */

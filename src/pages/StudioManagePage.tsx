@@ -13,9 +13,10 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { Building2, Loader2, Plus, Users, ArrowLeft, MessageCircle } from "lucide-react";
+import { Building2, Loader2, Plus, Users, ArrowLeft, MessageCircle, Briefcase } from "lucide-react";
 import { useStudioConversation } from "@/hooks/useChat";
 import JobCard from "@/components/jobs/JobCard";
+import { StudioHireInbox } from "@/components/studio/StudioHireInbox";
 import JobCoverUploadField from "@/components/jobs/JobCoverUploadField";
 import JobCardPreview from "@/components/jobs/JobCardPreview";
 
@@ -95,6 +96,7 @@ const StudioManageInner = () => {
           <TabsList className="rounded-xl">
             <TabsTrigger value="jobs" className="rounded-lg"><BriefcaseIcon className="w-3.5 h-3.5 mr-1.5" />ประกาศงาน</TabsTrigger>
             <TabsTrigger value="members" className="rounded-lg"><Users className="w-3.5 h-3.5 mr-1.5" />สมาชิก</TabsTrigger>
+            <TabsTrigger value="hires" className="rounded-lg"><Briefcase className="w-3.5 h-3.5 mr-1.5" />คำขอจ้าง</TabsTrigger>
             <TabsTrigger value="chat" className="rounded-lg"><MessageCircle className="w-3.5 h-3.5 mr-1.5" />แชททีม</TabsTrigger>
             <TabsTrigger value="settings" className="rounded-lg">ตั้งค่า</TabsTrigger>
           </TabsList>
@@ -132,6 +134,11 @@ const StudioManageInner = () => {
                 </div>
               </div>
             ))}
+          </TabsContent>
+
+          <TabsContent value="hires" className="space-y-3">
+            <p className="text-sm text-muted-foreground">คำขอจ้าง Studio จากลูกค้า — ตอบรับแล้วเปิดแชทจ้างงาน</p>
+            <StudioHireInbox studioId={studio.id} />
           </TabsContent>
 
           <TabsContent value="chat" className="space-y-4">

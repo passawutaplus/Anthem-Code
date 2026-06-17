@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { cn } from "@/lib/utils";
-import { resolveToolIconSlug, toolIconUrl } from "@/lib/toolIcons";
+import { resolveToolIconSlug, toolIconSources } from "@/lib/toolIcons";
 
 interface Props {
   name: string;
@@ -15,11 +15,13 @@ const SIZE_CLASS = {
 } as const;
 
 const ToolIcon = ({ name, size = "md", className }: Props) => {
-  const [errored, setErrored] = useState(false);
   const slug = resolveToolIconSlug(name);
+  const sources = slug ? toolIconSources(slug) : [];
+  const [sourceIndex, setSourceIndex] = useState(0);
   const sizeClass = SIZE_CLASS[size];
+  const src = sources[sourceIndex];
 
-  if (errored || !slug) {
+  if (!slug || !src || sourceIndex >= sources.length) {
     return (
       <div
         className={cn(
@@ -35,12 +37,13 @@ const ToolIcon = ({ name, size = "md", className }: Props) => {
 
   return (
     <img
-      src={toolIconUrl(slug)}
+      src={src}
       alt=""
       aria-hidden
       className={cn("object-contain shrink-0", sizeClass, className)}
       loading="lazy"
-      onError={() => setErrored(true)}
+      key={src}
+      onError={() => setSourceIndex((i) => i + 1)}
     />
   );
 };

@@ -183,6 +183,27 @@ export function getToolDescription(name: string): string | undefined {
   return descByKey.get(spaced) ?? descByKey.get(compact);
 }
 
+/** Bundled icons for tools not on theSVG (see public/tool-icons/). */
+const LOCAL_TOOL_ICONS: Record<string, string> = {
+  procreate: "/tool-icons/procreate.png",
+  invision: "/tool-icons/invision.svg",
+  zeplin: "/tool-icons/zeplin.svg",
+  zbrush: "/tool-icons/zbrush.svg",
+  spline: "/tool-icons/spline.webp",
+  "final-cut-pro": "/tool-icons/final-cut-pro.svg",
+  "logic-pro": "/tool-icons/logic-pro.svg",
+  "ableton-live": "/tool-icons/ableton-live.svg",
+  "fl-studio": "/tool-icons/fl-studio.png",
+  garageband: "/tool-icons/garageband.svg",
+};
+
 export function toolIconUrl(slug: string): string {
-  return `https://thesvg.org/icons/${slug}/default.svg`;
+  return toolIconSources(slug)[0];
+}
+
+/** Local asset first, then theSVG CDN. */
+export function toolIconSources(slug: string): string[] {
+  const local = LOCAL_TOOL_ICONS[slug];
+  const remote = `https://thesvg.org/icons/${slug}/default.svg`;
+  return local ? [local, remote] : [remote];
 }

@@ -1,8 +1,8 @@
 import { test, expect } from "@playwright/test";
 import { seedCookieConsent } from "../helpers/cookie";
 
-const DEMO_EMAIL = process.env.E2E_DEMO_EMAIL ?? "phatsawut@demo.an1hem.app";
-const DEMO_PASSWORD = process.env.E2E_DEMO_PASSWORD ?? "an1hem-demo-seed";
+const DEMO_EMAIL = process.env.E2E_DEMO_EMAIL ?? "phatsawut@demo.pixel100.com";
+const DEMO_PASSWORD = process.env.E2E_DEMO_PASSWORD ?? "pixel100-demo-seed";
 const DEMO_CONV_ID = "00000000-0000-0000-000c-000000000005";
 
 async function signInDemo(page: import("@playwright/test").Page) {

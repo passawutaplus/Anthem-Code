@@ -1,5 +1,5 @@
 -- ลบข้อมูล demo ก่อน production (รันทีละบล็อก — ตรวจ FK)
--- ครอบคลุม users 0..49 (@demo.an1hem.app)
+-- ครอบคลุม users 0..49 (@demo.pixel100.com และ legacy @demo.an1hem.app)
 
 DELETE FROM shared.notifications WHERE id::text LIKE '00000000-0000-0000-000e-%';
 DELETE FROM public.messages WHERE id::text LIKE '00000000-0000-0000-000d-%';
@@ -25,4 +25,4 @@ DELETE FROM public.studios WHERE id::text LIKE '00000000-0000-0000-0001-%';
 DELETE FROM public.wallets WHERE user_id::text LIKE '00000000-0000-0000-0000-00000000a0%';
 DELETE FROM public.profiles WHERE id::text LIKE '00000000-0000-0000-0000-00000000a0%';
 
--- ลบ auth.users ที่ email LIKE '%@demo.an1hem.app' ผ่าน Dashboard → Authentication
+-- ลบ auth.users ที่ email LIKE '%@demo.pixel100.com' หรือ '%@demo.an1hem.app' ผ่าน Dashboard → Authentication

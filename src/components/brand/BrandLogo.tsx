@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { BRAND_MARK } from "@/lib/brandConfig";
+import { BRAND_MARK, BRAND_NAME } from "@/lib/brandConfig";
 
 type Props = {
   showWordmark?: boolean;
@@ -7,9 +7,12 @@ type Props = {
   className?: string;
 };
 
-/** Header / auth mark — gradient square + optional 1PX wordmark */
+/** Header / auth mark — gradient square + optional Pixel100 wordmark */
 export function BrandLogo({ showWordmark = true, size = "md", className }: Props) {
-  const box = size === "sm" ? "w-8 h-8 rounded-lg text-[10px]" : "w-9 h-9 rounded-xl text-xs";
+  const box =
+    size === "sm"
+      ? "w-8 h-8 rounded-lg text-[9px]"
+      : "w-9 h-9 rounded-xl text-[10px]";
 
   return (
     <div className={cn("flex items-center gap-2.5", className)}>
@@ -23,9 +26,9 @@ export function BrandLogo({ showWordmark = true, size = "md", className }: Props
         {BRAND_MARK}
       </div>
       {showWordmark && (
-        <span className="font-medium text-lg leading-tight">
-          <span className="text-gradient">1</span>
-          <span className="text-foreground">PX</span>
+        <span className="font-medium text-lg leading-tight text-foreground">
+          <span className="text-gradient">Pixel</span>
+          <span>{BRAND_NAME.slice(5)}</span>
         </span>
       )}
     </div>

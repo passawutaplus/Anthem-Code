@@ -29,9 +29,9 @@ describe("sitemap-lib", () => {
   });
 
   it("generates well-formed XML with absolute URLs", () => {
-    const xml = buildSitemapXml("https://1px.app");
+    const xml = buildSitemapXml("https://pixel100.com");
     expect(xml).toContain("<urlset");
-    expect(xml).toContain("<loc>https://1px.app/jobs</loc>");
+    expect(xml).toContain("<loc>https://pixel100.com/jobs</loc>");
     expect(xml).not.toMatch(/<loc>[^<]*\/admin<\/loc>/);
   });
 });

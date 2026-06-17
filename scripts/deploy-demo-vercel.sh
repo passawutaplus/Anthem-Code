@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Deploy 1PX demo to Vercel (preview). Requires: vercel login, .env with Supabase keys.
+# Deploy Pixel100 demo to Vercel (preview). Requires: vercel login, .env with Supabase keys.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
@@ -56,5 +56,5 @@ echo ""
 echo "Next steps:"
 echo "  1. Supabase Dashboard → Authentication → URL Configuration"
 echo "     Add redirect: ${DEPLOY_URL%/}/auth/callback"
-echo "  2. Share demo login: phatsawut@demo.an1hem.app / an1hem-demo-seed"
+echo "  2. Share demo login: phatsawut@demo.pixel100.com / pixel100-demo-seed"
 echo "  3. Production: VITE_DEMO_MODE=false + npx vercel deploy --prod (never use this script with --prod)"

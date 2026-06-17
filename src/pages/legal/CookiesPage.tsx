@@ -2,7 +2,7 @@ import LegalLayout from "@/components/LegalLayout";
 import CookieTable from "@/components/legal/CookieTable";
 import { Button } from "@/components/ui/button";
 import { requestOpenCookiePreferences } from "@/lib/cookieConsent";
-import { LEGAL_APP_NAME } from "@/lib/legalConfig";
+import { LEGAL_APP_NAME, LEGAL_SOLO_NAME } from "@/lib/legalConfig";
 
 const CookiesPage = () => (
   <LegalLayout title="นโยบายคุกกี้">
@@ -53,6 +53,7 @@ const CookiesPage = () => (
     <ul>
       <li><strong>Supabase Auth</strong> — จัดการเซสชันการเข้าสู่ระบบ</li>
       <li><strong>Google</strong> — เมื่อคุณเลือก &quot;เข้าสู่ระบบด้วย Google&quot; (เป็นไปตามนโยบายของ Google)</li>
+      <li><strong>Stripe</strong> — เมื่อชำระ subscription ผ่าน {LEGAL_SOLO_NAME} (ecosystem)</li>
     </ul>
     <p>
       เราไม่ใช้ป้ายโฆษณาติดตามข้ามเว็บ (third-party ad tracking) ในปัจจุบัน

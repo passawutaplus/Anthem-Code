@@ -1,10 +1,17 @@
 import { describe, expect, it } from "vitest";
-import { resolveToolIconSlug, toolIconUrl } from "@/lib/toolIcons";
+import { resolveToolIconSlug, toolIconSources, toolIconUrl } from "@/lib/toolIcons";
 
 describe("toolIcons", () => {
   it("builds theSVG CDN URLs", () => {
     expect(toolIconUrl("figma")).toBe("https://thesvg.org/icons/figma/default.svg");
     expect(toolIconUrl("tailwind-css")).toBe("https://thesvg.org/icons/tailwind-css/default.svg");
+  });
+
+  it("prefers bundled local icons for tools missing on theSVG", () => {
+    expect(toolIconSources("procreate")[0]).toBe("/tool-icons/procreate.png");
+    expect(toolIconSources("procreate")[1]).toContain("thesvg.org");
+    expect(toolIconSources("invision")[0]).toBe("/tool-icons/invision.svg");
+    expect(toolIconSources("zeplin")[0]).toBe("/tool-icons/zeplin.svg");
   });
 
   it("maps common tool names to theSVG slugs", () => {
