@@ -43,6 +43,7 @@ BUILD_ENVS=(
 if [[ -n "${VITE_SO1O_APP_URL:-}" ]]; then
   BUILD_ENVS+=(--build-env "VITE_SO1O_APP_URL=${VITE_SO1O_APP_URL}")
 fi
+BUILD_ENVS+=(--build-env "VITE_OPS_HUB_URL=${VITE_OPS_HUB_URL:-https://so1o-ops-hub.vercel.app}")
 
 DEPLOY_OUTPUT="$(mktemp)"
 npx vercel deploy --yes "${BUILD_ENVS[@]}" | tee "$DEPLOY_OUTPUT"
