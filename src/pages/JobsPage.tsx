@@ -1,6 +1,6 @@
 import BriefcaseIcon from "../components/icons/BriefcaseIcon";
 import { useState, useMemo, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useOpenJobs } from "@/hooks/useJobs";
 import { useAuth } from "@/hooks/useAuth";
 import { requireAuth } from "@/lib/requireAuth";
@@ -15,6 +15,7 @@ import { cn } from "@/lib/utils";
 import SeoHead from "@/components/SeoHead";
 import { BRAND_NAME } from "@/lib/brandConfig";
 import { markOnboardingVisit } from "@/lib/onboardingStorage";
+import { MOBILE_PAGE_BOTTOM_CLASS } from "@/lib/mobileLayout";
 
 const LOCATION_CHIPS = [
   { v: "all", label: "ทั้งหมด" },
@@ -40,6 +41,7 @@ const POSTER_CHIPS = [
 
 const JobsPage = () => {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { user } = useAuth();
   const [mode, setMode] = useState<"hiring" | "seeking">("hiring");
   const { data: jobs = [], isLoading } = useOpenJobs({ postType: mode });
@@ -53,6 +55,18 @@ const JobsPage = () => {
   useEffect(() => {
     if (user?.id) markOnboardingVisit(user.id, "jobs");
   }, [user?.id]);
+
+  useEffect(() => {
+    if (searchParams.get("post") !== "1") return;
+    if (!user) {
+      requireAuth(user, () => {});
+      return;
+    }
+    setDialogOpen(true);
+    const next = new URLSearchParams(searchParams);
+    next.delete("post");
+    setSearchParams(next, { replace: true });
+  }, [searchParams, setSearchParams, user]);
 
   const roleCategories = useMemo(() => {
     const set = new Set<string>();
@@ -78,7 +92,7 @@ const JobsPage = () => {
   });
 
   return (
-    <div className="min-h-screen bg-app-ambient pb-24 lg:pb-12">
+    <div className={cn("min-h-screen bg-app-ambient lg:pb-12", MOBILE_PAGE_BOTTOM_CLASS)}>
       <SeoHead
         title={mode === "hiring" ? "งานจ้างดีไซน์" : "หางานฟรีแลนซ์"}
         description={`ค้นหางานดีไซน์ โพสต์ประกาศจ้าง หรือหาโอกาสร่วมงานจากสตูดิโอและบริษัทบน ${BRAND_NAME}`}

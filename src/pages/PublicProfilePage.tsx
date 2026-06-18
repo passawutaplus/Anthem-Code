@@ -25,7 +25,11 @@ import { BRAND_NAME } from "@/lib/brandConfig";
 import { truncateDescription } from "@/lib/seo";
 import { isUuid, profilePublicPath } from "@/lib/profileRoutes";
 import { sortPortfolioProjects } from "@/lib/portfolioSort";
+import { dailyDrillTag } from "@/lib/designDrillPick.vendored";
+import { DrillTodayPublicCard } from "@/components/drill/DrillTodayPublicCard";
 import { Navigate } from "react-router-dom";
+import { cn } from "@/lib/utils";
+import { MOBILE_PAGE_BOTTOM_CLASS } from "@/lib/mobileLayout";
 
 
 const PublicProfilePage = () => {
@@ -87,6 +91,17 @@ const PublicProfilePage = () => {
     return Array.from(counts.entries()).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([c]) => c);
   }, [orderedProjects]);
   const recentProjects = useMemo(() => orderedProjects.slice(0, 6), [orderedProjects]);
+  const dailyTag = dailyDrillTag();
+  const drillProjects = useMemo(
+    () =>
+      orderedProjects.filter(
+        (p) =>
+          Array.isArray(p.tags) &&
+          p.tags.includes("So1oDrill") &&
+          p.tags.includes(dailyTag),
+      ),
+    [orderedProjects, dailyTag],
+  );
 
   if (vanityRedirect) {
     return <Navigate to={vanityRedirect} replace />;
@@ -129,7 +144,7 @@ const PublicProfilePage = () => {
   );
 
   return (
-    <div className="min-h-screen bg-app-ambient">
+    <div className={cn("min-h-screen bg-app-ambient", MOBILE_PAGE_BOTTOM_CLASS)}>
       <SeoHead
         title={displayName}
         description={seoDesc}
@@ -249,6 +264,17 @@ const PublicProfilePage = () => {
         </div>
       </div>
 
+      <div className="max-w-5xl mx-auto px-4 mt-6 space-y-4">
+        <DrillTodayPublicCard />
+        {drillProjects.length > 0 && (
+          <div>
+            <h2 className="text-sm font-medium text-muted-foreground mb-2">
+              ผลงาน Design Drill วันนี้
+            </h2>
+            <PortfolioGrid projects={drillProjects.slice(0, 3) as Parameters<typeof PortfolioGrid>[0]["projects"]} />
+          </div>
+        )}
+      </div>
 
       {/* Recent works */}
       {recentProjects.length > 0 && (

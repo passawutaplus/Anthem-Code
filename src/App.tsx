@@ -10,7 +10,7 @@ import Index from "./pages/Index.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import ErrorPage from "./pages/ErrorPage.tsx";
 import CookieConsent from "./components/CookieConsent.tsx";
-import BottomNav from "./components/BottomNav.tsx";
+import FloatingNav from "./components/FloatingNav.tsx";
 import RequireAuth from "./components/RequireAuth.tsx";
 import AuthDialog from "./components/AuthDialog.tsx";
 import FeedbackFab from "./components/feedback/FeedbackFab.tsx";
@@ -90,6 +90,7 @@ const UpgradePage = lazy(() => import("./pages/UpgradePage.tsx"));
 const AdDetailPage = lazy(() => import("./pages/AdDetailPage.tsx"));
 const ContractEditorPage = lazy(() => import("./pages/ContractEditorPage.tsx"));
 const ContractsListPage = lazy(() => import("./pages/ContractsListPage.tsx"));
+const DrillGalleryPage = lazy(() => import("./pages/DrillGalleryPage.tsx"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -124,6 +125,7 @@ const App = () => (
               <Route path="/portfolio/new" element={<RequireAuth><ProjectEditorPage /></RequireAuth>} />
               <Route path="/portfolio/:id/edit" element={<RequireAuth><ProjectEditorPage /></RequireAuth>} />
               <Route path="/project/:id" element={<ProjectDetailPage />} />
+              <Route path="/drill" element={<DrillGalleryPage />} />
               <Route path="/explore/:kind/:value" element={<ExploreProjectsPage />} />
               <Route path="/similar/:projectId" element={<SimilarImagesPage />} />
               <Route path="/inspire/:boardId" element={<InspireBoardDetailPage />} />
@@ -199,7 +201,7 @@ const App = () => (
             </Routes>
           </Suspense>
           <CookieConsent />
-          <BottomNav />
+          <FloatingNav />
           <AuthDialog />
           <FeedbackFab />
           <AnthemAssistantFab />

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { mobileFabBottom } from "@/lib/mobileLayout";
 import { useAuth } from "@/hooks/useAuth";
 import { useAuthDialog } from "@/stores/authDialogStore";
 import { useSubmitFeedback } from "@/hooks/useFeedback";
@@ -73,7 +74,7 @@ const FeedbackFab = () => {
     <div
       className="fixed right-3 z-40 md:right-5"
       style={{
-        bottom: "calc(env(safe-area-inset-bottom, 0px) + 5rem)",
+        bottom: mobileFabBottom(),
       }}
     >
       <Popover open={open} onOpenChange={handleOpenChange}>

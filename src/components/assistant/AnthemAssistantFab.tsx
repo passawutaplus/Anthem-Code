@@ -7,7 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAiUsage } from "@/hooks/useAiUsage";
 import { useSubscription } from "@/core/subscription";
 import { BRAND_NAME } from "@/lib/brandConfig";
-import { panelTransition, panelVariants } from "@/lib/motion";
+import { mobileFabBottom } from "@/lib/mobileLayout";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 
@@ -54,7 +54,8 @@ export function AnthemAssistantFab() {
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="fixed bottom-20 right-4 z-40 h-12 w-12 rounded-full bg-primary text-primary-foreground shadow-lg flex items-center justify-center hover:opacity-90"
+        className="fixed right-4 z-40 h-12 w-12 rounded-full bg-primary text-primary-foreground shadow-lg flex items-center justify-center hover:opacity-90 lg:bottom-6"
+        style={{ bottom: mobileFabBottom("0.5rem") }}
         aria-label={ASSISTANT_LABEL}
       >
         {open ? <X className="h-5 w-5" /> : <Sparkles className="h-5 w-5" />}
@@ -68,7 +69,8 @@ export function AnthemAssistantFab() {
             animate="animate"
             exit="exit"
             transition={panelTransition}
-            className="fixed bottom-36 right-4 z-40 w-[min(100vw-2rem,22rem)] rounded-2xl border border-border bg-background shadow-xl p-4 space-y-3"
+            className="fixed right-4 z-40 w-[min(100vw-2rem,22rem)] rounded-2xl border border-border bg-background shadow-xl p-4 space-y-3 lg:bottom-24"
+            style={{ bottom: mobileFabBottom("4.5rem") }}
           >
           <div className="flex items-center justify-between gap-2">
             <p className="text-sm font-semibold">{ASSISTANT_LABEL}</p>

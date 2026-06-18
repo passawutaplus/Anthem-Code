@@ -2,7 +2,7 @@ import BriefcaseIcon from "../components/icons/BriefcaseIcon";
 import { useMemo, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, Settings, ExternalLink, LayoutGrid, Sparkles, Phone, UserPlus, FileCheck, Plus, Layers3, ArrowDownUp, Eye, Heart, Clock, ChevronDown, ChevronUp, Gift as GiftIcon } from "lucide-react";
+import { ArrowLeft, Settings, ExternalLink, LayoutGrid, Sparkles, Phone, UserPlus, FileCheck, Plus, Layers3, ArrowDownUp, Eye, Heart, Clock, ChevronDown, ChevronUp, Gift as GiftIcon, Target } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -22,6 +22,9 @@ import ProfileMenuCard from "@/components/profile/ProfileMenuCard";
 import ProfileCoverHeader from "@/components/profile/ProfileCoverHeader";
 import ReceivedGiftsSummary from "@/components/profile/ReceivedGiftsSummary";
 import OnboardingChecklist from "@/components/onboarding/OnboardingChecklist";
+import { DesignDrillSection } from "@/components/drill/DesignDrillSection";
+import { MOBILE_PAGE_BOTTOM_CLASS } from "@/lib/mobileLayout";
+import { cn } from "@/lib/utils";
 import { markOnboardingVisit } from "@/lib/onboardingStorage";
 import { profilePublicPath, profilePublicUrl } from "@/lib/profileRoutes";
 import { sortPortfolioProjects, type PortfolioSortMode } from "@/lib/portfolioSort";
@@ -86,7 +89,7 @@ const PortfolioProfilePage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-app-ambient">
+    <div className={cn("min-h-screen bg-app-ambient", MOBILE_PAGE_BOTTOM_CLASS)}>
       {/* Top bar */}
       <div className="sticky top-0 z-30 glass-panel border-x-0 border-t-0 rounded-none">
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
@@ -137,6 +140,10 @@ const PortfolioProfilePage = () => {
         {/* RIGHT: Sections */}
         <main className="space-y-6 min-w-0">
           <OnboardingChecklist variant="full" />
+
+          <Section icon={Target} title="Design Drill">
+            <DesignDrillSection />
+          </Section>
 
           {/* About */}
           <Section icon={Sparkles} title="เกี่ยวกับฉัน" action={<EditLink to="/settings" />}>

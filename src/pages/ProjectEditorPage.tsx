@@ -42,10 +42,13 @@ import {
   splitMediaItems,
   type PortfolioMediaItem,
 } from "@/lib/portfolioMedia";
+import { dailyDrillTag } from "@/lib/designDrillPick.vendored";
 import {
   usePortfolioAiAssist,
   type PortfolioAiAssistResult,
 } from "@/hooks/usePortfolioAiAssist";
+import { MOBILE_PAGE_BOTTOM_CLASS } from "@/lib/mobileLayout";
+import { cn } from "@/lib/utils";
 
 type Status = "Published" | "Draft" | "Private";
 
@@ -58,6 +61,7 @@ const ProjectEditorPage = () => {
   const { tier } = useSubscription();
   const limits = getProjectLimits(tier);
   const folderRef = useRef<string>(id ?? crypto.randomUUID());
+  const drillMetaRef = useRef<{ drill_type?: string; drill_date?: string }>({});
 
   const { data: existing } = useProject(id);
   const create = useCreateProject();
@@ -109,8 +113,24 @@ const ProjectEditorPage = () => {
     if (params.get("from") !== "so1o") return;
     const prefillTitle = params.get("title")?.trim();
     const prefillClient = params.get("client")?.trim();
+    const prefillDesc = params.get("description")?.trim();
+    const prefillCat = params.get("category")?.trim();
+    const prefillTags = params.get("tags")?.trim();
+    const drillType = params.get("drill_type")?.trim();
+    const drillDate = params.get("drill_date")?.trim();
     if (prefillTitle) setTitle(prefillTitle);
-    if (prefillClient) {
+    if (prefillDesc) setDescription(prefillDesc);
+    if (prefillCat && categories.some((c) => c === prefillCat)) setCategory(prefillCat);
+    if (prefillTags) {
+      setTags(
+        prefillTags
+          .split(",")
+          .map((t) => t.trim())
+          .filter(Boolean),
+      );
+    }
+    drillMetaRef.current = { drill_type: drillType, drill_date: drillDate };
+    if (prefillClient && !prefillDesc) {
       setDescription((d) =>
         d.trim()
           ? d
@@ -334,6 +354,15 @@ const ProjectEditorPage = () => {
 
     const { gallery_urls, video_urls } = splitMediaItems(mediaItems);
 
+    let finalTags = [...tags];
+    if (drillMetaRef.current.drill_type === "daily") {
+      const dailyTag =
+        drillMetaRef.current.drill_date
+          ? `DrillDaily${drillMetaRef.current.drill_date}`
+          : dailyDrillTag();
+      finalTags = [...new Set([...finalTags, "So1oDrill", dailyTag])];
+    }
+
     const payload = {
       title: title.trim(),
       subtitle: subtitle.trim(),
@@ -343,7 +372,7 @@ const ProjectEditorPage = () => {
       gallery_urls,
       video_urls,
       tools,
-      tags,
+      tags: finalTags,
       price_thb: price ? Number(price) : null,
       status: targetStatus,
       allow_hire: allowHire,
@@ -436,7 +465,7 @@ const ProjectEditorPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-app-ambient">
+    <div className={cn("min-h-screen bg-app-ambient", MOBILE_PAGE_BOTTOM_CLASS)}>
       {/* Sticky header */}
       <div className="sticky top-0 z-30 bg-background/85 backdrop-blur-md border-b border-border">
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center gap-3">

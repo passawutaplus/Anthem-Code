@@ -47,7 +47,7 @@ export function AiUsageSettingsSection() {
         <div>
           <h2 className="font-semibold text-foreground flex items-center gap-2">
             <Zap className="w-5 h-5 text-amber-500" />
-            โควต้า AI
+            Credit AI
           </h2>
           <p className="text-xs text-muted-foreground mt-1">
             {isLoading

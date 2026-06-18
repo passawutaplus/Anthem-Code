@@ -1,16 +1,21 @@
+import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import SectionHeader from "@/components/admin/SectionHeader";
 import DataTable, { Column } from "@/components/admin/DataTable";
 import StatusPill from "@/components/admin/StatusPill";
-import { SearchBar, useSearch } from "@/components/admin/SearchBar";
+import { SearchBar } from "@/components/admin/SearchBar";
 import AdminRowActions from "@/components/admin/AdminRowActions";
 import AdminExportButton from "@/components/admin/AdminExportButton";
+import { MemberCodeCopy } from "@/components/MemberCodeCopy";
 import { useAdminList } from "@/hooks/admin/useAdminList";
 import { useAdminSetUserRole } from "@/hooks/admin/useAdminMutations";
 import { useFreezeAccount, useUnfreezeAccount } from "@/hooks/useAmlFlags";
 import { supabase } from "@/integrations/supabase/client";
 import { formatThaiDate } from "@/lib/format";
+import { formatMemberCode, memberCodeMatchesUserId } from "@/lib/memberCode";
+import { OPS_HUB_URL } from "@/lib/productLinks";
 
 interface Row {
   id: string;
@@ -30,7 +35,32 @@ export default function AdminUsersPage() {
     "profiles",
     "id,display_name,username,email,role,location,account_status,is_verified,risk_score,created_at",
   );
-  const { q, setQ, filtered } = useSearch(data, ["display_name", "username", "email", "role", "account_status"]);
+  const [searchParams] = useSearchParams();
+  const initialQ = searchParams.get("q") ?? "";
+  const [q, setQ] = useState(initialQ);
+
+  useEffect(() => {
+    const urlQ = searchParams.get("q") ?? "";
+    if (urlQ) setQ(urlQ);
+  }, [searchParams]);
+  const filtered = useMemo(() => {
+    const rows = data ?? [];
+    const query = q.trim();
+    if (!query) return rows;
+    const lower = query.toLowerCase();
+    return rows.filter((r) => {
+      if (memberCodeMatchesUserId(query, r.id)) return true;
+      if (formatMemberCode(r.id).toLowerCase().includes(lower)) return true;
+      if (r.id.toLowerCase().startsWith(lower)) return true;
+      return (
+        (r.display_name ?? "").toLowerCase().includes(lower) ||
+        (r.username ?? "").toLowerCase().includes(lower) ||
+        (r.email ?? "").toLowerCase().includes(lower) ||
+        (r.role ?? "").toLowerCase().includes(lower) ||
+        (r.account_status ?? "").toLowerCase().includes(lower)
+      );
+    });
+  }, [data, q]);
   const setRole = useAdminSetUserRole();
   const freeze = useFreezeAccount();
   const unfreeze = useUnfreezeAccount();
@@ -58,6 +88,11 @@ export default function AdminUsersPage() {
     },
     { key: "email", header: "Email", render: (r) => <span className="font-mono text-xs">{r.email || "—"}</span> },
     {
+      key: "member",
+      header: "รหัสสมาชิก",
+      render: (r) => <MemberCodeCopy userId={r.id} size="sm" />,
+    },
+    {
       key: "status",
       header: "สถานะ",
       render: (r) => (
@@ -84,6 +119,10 @@ export default function AdminUsersPage() {
           <AdminRowActions
             actions={[
               { label: "ดูโปรไฟล์", href: `/u/${r.id}` },
+              {
+                label: "Ops Hub User 360",
+                href: `${OPS_HUB_URL}/users/${r.id}`,
+              },
               {
                 label: isAdmin ? "ถอดสิทธิ์ admin" : "ตั้งเป็น admin",
                 onClick: () =>
@@ -127,6 +166,7 @@ export default function AdminUsersPage() {
 
   const exportRows = (filtered ?? []).map((r) => ({
     id: r.id,
+    member_code: formatMemberCode(r.id),
     display_name: r.display_name,
     username: r.username,
     email: r.email,
@@ -145,7 +185,7 @@ export default function AdminUsersPage() {
         actions={
           <div className="flex items-center gap-2">
             <AdminExportButton rows={exportRows} filename="admin-users.csv" />
-            <SearchBar value={q} onChange={setQ} />
+            <SearchBar value={q} onChange={setQ} placeholder="ชื่อ, email, รหัส S…" />
           </div>
         }
       />

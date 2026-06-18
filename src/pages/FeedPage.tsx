@@ -37,7 +37,8 @@ import {
 import { useAuth } from "@/hooks/useAuth";
 import { useAuthDialog } from "@/stores/authDialogStore";
 import { useCommunityPosts } from "@/hooks/useCommunityPosts";
-import CommunityPostCard from "@/components/feed/CommunityPostCard";
+import { cn } from "@/lib/utils";
+import { MOBILE_PAGE_BOTTOM_CLASS } from "@/lib/mobileLayout";
 
 type FeedMode2 = "Explore" | SpecialFilter;
 const requiresAuth = (m: FeedMode2) => m === "For You" || m === "Following";
@@ -204,7 +205,7 @@ const FeedPage = (_props: { onMyPortClick: () => void }) => {
   };
 
   return (
-    <main className="min-h-screen bg-app-ambient pb-24 lg:pb-0">
+    <main className={cn("min-h-screen bg-app-ambient", MOBILE_PAGE_BOTTOM_CLASS)}>
       <div className="max-w-[1920px] mx-auto px-3 sm:px-4 lg:px-6 2xl:px-10 pt-4 py-4 space-y-4">
         <FeedHero />
 

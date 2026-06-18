@@ -13,6 +13,8 @@ import { useUpdateCollabStatus } from "@/hooks/useCollabRequests";
 import { useNotifications as useInbox } from "@/core/notifications";
 import InboxList from "@/components/notifications/InboxList";
 import SeoHead from "@/components/SeoHead";
+import { cn } from "@/lib/utils";
+import { MOBILE_PAGE_BOTTOM_CLASS } from "@/lib/mobileLayout";
 
 const timeAgo = (iso: string) => {
   const diff = Date.now() - new Date(iso).getTime();
@@ -61,7 +63,7 @@ const NotificationsPage = () => {
   if (loading) return <div className="min-h-screen flex items-center justify-center text-muted-foreground">กำลังโหลด...</div>;
 
   return (
-    <div className="min-h-screen bg-app-ambient pb-24 lg:pb-8">
+    <div className={cn("min-h-screen bg-app-ambient lg:pb-8", MOBILE_PAGE_BOTTOM_CLASS)}>
       <SeoHead title="การแจ้งเตือน" path="/notifications" noindex />
       <header className="sticky top-0 z-20 bg-background/60 backdrop-blur-xl border-b border-border/40">
         <div className="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between">
