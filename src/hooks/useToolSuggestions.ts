@@ -1,12 +1,12 @@
 import { useMemo } from "react";
 import { useMyProjects, usePublishedProjects } from "@/hooks/useProjects";
-import { COMMON_TOOLS } from "@/lib/toolIcons";
+import { COMMON_TOOLS, compareToolsVisualFirst, isAudioTool } from "@/lib/toolIcons";
 
 const USER_WEIGHT = 4;
 const PLATFORM_WEIGHT = 1;
 const MAX_SUGGESTIONS = 30;
 
-export { COMMON_TOOLS };
+export { COMMON_TOOLS, isAudioTool };
 
 function normalizeTool(raw: string): string {
   return raw.trim().toLowerCase();
@@ -35,7 +35,11 @@ export function useToolSuggestions(userId: string | undefined) {
     published.forEach((p) => (p.tools ?? []).forEach((t) => bump(t, PLATFORM_WEIGHT)));
 
     return [...freq.entries()]
-      .sort((a, b) => b[1].count - a[1].count)
+      .sort((a, b) => {
+        const countDiff = b[1].count - a[1].count;
+        if (countDiff !== 0) return countDiff;
+        return compareToolsVisualFirst(a[1].label, b[1].label);
+      })
       .map(([, v]) => v.label)
       .slice(0, MAX_SUGGESTIONS);
   }, [mine, published]);

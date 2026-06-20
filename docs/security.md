@@ -65,7 +65,7 @@ Every public-facing edge function:
 
 ## HTTP security (1PX SPA)
 
-- **Production:** HSTS + enforced CSP via `vercel.json` and `nginx.conf`
+- **Production:** HSTS + enforced CSP via `vercel.json` (Vercel) and `nginx.conf` (VPS fallback)
 - **Local dev:** CSP Report-Only meta in `index.html` + `installCspReporter()` in `main.tsx`
 - **Demo mode:** `VITE_DEMO_MODE=true` only on preview builds; Dockerfile defaults to `false`
 

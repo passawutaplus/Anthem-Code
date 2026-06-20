@@ -44,18 +44,18 @@ export function TierMembershipCard({
   return (
     <section
       className={cn(
-        "relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br glass-panel",
+        "relative overflow-hidden rounded-3xl border border-border bg-gradient-to-br glass-panel dark:border-border",
         style.gradient,
         className,
       )}
       aria-labelledby="tier-membership-heading"
     >
-      <div className="pointer-events-none absolute -right-8 -top-8 h-32 w-32 rounded-full bg-white/5 blur-2xl" />
+      <div className="pointer-events-none absolute -right-8 -top-8 h-32 w-32 rounded-full bg-foreground/5 blur-2xl" />
 
       <div className="relative p-5 sm:p-6">
         <div className="flex items-start justify-between gap-3">
           <div className="flex min-w-0 items-center gap-2.5">
-            <div className={cn("rounded-xl bg-white/10 p-2", style.accent)}>
+            <div className={cn("rounded-xl bg-foreground/10 p-2 dark:bg-foreground/10", style.accent)}>
               <Icon className="h-5 w-5" />
             </div>
             <div className="min-w-0">
@@ -76,7 +76,7 @@ export function TierMembershipCard({
           </div>
           <Link
             to={infoHref}
-            className="shrink-0 rounded-full p-2 text-muted-foreground transition-colors hover:bg-white/10 hover:text-foreground"
+            className="shrink-0 rounded-full p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
             aria-label="ดูรายละเอียดแพ็กเกจ"
           >
             <Info className="h-4 w-4" />
@@ -133,7 +133,7 @@ export function TierMembershipCard({
             asChild
             size="sm"
             variant="outline"
-            className="gap-1.5 rounded-full border-white/15 bg-white/5"
+            className="gap-1.5 rounded-full border-border bg-secondary/50 dark:bg-secondary/80"
           >
             <Link to="/upgrade#tier-details">
               ดูสิทธิ์ทั้งหมด

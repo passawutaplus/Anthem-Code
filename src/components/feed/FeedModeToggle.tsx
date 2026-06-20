@@ -1,7 +1,7 @@
-import { LayoutGrid, Users, Building2 } from "lucide-react";
+import { LayoutGrid, Users, Building2, MessagesSquare } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export type FeedMode = "projects" | "designers" | "studios";
+export type FeedMode = "projects" | "designers" | "studios" | "community";
 
 interface Props {
   value: FeedMode;
@@ -10,6 +10,7 @@ interface Props {
 
 const items: { id: FeedMode; label: string; icon: typeof LayoutGrid }[] = [
   { id: "projects", label: "Projects", icon: LayoutGrid },
+  { id: "community", label: "Area", icon: MessagesSquare },
   { id: "designers", label: "Designers", icon: Users },
   { id: "studios", label: "Studios", icon: Building2 },
 ];

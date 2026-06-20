@@ -25,7 +25,7 @@ const SearchBar = ({
         placeholder={placeholder}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full pl-11 pr-12 py-3 rounded-2xl bg-secondary/60 border-0 text-foreground placeholder:text-muted-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 transition-shadow"
+        className="w-full pl-11 pr-12 py-3 rounded-2xl bg-secondary border border-border text-foreground placeholder:text-muted-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 transition-shadow"
       />
       {filterContent && (
         <Popover>

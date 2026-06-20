@@ -23,6 +23,7 @@ import { timeAgoTH } from "@/lib/format";
 import SeoHead from "@/components/SeoHead";
 import { sortPortfolioProjects } from "@/lib/portfolioSort";
 import OnboardingChecklist from "@/components/onboarding/OnboardingChecklist";
+import BoostInsightsPanel from "@/components/boost/BoostInsightsPanel";
 import { so1oQuotationUrl, trackCrossLink } from "@/lib/crossLink";
 
 type ProjectTab = "ทั้งหมด" | "Published" | "Draft" | "Private";
@@ -189,6 +190,8 @@ const PortfolioManagePage = () => {
           <StatsCard label="ยอดเข้าชม" value={totalViews} icon={Eye} />
           <StatsCard label="ถูกใจ" value={totalLikes} icon={Heart} accent />
         </div>
+
+        <BoostInsightsPanel />
 
         <div className="space-y-3" ref={hiringRef} id="hiring-section">
           <div className="flex items-center gap-3">

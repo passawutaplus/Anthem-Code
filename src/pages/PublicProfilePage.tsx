@@ -1,7 +1,7 @@
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
-import { ArrowLeft, Globe, Instagram, Facebook, MessageSquare, UserX } from "lucide-react";
+import { ArrowLeft, Globe, Instagram, Facebook, MessageSquare, UserX, MessageCircle } from "lucide-react";
 import PageLoader from "@/components/ui/PageLoader";
 import EmptyState from "@/components/ui/EmptyState";
 import { Button } from "@/components/ui/button";
@@ -27,15 +27,17 @@ import { isUuid, profilePublicPath } from "@/lib/profileRoutes";
 import { sortPortfolioProjects } from "@/lib/portfolioSort";
 import { dailyDrillTag } from "@/lib/designDrillPick.vendored";
 import { DrillTodayPublicCard } from "@/components/drill/DrillTodayPublicCard";
+import CommunityPostGridCard from "@/components/feed/CommunityPostGridCard";
+import { useCommunityPostsByAuthor } from "@/hooks/useCommunityPosts";
 import { Navigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { MOBILE_PAGE_BOTTOM_CLASS } from "@/lib/mobileLayout";
 
 
 const PublicProfilePage = () => {
-  const { userId, username: usernameParam } = useParams();
-  const vanityRedirect = userId?.startsWith("@") && !usernameParam ? `/${userId}` : null;
-  const slug = usernameParam ?? userId ?? "";
+  const { userId, vanityHandle } = useParams();
+  const vanityRedirect = userId?.startsWith("@") && !vanityHandle ? `/${userId}` : null;
+  const slug = userId ?? (vanityHandle?.startsWith("@") ? vanityHandle.slice(1) : "");
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const q = params.get("q") ?? "";
@@ -59,6 +61,7 @@ const PublicProfilePage = () => {
   const resolvedUserId = profile?.user_id;
   const { followers, following } = useFollowState(resolvedUserId);
   const { data: collections = [] } = usePublicCollections(resolvedUserId);
+  const { data: communityPosts = [] } = useCommunityPostsByAuthor(resolvedUserId);
 
   const { data: projects = [] } = useQuery({
     queryKey: ["public-projects", resolvedUserId],
@@ -115,7 +118,7 @@ const PublicProfilePage = () => {
     profile?.username &&
     userId &&
     isUuid(userId) &&
-    !usernameParam &&
+    !vanityHandle &&
     profile.user_id === userId
   ) {
     return <Navigate to={`/@${profile.username}`} replace />;
@@ -300,6 +303,7 @@ const PublicProfilePage = () => {
         <Tabs defaultValue="works" className="mt-6">
           <TabsList className="glass-chip rounded-full p-1 h-auto">
             <TabsTrigger value="works" className="rounded-full data-[state=active]:bg-gradient-brand data-[state=active]:text-white">ผลงาน ({projects.length})</TabsTrigger>
+            <TabsTrigger value="posts" className="rounded-full data-[state=active]:bg-gradient-brand data-[state=active]:text-white">Designer Area ({communityPosts.length})</TabsTrigger>
             <TabsTrigger value="collections" className="rounded-full data-[state=active]:bg-gradient-brand data-[state=active]:text-white">คอลเลกชัน ({collections.length})</TabsTrigger>
             <TabsTrigger value="about" className="rounded-full data-[state=active]:bg-gradient-brand data-[state=active]:text-white">เกี่ยวกับ</TabsTrigger>
             <TabsTrigger value="faq" className="rounded-full data-[state=active]:bg-gradient-brand data-[state=active]:text-white">
@@ -312,6 +316,23 @@ const PublicProfilePage = () => {
               <div className="text-center py-16 text-muted-foreground glass-panel rounded-2xl">ยังไม่มีผลงานที่เผยแพร่</div>
             ) : (
               <PortfolioGrid projects={projects as any} />
+            )}
+          </TabsContent>
+
+          <TabsContent value="posts" className="mt-6">
+            {communityPosts.length === 0 ? (
+              <div className="text-center py-16 text-muted-foreground glass-panel rounded-2xl flex flex-col items-center gap-2">
+                <MessageCircle className="w-8 h-8 opacity-50" />
+                ยังไม่มีโพสต์ใน Designer Area
+              </div>
+            ) : (
+              <div className="columns-2 md:columns-3 gap-2 sm:gap-3">
+                {communityPosts.map((post) => (
+                  <div key={post.id} className="break-inside-avoid mb-2 sm:mb-3">
+                    <CommunityPostGridCard post={post} />
+                  </div>
+                ))}
+              </div>
             )}
           </TabsContent>
 

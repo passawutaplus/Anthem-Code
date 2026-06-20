@@ -18,7 +18,9 @@ import { TierMembershipCard } from "@/components/tier/TierMembershipCard";
 import { StorageUsageSection } from "@/components/settings/StorageUsageSection";
 import { AiUsageSettingsSection } from "@/components/settings/AiUsageSettingsSection";
 import { SettingsPreferencesSection } from "@/components/settings/SettingsPreferencesSection";
+import { ThemeSettingsSection } from "@/components/settings/ThemeSettingsSection";
 import { LineNotificationSection } from "@/components/settings/LineNotificationSection";
+import { AccountPrivacySection } from "@/components/settings/AccountPrivacySection";
 import { useSubscription } from "@/core/subscription";
 
 const empty: ProfileInput = {
@@ -160,6 +162,7 @@ const SettingsPage = () => {
           <StorageUsageSection />
           <AiUsageSettingsSection />
         </div>
+        <ThemeSettingsSection />
         <LineNotificationSection />
 
         <section className="rounded-2xl glass-panel p-6">
@@ -218,7 +221,7 @@ const SettingsPage = () => {
               onChange={(e) => update("bio", e.target.value)}
               rows={4}
               maxLength={500}
-              className="mt-1 w-full px-4 py-2.5 rounded-xl bg-secondary border border-border text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 resize-none"
+              className="mt-1 w-full px-4 py-2.5 rounded-xl bg-secondary border border-border text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 resize-none"
             />
             <p className="mt-1 text-xs text-muted-foreground">{(form.bio ?? "").length}/500 ตัวอักษร</p>
           </div>
@@ -275,7 +278,7 @@ const SettingsPage = () => {
                     )
                   }
                   placeholder="UI/UX, Branding, 3D"
-                  className="w-full px-3 py-2 rounded-lg bg-secondary/60 border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+                  className="w-full px-3 py-2 rounded-lg bg-secondary border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
                 />
               </div>
               <div>
@@ -312,6 +315,8 @@ const SettingsPage = () => {
         </section>
 
         <SettingsPreferencesSection />
+
+        <AccountPrivacySection />
 
         {isAdmin && (
           <section className="rounded-2xl glass-panel p-6 space-y-3">
@@ -362,7 +367,7 @@ interface FieldProps {
 const Field = ({ label, value, onChange, type = "text", prefix, icon: Icon, placeholder }: FieldProps) => (
   <div>
     <label className="text-sm font-medium text-foreground">{label}</label>
-    <div className="mt-1 flex items-center rounded-xl bg-secondary border border-border focus-within:ring-2 focus-within:ring-primary/30">
+    <div className="mt-1 flex items-center rounded-xl bg-secondary border border-border focus-within:ring-2 focus-within:ring-primary/40">
       {Icon && <Icon className="w-4 h-4 text-muted-foreground ml-3" />}
       {prefix && <span className="pl-3 text-muted-foreground text-sm">{prefix}</span>}
       <input type={type} value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder}
@@ -378,8 +383,8 @@ const Toggle = ({ label, description, checked, onChange }: { label: string; desc
       <p className="text-xs text-muted-foreground">{description}</p>
     </div>
     <button type="button" onClick={() => onChange(!checked)}
-      className={`relative w-11 h-6 rounded-full transition-colors ${checked ? "bg-primary" : "bg-muted"}`}>
-      <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow-sm transition-transform ${checked ? "translate-x-5" : ""}`} />
+      className={`relative w-11 h-6 rounded-full transition-colors ${checked ? "bg-primary" : "bg-muted dark:bg-input"}`}>
+      <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-background shadow-sm ring-1 ring-border/60 transition-transform ${checked ? "translate-x-5" : ""}`} />
     </button>
   </div>
 );

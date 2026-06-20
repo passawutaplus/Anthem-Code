@@ -31,9 +31,10 @@ interface Props {
   loading: boolean;
   onOpen: (n: Notification) => void;
   onDismiss: (id: string) => void;
+  onBeforeNavigate?: () => void;
 }
 
-const InboxList = ({ items, loading, onOpen, onDismiss }: Props) => {
+const InboxList = ({ items, loading, onOpen, onDismiss, onBeforeNavigate }: Props) => {
   const navigate = useNavigate();
 
   if (loading) {
@@ -63,6 +64,7 @@ const InboxList = ({ items, loading, onOpen, onDismiss }: Props) => {
               type="button"
               onClick={() => {
                 onOpen(n);
+                onBeforeNavigate?.();
                 navigate(resolveNotificationLink(n.link));
               }}
               className="flex-1 flex items-start gap-3 text-left min-w-0"

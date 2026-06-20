@@ -34,7 +34,7 @@ export type OnboardingTaskDef = {
   visitId?: OnboardingVisitId;
 };
 
-export const WELCOME_PX_CAP = 500;
+export const WELCOME_PX_CAP = 100;
 
 export const ONBOARDING_TASKS: OnboardingTaskDef[] = [
   {
@@ -43,7 +43,7 @@ export const ONBOARDING_TASKS: OnboardingTaskDef[] = [
     description: "เปิดหน้าแรกดูผลงานและโหมดต่าง ๆ ในชุมชน",
     href: "/",
     icon: Compass,
-    rewardPx: 40,
+    rewardPx: 8,
     difficulty: "easy",
     visitId: "explore_feed",
   },
@@ -53,7 +53,7 @@ export const ONBOARDING_TASKS: OnboardingTaskDef[] = [
     description: "กดหัวใจผลงานที่ชอบในฟีด",
     href: "/",
     icon: Heart,
-    rewardPx: 40,
+    rewardPx: 8,
     difficulty: "easy",
   },
   {
@@ -62,7 +62,7 @@ export const ONBOARDING_TASKS: OnboardingTaskDef[] = [
     description: "ติดตามดีไซเนอร์ที่ชอบจากฟีดหรือแท็บ Designers",
     href: "/?mode=designers",
     icon: Sparkles,
-    rewardPx: 50,
+    rewardPx: 10,
     difficulty: "easy",
   },
   {
@@ -71,7 +71,7 @@ export const ONBOARDING_TASKS: OnboardingTaskDef[] = [
     description: "สำรวจประกาศงานและโอกาสรับจ้าง",
     href: "/jobs",
     icon: Briefcase,
-    rewardPx: 50,
+    rewardPx: 10,
     difficulty: "easy",
     visitId: "jobs",
   },
@@ -81,7 +81,7 @@ export const ONBOARDING_TASKS: OnboardingTaskDef[] = [
     description: "บอกว่าคุณถนัดอะไร — ช่วยให้ลูกค้าจับคู่ได้ตรง",
     href: "/settings",
     icon: Wrench,
-    rewardPx: 60,
+    rewardPx: 12,
     difficulty: "medium",
   },
   {
@@ -90,7 +90,7 @@ export const ONBOARDING_TASKS: OnboardingTaskDef[] = [
     description: "คัดลอกลิงก์ @username ส่งให้ลูกค้าหรือเพื่อน",
     href: "/portfolio",
     icon: Share2,
-    rewardPx: 70,
+    rewardPx: 14,
     difficulty: "medium",
     visitId: "share_profile",
   },
@@ -100,7 +100,7 @@ export const ONBOARDING_TASKS: OnboardingTaskDef[] = [
     description: "ใส่รูปโปรไฟล์ username และแนะนำตัวอย่างน้อย 20 ตัวอักษร",
     href: "/settings",
     icon: User,
-    rewardPx: 80,
+    rewardPx: 16,
     difficulty: "medium",
   },
   {
@@ -109,7 +109,7 @@ export const ONBOARDING_TASKS: OnboardingTaskDef[] = [
     description: "ลงผลงานและตั้งสถานะ Published เพื่อโชว์ในฟีด",
     href: "/portfolio/new",
     icon: LayoutGrid,
-    rewardPx: 110,
+    rewardPx: 22,
     difficulty: "hard",
   },
 ];

@@ -10,11 +10,17 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import SafeDemoImage from "@/components/SafeDemoImage";
 import { smoothEase } from "@/lib/motion";
+import BoostBadge from "@/components/boost/BoostBadge";
+import { DrillProjectBadge } from "@/components/drill/DrillProjectBadge";
+import { projectHasDrillTag } from "@/lib/drillProject";
+import { logBoostEvent } from "@/hooks/useBoost";
 
 interface ProjectCardProps {
   project: Project;
   onHireClick?: (projectId: string) => void;
   onCollabClick?: (projectId: string) => void;
+  boosted?: boolean;
+  boostId?: string;
 }
 
 const formatCompact = (n: number) => {
@@ -23,13 +29,34 @@ const formatCompact = (n: number) => {
   return String(n);
 };
 
-const ProjectCard = ({ project, onHireClick, onCollabClick }: ProjectCardProps) => {
+const ProjectCard = ({ project, onHireClick, onCollabClick, boosted, boostId }: ProjectCardProps) => {
   const navigate = useNavigate();
   const isDbProject = /^[0-9a-f]{8}-/.test(project.id);
   const { likes, isLiked, toggle: toggleLike } = useProjectLike(isDbProject ? project.id : undefined);
 
   const [menuOpen, setMenuOpen] = useState(false);
   const wrapRef = useRef<HTMLDivElement>(null);
+  const boostImpLogged = useRef(false);
+
+  useEffect(() => {
+    if (!boostId || !wrapRef.current || boostImpLogged.current) return;
+    const el = wrapRef.current;
+    const obs = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (e.isIntersecting && !boostImpLogged.current) {
+            boostImpLogged.current = true;
+            void logBoostEvent(boostId, "impression");
+            obs.disconnect();
+            break;
+          }
+        }
+      },
+      { threshold: 0.5 },
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [boostId]);
 
 
 
@@ -69,7 +96,10 @@ const ProjectCard = ({ project, onHireClick, onCollabClick }: ProjectCardProps) 
   return (
     <motion.div
       className="group cursor-pointer"
-      onClick={() => navigate(`/project/${project.id}`)}
+      onClick={() => {
+        if (boostId) void logBoostEvent(boostId, "click");
+        navigate(`/project/${project.id}`);
+      }}
       whileHover={{ y: -2 }}
       whileTap={{ scale: 0.985 }}
       transition={{ duration: 0.22, ease: smoothEase }}
@@ -83,7 +113,17 @@ const ProjectCard = ({ project, onHireClick, onCollabClick }: ProjectCardProps) 
           loading="lazy"
         />
 
+        {boosted ? (
+          <div className="absolute top-2 left-2 z-10">
+            <BoostBadge />
+          </div>
+        ) : null}
 
+        {projectHasDrillTag(project.tags) ? (
+          <div className="absolute top-2 right-2 z-10">
+            <DrillProjectBadge tags={project.tags} />
+          </div>
+        ) : null}
 
         {/* Hover glass overlay (desktop) — gradient blur from bottom */}
         <div

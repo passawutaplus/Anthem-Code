@@ -7,6 +7,7 @@ import {
   useMyAdApplications,
   useSubmitAdApplication,
   useMockPayAdApplication,
+  useStripePayAdApplication,
   type AdApplication,
 } from "@/hooks/useAds";
 import { uploadProjectImage } from "@/lib/uploadImage";
@@ -30,6 +31,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { isDemoMode } from "@/lib/demoMode";
+import { useMyProjects } from "@/hooks/useProjects";
 
 const statusMeta: Record<
   AdApplication["status"],
@@ -46,10 +48,13 @@ const AdvertisePage = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const submit = useSubmitAdApplication();
-  const pay = useMockPayAdApplication();
+  const payMock = useMockPayAdApplication();
+  const payStripe = useStripePayAdApplication();
   const { data: mine = [] } = useMyAdApplications();
+  const { data: myProjects = [] } = useMyProjects(user?.id);
 
   const [pkg, setPkg] = useState<"basic" | "standard" | "premium">("standard");
+  const [linkedProjectId, setLinkedProjectId] = useState<string>("");
   const [adTitle, setAdTitle] = useState("");
   const [adTagline, setAdTagline] = useState("");
   const [adDescription, setAdDescription] = useState("");
@@ -112,6 +117,7 @@ const AdvertisePage = () => {
         budget_px: selected.pricePx,
         amount_thb: selected.priceTHB,
         notes,
+        linked_project_id: linkedProjectId || null,
       },
       {
         onSuccess: () => {
@@ -134,10 +140,17 @@ const AdvertisePage = () => {
   const handleMockPay = (app: AdApplication) => {
     if (!confirm(`[Prototype] จำลองการชำระเงิน ฿${app.amount_thb.toLocaleString()} สำหรับ "${app.ad_title}"?`))
       return;
-    pay.mutate(app.id, {
+    payMock.mutate(app.id, {
       onSuccess: () => toast.success("ชำระเงินจำลองสำเร็จ · รอแอดมินอนุมัติเพื่อเริ่มแสดงโฆษณา"),
       onError: (e: Error) => toast.error(e.message),
     });
+  };
+
+  const handleStripePay = (app: AdApplication) => {
+    payStripe.mutate(
+      { id: app.id, package: app.package },
+      { onError: (e: Error) => toast.error(e.message) },
+    );
   };
 
   return (
@@ -153,14 +166,14 @@ const AdvertisePage = () => {
         {/* Hero */}
         <header className="text-center space-y-3">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium">
-            <Megaphone className="w-3.5 h-3.5" /> ลงโฆษณากับ Pixel100
+            <Megaphone className="w-3.5 h-3.5" /> โฆษณาแบรนด์ / สินค้า
           </div>
           <h1 className="text-3xl md:text-5xl font-semibold tracking-tight">
-            เข้าถึงครีเอเตอร์และฟรีแลนซ์ตัวจริง
+            โปรโมทแบรนด์และธุรกิจของคุณ
           </h1>
           <p className="text-muted-foreground max-w-2xl mx-auto thai-leading-relaxed">
-            แสดงแบรนด์ของคุณในฟีดผลงานคุณภาพสูง พร้อมแท็ก Sponsored ที่โปร่งใส
-            ผู้ใช้ของเราคือคนทำงานสร้างสรรค์ที่กำลังมองหาเครื่องมือ บริการ และโอกาสใหม่ๆ
+            สำหรับโฆษณาจากภายนอก · แสดงในฟีดพร้อมแท็ก Ads · ทีมตรวจสอบก่อนเผยแพร่
+            (ต่างจาก Boost ที่ใช้ดันโพสต์ของตัวเองบนหน้ารายละเอียดผลงาน/ชุมชน)
           </p>
         </header>
 
@@ -274,6 +287,26 @@ const AdvertisePage = () => {
                 placeholder="https://"
                 required
               />
+              <p className="text-[11px] text-muted-foreground mt-1">
+                คลิกจากฟีดจะเปิดลิงก์นี้โดยตรง (หรือเลือกผลงานด้านล่างเพื่อ landing ใน an1hem)
+              </p>
+            </div>
+            <div>
+              <Label>ผลงาน an1hem (ไม่บังคับ)</Label>
+              <select
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                value={linkedProjectId}
+                onChange={(e) => setLinkedProjectId(e.target.value)}
+              >
+                <option value="">ไม่ใช้ — เปิดลิงก์ปลายทางเลย</option>
+                {myProjects
+                  .filter((p) => p.status === "Published")
+                  .map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.title}
+                    </option>
+                  ))}
+              </select>
             </div>
             <div>
               <Label>ปุ่ม CTA</Label>
@@ -390,15 +423,31 @@ const AdvertisePage = () => {
                         type="button"
                         size="sm"
                         onClick={() => handleMockPay(a)}
-                        disabled={pay.isPending}
+                        disabled={payMock.isPending}
                         className="bg-primary hover:bg-primary/90"
                       >
-                        {pay.isPending ? (
+                        {payMock.isPending ? (
                           <Loader2 className="w-4 h-4 mr-1 animate-spin" />
                         ) : (
                           <CreditCard className="w-4 h-4 mr-1" />
                         )}
                         ชำระเงิน ฿{a.amount_thb.toLocaleString()} (Prototype)
+                      </Button>
+                    )}
+                    {a.status === "pending_payment" && !isDemoMode() && (
+                      <Button
+                        type="button"
+                        size="sm"
+                        onClick={() => handleStripePay(a)}
+                        disabled={payStripe.isPending}
+                        className="bg-primary hover:bg-primary/90"
+                      >
+                        {payStripe.isPending ? (
+                          <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+                        ) : (
+                          <CreditCard className="w-4 h-4 mr-1" />
+                        )}
+                        ชำระเงิน ฿{a.amount_thb.toLocaleString()}
                       </Button>
                     )}
                     {a.status === "paid" && (

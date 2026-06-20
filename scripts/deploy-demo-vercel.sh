@@ -29,7 +29,7 @@ export VITE_DEMO_MODE=true
 : "${VITE_SUPABASE_URL:?Set VITE_SUPABASE_URL in .env}"
 : "${VITE_SUPABASE_PUBLISHABLE_KEY:?Set VITE_SUPABASE_PUBLISHABLE_KEY in .env}"
 
-echo "→ Deploying preview (demo mode)…"
+echo "→ Deploying demo to 1px-demo.vercel.app (production slot on demo project)…"
 if [[ "${1:-}" == "--prod" ]]; then
   echo "ERROR: Do not pass --prod to deploy-demo-vercel.sh (demo credentials would ship to production)." >&2
   echo "For production: set VITE_DEMO_MODE=false in Vercel and use: npx vercel deploy --prod" >&2
@@ -46,7 +46,7 @@ fi
 BUILD_ENVS+=(--build-env "VITE_OPS_HUB_URL=${VITE_OPS_HUB_URL:-https://so1o-ops-hub.vercel.app}")
 
 DEPLOY_OUTPUT="$(mktemp)"
-npx vercel deploy --yes "${BUILD_ENVS[@]}" | tee "$DEPLOY_OUTPUT"
+npx vercel deploy --prod --yes "${BUILD_ENVS[@]}" | tee "$DEPLOY_OUTPUT"
 DEPLOY_URL="$(grep -Eo 'https://[a-zA-Z0-9._-]+\.vercel\.app' "$DEPLOY_OUTPUT" | tail -1)"
 rm -f "$DEPLOY_OUTPUT"
 [[ -n "$DEPLOY_URL" ]] || { echo "Deploy failed — no URL returned" >&2; exit 1; }

@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { HandHeart, Eye } from "lucide-react";
+import { HandHeart, Eye, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { useAuthDialog } from "@/stores/authDialogStore";
+import { useCreatorEligibility } from "@/hooks/useCreatorEligibility";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import DonationModal from "./DonationModal";
 
@@ -22,15 +23,20 @@ const SupportButton = ({
   const openAuth = useAuthDialog((s) => s.openLogin);
   const [open, setOpen] = useState(false);
   const isOwn = !!user && user.id === recipientId;
+  const { data: eligibility } = useCreatorEligibility(isOwn ? undefined : recipientId);
+  const canReceive = isOwn || eligibility?.canReceiveGifts === true;
 
   const handleOpen = () => {
     if (!user) { openAuth(); return; }
+    if (!canReceive) return;
     setOpen(true);
   };
 
   const tooltipText = isOwn
     ? "นี่คือผลงานของคุณเอง — กดเพื่อพรีวิวการส่งของขวัญ"
-    : `ส่ง Pixel เป็นกำลังใจให้ ${recipientName}`;
+    : !canReceive
+      ? `${recipientName} กำลังเตรียมรับการสนับสนุน`
+      : `ส่ง Pixel เป็นกำลังใจให้ ${recipientName}`;
 
   const wrapTooltip = (node: React.ReactNode) => (
     <TooltipProvider delayDuration={150}>
@@ -44,6 +50,13 @@ const SupportButton = ({
   );
 
   if (variant === "compact") {
+    if (!isOwn && !canReceive) {
+      return wrapTooltip(
+        <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full glass-chip text-xs text-muted-foreground">
+          <Lock className="w-3.5 h-3.5" /> เร็วๆ นี้
+        </span>,
+      );
+    }
     return (
       <>
         {wrapTooltip(
@@ -66,6 +79,19 @@ const SupportButton = ({
           previewOnly={isOwn}
         />
       </>
+    );
+  }
+
+  if (!isOwn && !canReceive) {
+    return wrapTooltip(
+      <Button
+        disabled
+        size="lg"
+        variant="outline"
+        className={`w-full rounded-full border-border text-muted-foreground ${className ?? ""}`}
+      >
+        <Lock className="w-4 h-4 mr-1.5" /> กำลังเตรียมรับการสนับสนุน
+      </Button>,
     );
   }
 

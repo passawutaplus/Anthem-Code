@@ -25,7 +25,7 @@ const FeedHeader = ({ onMyPortClick: _ }: FeedHeaderProps) => {
             onClick={() => navigate("/auth")}
             size="sm"
             variant="ghost"
-            className="rounded-full text-foreground/80 hover:text-foreground"
+            className="rounded-full text-muted-foreground hover:text-foreground hover:bg-accent"
           >
             <LogIn className="w-4 h-4 mr-1" /> เข้าสู่ระบบ
           </Button>

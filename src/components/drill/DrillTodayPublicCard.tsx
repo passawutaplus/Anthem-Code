@@ -30,7 +30,7 @@ export function DrillTodayPublicCard() {
       </div>
       <p className="text-sm font-semibold leading-snug">{drill.brief}</p>
       <Button variant="outline" size="sm" asChild className="rounded-full">
-        <Link to="/drill">ดูผลงานช community วันนี้</Link>
+        <Link to="/?mode=community&feed=drill">ดูผลงานช community วันนี้</Link>
       </Button>
     </div>
   );

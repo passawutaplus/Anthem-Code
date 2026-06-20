@@ -71,24 +71,24 @@ export const TIER_CARD_STYLES: Record<
   { gradient: string; icon: LucideIcon; accent: string }
 > = {
   free: {
-    gradient: "from-slate-600/30 via-slate-800/20 to-card",
+    gradient: "from-slate-600/30 via-slate-800/20 to-card dark:from-slate-500/25 dark:via-slate-600/15",
     icon: User,
-    accent: "text-slate-300",
+    accent: "text-slate-300 dark:text-slate-200",
   },
   pro: {
-    gradient: "from-primary/30 via-primary/10 to-card",
+    gradient: "from-primary/30 via-primary/10 to-card dark:from-primary/35 dark:via-primary/15",
     icon: Crown,
     accent: "text-primary",
   },
   pro_plus: {
-    gradient: "from-violet-600/25 via-indigo-500/10 to-card",
+    gradient: "from-violet-600/25 via-indigo-500/10 to-card dark:from-violet-500/30 dark:via-indigo-400/15",
     icon: Sparkles,
-    accent: "text-violet-400",
+    accent: "text-violet-400 dark:text-violet-300",
   },
   inhouse: {
-    gradient: "from-amber-500/30 via-amber-600/12 to-card",
+    gradient: "from-amber-500/30 via-amber-600/12 to-card dark:from-amber-500/35 dark:via-amber-400/15",
     icon: Building2,
-    accent: "text-amber-400",
+    accent: "text-amber-400 dark:text-amber-300",
   },
 };
 

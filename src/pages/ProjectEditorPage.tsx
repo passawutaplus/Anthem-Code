@@ -42,7 +42,8 @@ import {
   splitMediaItems,
   type PortfolioMediaItem,
 } from "@/lib/portfolioMedia";
-import { dailyDrillTag } from "@/lib/designDrillPick.vendored";
+import { mergeDrillTags } from "@/lib/drillProject";
+import { DrillPostNotice } from "@/components/drill/DrillPostNotice";
 import {
   usePortfolioAiAssist,
   type PortfolioAiAssistResult,
@@ -57,6 +58,8 @@ const ProjectEditorPage = () => {
   const { id } = useParams();
   const [params] = useSearchParams();
   const editing = !!id;
+  const isDrillPost = params.get("from") === "so1o" && params.get("drill_type");
+  const isDailyDrillPost = isDrillPost && params.get("drill_type") === "daily";
   const { user, loading: authLoading } = useAuth();
   const { tier } = useSubscription();
   const limits = getProjectLimits(tier);
@@ -354,14 +357,11 @@ const ProjectEditorPage = () => {
 
     const { gallery_urls, video_urls } = splitMediaItems(mediaItems);
 
-    let finalTags = [...tags];
-    if (drillMetaRef.current.drill_type === "daily") {
-      const dailyTag =
-        drillMetaRef.current.drill_date
-          ? `DrillDaily${drillMetaRef.current.drill_date}`
-          : dailyDrillTag();
-      finalTags = [...new Set([...finalTags, "So1oDrill", dailyTag])];
-    }
+    let finalTags = mergeDrillTags(
+      tags,
+      drillMetaRef.current.drill_type,
+      drillMetaRef.current.drill_date,
+    );
 
     const payload = {
       title: title.trim(),
@@ -415,7 +415,14 @@ const ProjectEditorPage = () => {
       } else {
         const created = await create.mutateAsync({ ...payload, owner_id: user.id });
         toast.success(targetStatus === "Published" ? "เผยแพร่ผลงานแล้ว" : "บันทึกฉบับร่างแล้ว");
-        navigate(`/project/${created.id}`);
+        if (
+          targetStatus === "Published" &&
+          drillMetaRef.current.drill_type === "daily"
+        ) {
+          navigate("/?mode=community&feed=drill");
+        } else {
+          navigate(`/project/${created.id}`);
+        }
       }
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "บันทึกไม่สำเร็จ");
@@ -502,6 +509,12 @@ const ProjectEditorPage = () => {
       </div>
 
       <PortfolioEditorModeToggle mode={editorMode} onModeChange={handleEditorModeChange} />
+
+      {isDrillPost ? (
+        <div className="max-w-6xl mx-auto px-4 pt-4">
+          <DrillPostNotice daily={isDailyDrillPost} />
+        </div>
+      ) : null}
 
       <div className="max-w-6xl mx-auto px-4 py-6 grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6">
         {/* Left: content */}
@@ -682,7 +695,7 @@ const ProjectEditorPage = () => {
               </div>
               <div className="flex items-center justify-between gap-3">
                 <div className="min-w-0">
-                  <p className="text-sm text-foreground">ปุ่ม "อยากร่วมงานด้วย"</p>
+                  <p className="text-sm text-foreground">ปุ่ม "สนใจคอลแลป"</p>
                   <p className="text-xs text-muted-foreground">เปิดรับ Collab จากผู้ชม</p>
                 </div>
                 <Switch checked={allowCollab} onCheckedChange={setAllowCollab} />

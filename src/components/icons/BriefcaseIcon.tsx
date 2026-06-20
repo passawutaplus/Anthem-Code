@@ -7,14 +7,21 @@ import type { LucideIcon } from "lucide-react";
  * icon is expected. Uses `currentColor` — wrap in `text-primary` to color it.
  */
 const BriefcaseIconBase = forwardRef<SVGSVGElement, SVGProps<SVGSVGElement>>(
-  ({ className, strokeWidth = 30, ...props }, ref) => (
+  ({ className, strokeWidth = 30, ...props }, ref) => {
+    // Lucide passes ~2; scale to this icon's 512 viewBox so stroke matches other nav icons.
+    const sw =
+      typeof strokeWidth === "number" && strokeWidth <= 3
+        ? strokeWidth * (512 / 24)
+        : strokeWidth;
+
+    return (
     <svg
       ref={ref}
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 512 512"
       fill="none"
       stroke="currentColor"
-      strokeWidth={strokeWidth}
+      strokeWidth={sw}
       strokeLinecap="round"
       strokeLinejoin="round"
       className={className}
@@ -25,7 +32,8 @@ const BriefcaseIconBase = forwardRef<SVGSVGElement, SVGProps<SVGSVGElement>>(
       <path d="M216,316.5c-105.789-6.049-201-36.3-201-90.753V154.75c0-16.523,13.476-30,30-30h422c16.523,0,30,13.478,30,30v70.997c0,54.794-96.414,85.082-203,90.864" />
       <path d="M219,286.75h74v34.5c0,18.975-15.525,34.5-34.5,34.5h-5c-18.975,0-34.5-15.525-34.5-34.5V286.75z" />
     </svg>
-  )
+    );
+  },
 );
 BriefcaseIconBase.displayName = "BriefcaseIcon";
 

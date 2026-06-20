@@ -5,9 +5,6 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "./types";
 
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
-const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
-
 const authOpts = {
   storage: localStorage,
   persistSession: true,
@@ -16,18 +13,51 @@ const authOpts = {
   flowType: "pkce",
 } as const;
 
+function requireSupabaseEnv() {
+  const url = import.meta.env.VITE_SUPABASE_URL;
+  const key = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+  if (!url || !key) {
+    throw new Error(
+      "Missing Supabase environment variables. Set VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY at build time.",
+    );
+  }
+  return { url, key };
+}
+
 function makeClient(schema: string): SupabaseClient<Database> {
-  return createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+  const { url, key } = requireSupabaseEnv();
+  return createClient<Database>(url, key, {
     auth: authOpts,
     db: { schema },
   });
 }
 
-const publicDb = makeClient("public");
-const anthemDb = makeClient("anthem");
-const sharedDb = makeClient("shared");
+let publicDb: SupabaseClient<Database> | undefined;
+let anthemDb: SupabaseClient<Database> | undefined;
+let sharedDb: SupabaseClient<Database> | undefined;
 
-/** Tables that live in public (So1o identity + billing). */
+function getPublicDb() {
+  publicDb ??= makeClient("public");
+  return publicDb;
+}
+
+function getAnthemDb() {
+  anthemDb ??= makeClient("anthem");
+  return anthemDb;
+}
+
+function getSharedDb() {
+  sharedDb ??= makeClient("shared");
+  return sharedDb;
+}
+
+function lazyClient(get: () => SupabaseClient<Database>): SupabaseClient<Database> {
+  return new Proxy({} as SupabaseClient<Database>, {
+    get(_, prop, receiver) {
+      return Reflect.get(get(), prop, receiver);
+    },
+  });
+}
 const PUBLIC_TABLES = new Set([
   "profiles",
   "user_roles",
@@ -54,9 +84,12 @@ const SHARED_TABLES = new Set([
   "messages",
   "aml_flags",
   "kyc_requests",
+  "kyc_documents",
+  "payout_profiles",
   "notifications",
   "user_moderation_state",
   "moderation_actions",
+  "marketplace_escrows",
 ]);
 
 export function schemaForTable(table: string): "public" | "anthem" | "shared" {
@@ -67,21 +100,25 @@ export function schemaForTable(table: string): "public" | "anthem" | "shared" {
 
 export function fromTable(table: string) {
   const schema = schemaForTable(table);
-  if (schema === "public") return publicDb.from(table as never);
-  if (schema === "shared") return sharedDb.from(table as never);
-  return anthemDb.from(table as never);
+  if (schema === "public") return getPublicDb().from(table as never);
+  if (schema === "shared") return getSharedDb().from(table as never);
+  return getAnthemDb().from(table as never);
 }
 
 /** Canonical auth user id column on unified profiles (So1o uses user_id, not id). */
 export const PROFILE_USER_COLUMN = "user_id" as const;
 
-export const supabase = new Proxy(publicDb, {
-  get(target, prop, receiver) {
+export const supabase = new Proxy({} as SupabaseClient<Database>, {
+  get(_, prop, receiver) {
     if (prop === "from") {
       return (table: string) => fromTable(table);
     }
-    return Reflect.get(target, prop, receiver);
+    return Reflect.get(getPublicDb(), prop, receiver);
   },
 }) as SupabaseClient<Database>;
 
-export { publicDb, anthemDb, sharedDb };
+const publicDbClient = lazyClient(getPublicDb);
+const anthemDbClient = lazyClient(getAnthemDb);
+const sharedDbClient = lazyClient(getSharedDb);
+
+export { publicDbClient as publicDb, anthemDbClient as anthemDb, sharedDbClient as sharedDb };

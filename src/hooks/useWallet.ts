@@ -37,7 +37,7 @@ export const useWallet = () => {
   });
 };
 
-/** Purchased px ที่ผ่าน holding period แล้ว */
+/** Purchased px พร้อมใช้ส่งของขวัญ (ใช้ได้ทันทีหลังเติม) */
 export const useAvailablePurchasedPx = () => {
   const { user } = useAuth();
   return useQuery({

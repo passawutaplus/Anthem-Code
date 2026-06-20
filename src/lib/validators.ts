@@ -34,12 +34,36 @@ export const profileFaqItemSchema = z.object({
 });
 export type ProfileFaqItem = z.infer<typeof profileFaqItemSchema>;
 
-export const communityPostSchema = z.object({
-  postKind: z.enum(["tip", "question"]),
-  title: z.string().trim().min(3, "อย่างน้อย 3 ตัวอักษร").max(120),
-  body: z.string().trim().min(10, "อย่างน้อย 10 ตัวอักษร").max(3000),
-  category: z.string().trim().min(1, "เลือกหมวด"),
-});
+const communityQuestionTopicSchema = z.enum([
+  "feedback",
+  "technique",
+  "tools",
+  "career",
+  "client",
+  "inspiration",
+  "other",
+]);
+
+export const communityPostSchema = z
+  .object({
+    postKind: z.enum(["tip", "question"]),
+    title: z.string().trim().min(3, "อย่างน้อย 3 ตัวอักษร").max(120),
+    body: z.string().trim().min(10, "อย่างน้อย 10 ตัวอักษร").max(3000),
+    category: z.string().trim().min(1, "เลือกหมวด"),
+    tags: z.array(z.string().trim().min(1).max(40)).max(8).optional().default([]),
+    galleryUrls: z.array(z.string().url()).max(20).optional().default([]),
+    videoUrls: z.array(z.string().url()).max(3).optional().default([]),
+    questionTopic: communityQuestionTopicSchema.nullable().optional(),
+  })
+  .superRefine((val, ctx) => {
+    if (val.postKind === "question" && !val.questionTopic) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "เลือกประเภทคำถาม",
+        path: ["questionTopic"],
+      });
+    }
+  });
 
 export type CommunityPostInput = z.infer<typeof communityPostSchema>;
 

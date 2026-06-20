@@ -3,7 +3,15 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
 import { toast } from "sonner";
 
-export type ReportTargetType = "user" | "project" | "comment" | "studio" | "message" | "job";
+export type ReportTargetType =
+  | "user"
+  | "project"
+  | "comment"
+  | "studio"
+  | "message"
+  | "job"
+  | "community_post"
+  | "community_comment";
 export type ReportReason =
   | "spam"
   | "harassment"

@@ -1,7 +1,8 @@
 import { useNavigate } from "react-router-dom";
-import { LayoutGrid, Layers3, Coins, MessageCircle, Settings, LogOut, Plus, Building2, Flag, MessageSquare, ShieldCheck, Sparkles } from "lucide-react";
+import { LayoutGrid, Layers3, Coins, MessageCircle, Settings, LogOut, Plus, Building2, Flag, MessageSquare, ShieldCheck, Sparkles, Bookmark } from "lucide-react";
 import { useSubscription } from "@/core/subscription";
 import BriefcaseIcon from "@/components/icons/BriefcaseIcon";
+import KycStatusBadge from "@/components/verification/KycStatusBadge";
 import { supabase } from "@/integrations/supabase/client";
 import { useMyStudios, useSetActiveStudio } from "@/hooks/useStudios";
 
@@ -12,7 +13,7 @@ const ProfileMenuCard = () => {
   const { isPro } = useSubscription();
 
   const item =
-    "w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm text-foreground/85 hover:bg-foreground/5 hover:text-foreground transition-colors text-left";
+    "w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm text-foreground hover:bg-accent hover:text-foreground transition-colors text-left";
 
   return (
     <nav
@@ -24,6 +25,12 @@ const ProfileMenuCard = () => {
       </button>
       <button onClick={() => navigate("/collections")} className={item}>
         <Layers3 className="w-4 h-4 text-primary" /> คอลเลกชันของฉัน
+      </button>
+      <button
+        onClick={() => document.getElementById("saved-posts")?.scrollIntoView({ behavior: "smooth", block: "start" })}
+        className={item}
+      >
+        <Bookmark className="w-4 h-4 text-primary" /> โพสต์ที่บันทึก
       </button>
       <button onClick={() => navigate("/earnings")} className={item}>
         <Coins className="w-4 h-4 text-primary" /> รายได้ &amp; กระเป๋า Pixel
@@ -81,6 +88,7 @@ const ProfileMenuCard = () => {
       )}
 
       <div className="my-2 border-t border-border" />
+      <KycStatusBadge className="mx-1 mb-1" />
       <button onClick={() => navigate("/verify")} className={item}>
         <ShieldCheck className="w-4 h-4 text-primary" /> ยืนยันตัวตน
       </button>

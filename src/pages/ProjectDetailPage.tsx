@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowLeft, Share2 } from "lucide-react";
 import SaveToCollectionPopover from "@/components/collections/SaveToCollectionPopover";
@@ -22,6 +22,9 @@ import { useAuth } from "@/hooks/useAuth";
 import { isCategoryAllowed } from "@/lib/cookieConsent";
 import SeoHead from "@/components/SeoHead";
 import { BRAND_NAME } from "@/lib/brandConfig";
+import BoostButton from "@/components/boost/BoostButton";
+import { useAdCampaign, logAdEvent } from "@/hooks/useAds";
+import { Megaphone, ExternalLink } from "lucide-react";
 import { truncateDescription } from "@/lib/seo";
 import LicenseDetailBlock from "@/components/license/LicenseDetailBlock";
 import { FadeUp } from "@/components/motion/FadeUp";
@@ -30,11 +33,14 @@ import { isVideoUrl, mediaItemsFromProject } from "@/lib/portfolioMedia";
 
 const ProjectDetailPage = () => {
   const { id } = useParams();
+  const [searchParams] = useSearchParams();
+  const sponsorAdId = searchParams.get("sponsor");
   const navigate = useNavigate();
   const { user } = useAuth();
   const { data: dbProject, isLoading } = useProject(id);
+  const { data: sponsorAd } = useAdCampaign(sponsorAdId ?? undefined);
 
-  // Track view: per-user history (for "For You" feed) + global counter (for stats)
+  // Track view: per-user history (for personalized Explore feed) + global counter (for stats)
   useEffect(() => {
     if (!dbProject?.id) return;
     const analyticsOk = isCategoryAllowed("analytics");
@@ -186,6 +192,15 @@ const ProjectDetailPage = () => {
             <ArrowLeft className="w-4 h-4" /> กลับ
           </button>
           <div className="flex items-center gap-1">
+            {dbProject ? (
+              <BoostButton
+                targetType="project"
+                targetId={dbProject.id}
+                targetTitle={project.title}
+                ownerId={dbProject.owner_id}
+                size="sm"
+              />
+            ) : null}
             <SaveToCollectionPopover projectId={dbProject?.id}>
               <Button variant="ghost" size="icon">
                 <Layers3 className="w-5 h-5" />
@@ -199,6 +214,33 @@ const ProjectDetailPage = () => {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 py-6 lg:py-10">
+        {sponsorAd && sponsorAdId ? (
+          <div className="mb-4 rounded-xl border border-primary/25 bg-primary/5 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="flex items-start gap-3">
+              <Megaphone className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+              <div>
+                <p className="text-xs font-medium uppercase tracking-wide text-primary">Sponsored</p>
+                <p className="font-medium text-sm">{sponsorAd.title}</p>
+                {sponsorAd.tagline ? (
+                  <p className="text-xs text-muted-foreground">{sponsorAd.tagline}</p>
+                ) : null}
+              </div>
+            </div>
+            {sponsorAd.target_url ? (
+              <Button
+                size="sm"
+                className="rounded-full shrink-0"
+                onClick={() => {
+                  void logAdEvent(sponsorAdId, "click", "detail");
+                  window.open(sponsorAd.target_url, "_blank", "noopener,noreferrer");
+                }}
+              >
+                {sponsorAd.cta_label || "เรียนรู้เพิ่มเติม"}
+                <ExternalLink className="w-3.5 h-3.5 ml-1" />
+              </Button>
+            ) : null}
+          </div>
+        ) : null}
         <div className="grid lg:grid-cols-[1fr_360px] gap-6 lg:gap-10">
           {/* Left: Gallery */}
           {/* Left: Gallery */}

@@ -35,12 +35,19 @@ const ToolIcon = ({ name, size = "md", className }: Props) => {
     );
   }
 
+  const isAppIcon = src.startsWith("/tool-icons/");
+
   return (
     <img
       src={src}
       alt=""
       aria-hidden
-      className={cn("object-contain shrink-0", sizeClass, className)}
+      className={cn(
+        "object-contain shrink-0",
+        isAppIcon && "rounded-[22%] ring-1 ring-border/25 shadow-sm",
+        sizeClass,
+        className,
+      )}
       loading="lazy"
       key={src}
       onError={() => setSourceIndex((i) => i + 1)}

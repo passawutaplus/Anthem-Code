@@ -10,7 +10,10 @@ export type ProfileLinkInput = {
   username?: string | null;
 };
 
-/** Canonical public profile path — prefers @username when set. */
+/**
+ * Canonical public profile path — prefers @username when set.
+ * Note: react-router v6 cannot declare `/@:username`; App.tsx matches via `/:vanityHandle`.
+ */
 export function profilePublicPath(profile: ProfileLinkInput): string {
   const un = profile.username?.trim();
   if (un) return `/@${un}`;

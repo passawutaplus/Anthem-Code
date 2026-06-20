@@ -13,11 +13,13 @@ import CookieConsent from "./components/CookieConsent.tsx";
 import FloatingNav from "./components/FloatingNav.tsx";
 import RequireAuth from "./components/RequireAuth.tsx";
 import AuthDialog from "./components/AuthDialog.tsx";
-import FeedbackFab from "./components/feedback/FeedbackFab.tsx";
-import { AnthemAssistantFab } from "./components/assistant/AnthemAssistantFab";
+import { InterestSurveyGate } from "./components/onboarding/InterestSurveyDialog.tsx";
 import RedirectTo from "./components/RedirectTo.tsx";
+import VanityProfileRoute from "./components/profile/VanityProfileRoute.tsx";
 import RouteFallback from "./components/RouteFallback.tsx";
 import DemoModeBanner from "./components/DemoModeBanner.tsx";
+import AvatarPoolBootstrap from "./components/AvatarPoolBootstrap.tsx";
+import { ErrorBoundary } from "./components/ErrorBoundary.tsx";
 
 // Code-split routes — only the home feed stays in the main chunk.
 const AuthPage = lazy(() => import("./pages/AuthPage.tsx"));
@@ -80,6 +82,7 @@ const IntellectualPropertyPage = lazy(() => import("./pages/legal/IntellectualPr
 const CommunityGuidelinesPage = lazy(() => import("./pages/legal/CommunityGuidelinesPage.tsx"));
 const CommunityPostDetailPage = lazy(() => import("./pages/CommunityPostDetailPage.tsx"));
 const CommunityPostEditorPage = lazy(() => import("./pages/CommunityPostEditorPage.tsx"));
+const CommunityFeedPage = lazy(() => import("./pages/CommunityFeedPage.tsx"));
 const AdminCommunityPage = lazy(() => import("./pages/admin/AdminCommunityPage"));
 const AdminModerationPage = lazy(() => import("./pages/admin/AdminModerationPage"));
 const ExploreProjectsPage = lazy(() => import("./pages/ExploreProjectsPage.tsx"));
@@ -91,6 +94,7 @@ const AdDetailPage = lazy(() => import("./pages/AdDetailPage.tsx"));
 const ContractEditorPage = lazy(() => import("./pages/ContractEditorPage.tsx"));
 const ContractsListPage = lazy(() => import("./pages/ContractsListPage.tsx"));
 const DrillGalleryPage = lazy(() => import("./pages/DrillGalleryPage.tsx"));
+const SavedPostsPage = lazy(() => import("./pages/SavedPostsPage.tsx"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -111,7 +115,9 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
+          <ErrorBoundary>
           <DemoModeBanner />
+          <AvatarPoolBootstrap />
           <Suspense fallback={<RouteFallback />}>
             <Routes>
               <Route path="/" element={<Index />} />
@@ -119,6 +125,7 @@ const App = () => (
               <Route path="/auth" element={<AuthPage />} />
               <Route path="/auth/callback" element={<AuthCallbackPage />} />
               <Route path="/portfolio" element={<RequireAuth><PortfolioProfilePage /></RequireAuth>} />
+              <Route path="/portfolio/saved" element={<RequireAuth><SavedPostsPage /></RequireAuth>} />
               <Route path="/portfolio/manage" element={<RequireAuth><PortfolioManagePage /></RequireAuth>} />
               <Route path="/hire-requests" element={<RequireAuth><RedirectTo to="/portfolio/manage?focus=hiring" /></RequireAuth>} />
               <Route path="/collab-requests" element={<RequireAuth><RedirectTo to="/portfolio/manage?focus=collab" /></RequireAuth>} />
@@ -129,7 +136,6 @@ const App = () => (
               <Route path="/explore/:kind/:value" element={<ExploreProjectsPage />} />
               <Route path="/similar/:projectId" element={<SimilarImagesPage />} />
               <Route path="/inspire/:boardId" element={<InspireBoardDetailPage />} />
-              <Route path="/@:username" element={<PublicProfilePage />} />
               <Route path="/u/:userId" element={<PublicProfilePage />} />
               <Route path="/earnings" element={<RequireAuth><EarningsPage /></RequireAuth>} />
 
@@ -137,6 +143,7 @@ const App = () => (
               <Route path="/notifications" element={<RequireAuth><NotificationsPage /></RequireAuth>} />
               <Route path="/chat/:id?" element={<RequireAuth><ChatInboxPage /></RequireAuth>} />
               <Route path="/community/new" element={<RequireAuth><CommunityPostEditorPage /></RequireAuth>} />
+              <Route path="/community" element={<CommunityFeedPage />} />
               <Route path="/community/:id" element={<CommunityPostDetailPage />} />
               <Route path="/collections" element={<RequireAuth><CollectionsPage /></RequireAuth>} />
               <Route path="/collections/:id" element={<RequireAuth><CollectionDetailPage /></RequireAuth>} />
@@ -197,14 +204,19 @@ const App = () => (
               <Route path="/error/405" element={<ErrorPage defaultKind="405" />} />
               <Route path="/error/500" element={<ErrorPage defaultKind="500" />} />
               <Route path="/error/503" element={<ErrorPage defaultKind="503" />} />
+              {/*
+                react-router v6 cannot match `/@:username` (literal @ before param).
+                Vanity URLs use `/:vanityHandle` with a leading @ — see VanityProfileRoute.
+              */}
+              <Route path="/:vanityHandle" element={<VanityProfileRoute />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>
           <CookieConsent />
           <FloatingNav />
           <AuthDialog />
-          <FeedbackFab />
-          <AnthemAssistantFab />
+          <InterestSurveyGate />
+          </ErrorBoundary>
         </BrowserRouter>
       </TooltipProvider>
     </ThemeProvider>

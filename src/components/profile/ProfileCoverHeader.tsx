@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { Camera, Eye, LayoutGrid, Loader2, MapPin, Share2 } from "lucide-react";
+import { Camera, Eye, LayoutGrid, Loader2, MapPin, Plus, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useUpdateProfileMedia } from "@/hooks/useProfile";
 import { uploadProjectImage } from "@/lib/uploadImage";
@@ -23,9 +23,10 @@ type Props = {
   onManage: () => void;
   onShare: () => void;
   onPreview?: () => void;
+  onPost?: () => void;
 };
 
-export default function ProfileCoverHeader({ userId, profile, stats, onManage, onShare, onPreview }: Props) {
+export default function ProfileCoverHeader({ userId, profile, stats, onManage, onShare, onPreview, onPost }: Props) {
   const { tier } = useSubscription();
   const updateMedia = useUpdateProfileMedia(userId);
   const coverInput = useRef<HTMLInputElement>(null);
@@ -168,6 +169,15 @@ export default function ProfileCoverHeader({ userId, profile, stats, onManage, o
             </div>
 
             <div className="flex flex-wrap gap-2 shrink-0">
+              {onPost && (
+                <Button
+                  onClick={onPost}
+                  className="rounded-full bg-primary text-primary-foreground hover:bg-primary/90 shrink-0"
+                  title="โพสต์ชุมชน"
+                >
+                  <Plus className="w-4 h-4 mr-1" /> โพส
+                </Button>
+              )}
               {onPreview && (
                 <Button
                   onClick={onPreview}

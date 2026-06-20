@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { exploreProjectsUrl } from "@/lib/exploreRoutes";
-import { Heart, Layers3, Eye, MessageCircle, Sparkles, Calendar, Handshake } from "lucide-react";
+import { Heart, Layers3, Eye, MessageCircle, Sparkles, Calendar, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import ToolsGrid from "@/components/ToolsGrid";
@@ -105,8 +105,8 @@ const ProjectSidePanel = (p: Props) => {
             variant="outline"
             className="w-full rounded-full border-primary/30 text-foreground hover:bg-primary/5 hover:text-primary hover:border-primary/50"
           >
-            <Handshake className="w-4 h-4 mr-1.5 text-primary" />
-            อยากร่วมงานด้วย
+            <Users className="w-4 h-4 mr-1.5 text-primary" />
+            สนใจคอลแลป
           </Button>
         )}
 

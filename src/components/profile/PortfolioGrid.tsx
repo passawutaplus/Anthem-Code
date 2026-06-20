@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Eye, Heart } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { DrillProjectBadge } from "@/components/drill/DrillProjectBadge";
 import { StaggerGrid } from "@/components/motion/StaggerGrid";
 import { smoothEase } from "@/lib/motion";
 import type { Tables } from "@/integrations/supabase/types";
@@ -35,6 +36,9 @@ const PortfolioGrid = ({ projects }: { projects: Project[] }) => {
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-muted-foreground text-xs">ไม่มีรูป</div>
               )}
+              <div className="absolute top-2 right-2 z-10">
+                <DrillProjectBadge tags={p.tags as string[] | null} />
+              </div>
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between text-xs text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                 <span className="flex items-center gap-1"><Eye className="w-3 h-3" />{p.views}</span>
@@ -42,7 +46,10 @@ const PortfolioGrid = ({ projects }: { projects: Project[] }) => {
               </div>
             </div>
             <div className="p-3">
-              <Badge className="bg-primary/15 text-primary border-0 hover:bg-primary/15 text-[10px] mb-1">{p.category}</Badge>
+              <div className="flex flex-wrap items-center gap-1 mb-1">
+                <Badge className="bg-primary/15 text-primary border-0 hover:bg-primary/15 text-[10px]">{p.category}</Badge>
+                <DrillProjectBadge tags={p.tags as string[] | null} />
+              </div>
               <h3 className="text-sm font-semibold text-foreground line-clamp-1">{p.title}</h3>
             </div>
           </Link>

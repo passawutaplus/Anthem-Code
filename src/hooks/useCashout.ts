@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { notifyAnthem } from "@/lib/notifyAnthem";
+import type { Tier } from "@/core/subscription/useSubscription";
 
 export type CashoutStatus =
   | "pending"
@@ -25,8 +26,24 @@ export interface CashoutRequest {
   processed_at: string | null;
 }
 
-export const PLATFORM_FEE_RATE = 0.15;
+export const CASHOUT_FEE_FREE = 0.15;
+export const CASHOUT_FEE_PRO = 0.1;
+/** @deprecated use getCashoutFeeRate(tier) */
+export const PLATFORM_FEE_RATE = CASHOUT_FEE_FREE;
 export const MIN_CASHOUT_PX = 1000;
+
+export function getCashoutFeeRate(tier: Tier | string | undefined): number {
+  return tier === "pro" || tier === "pro_plus" || tier === "inhouse"
+    ? CASHOUT_FEE_PRO
+    : CASHOUT_FEE_FREE;
+}
+
+export function formatCashoutFeeLabel(tier: Tier | string | undefined): string {
+  const pct = getCashoutFeeRate(tier) * 100;
+  return tier === "pro" || tier === "pro_plus" || tier === "inhouse"
+    ? `${pct}% (Pro)`
+    : `${pct}% (Free)`;
+}
 
 export const useCashoutHistory = () => {
   const { user } = useAuth();

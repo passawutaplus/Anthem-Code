@@ -27,6 +27,8 @@ const targetLink = (t: string, id: string) => {
       return `/u/${id}`;
     case "job":
       return `/jobs/${id}`;
+    case "community_post":
+      return `/community/${id}`;
     default:
       return "#";
   }

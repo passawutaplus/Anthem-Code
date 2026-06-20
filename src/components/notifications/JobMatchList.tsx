@@ -19,7 +19,7 @@ const timeAgo = (iso: string) => {
   return new Date(iso).toLocaleDateString("th-TH");
 };
 
-export const JobMatchList = () => {
+export const JobMatchList = ({ onBeforeNavigate }: { onBeforeNavigate?: () => void }) => {
   const navigate = useNavigate();
   const { data = [], isLoading } = useJobMatchNotifications();
   const dismiss = useDismissJobMatch();
@@ -87,6 +87,7 @@ export const JobMatchList = () => {
           <button
             onClick={() => {
               markRead.mutate(n.id);
+              onBeforeNavigate?.();
               navigate(`/job/${n.job_id}`);
             }}
             className="px-3 py-1.5 rounded-full bg-gradient-brand text-white text-xs font-medium hover:opacity-90 flex items-center gap-1"

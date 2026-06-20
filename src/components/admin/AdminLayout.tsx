@@ -4,6 +4,7 @@ import { useState } from "react";
 import AdminGuard from "./AdminGuard";
 import AdminSidebar from "./AdminSidebar";
 import AdminAlertBanner from "./AdminAlertBanner";
+import AdminQueueHints from "./AdminQueueHints";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
 export default function AdminLayout() {
@@ -42,6 +43,7 @@ export default function AdminLayout() {
             </header>
             <main className="px-4 md:px-8 py-6 md:py-8 max-w-[1400px]">
               <AdminAlertBanner />
+              <AdminQueueHints />
               <Outlet />
             </main>
           </div>

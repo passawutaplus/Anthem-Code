@@ -18,6 +18,7 @@ import ReportTrigger from "@/components/report/ReportTrigger";
 import ModerationBanBanner from "@/components/moderation/ModerationBanBanner";
 import { countThread } from "@/lib/commentTree";
 import { cn } from "@/lib/utils";
+import UserAvatar from "@/components/UserAvatar";
 
 interface Props {
   projectId: string | undefined;
@@ -44,13 +45,12 @@ const CommentRow = ({
   return (
     <div className={cn(depth > 0 && "ml-4 md:ml-8 border-l-2 border-border/60 pl-3")}>
       <div className="rounded-2xl glass-panel p-4 flex gap-3">
-        {c.profile?.avatar_url ? (
-          <img src={c.profile.avatar_url} alt="" className="w-10 h-10 rounded-full object-cover shrink-0" />
-        ) : (
-          <div className="w-10 h-10 rounded-full bg-primary/15 flex items-center justify-center text-sm font-medium text-primary shrink-0">
-            {(c.profile?.display_name ?? "?")[0]}
-          </div>
-        )}
+        <UserAvatar
+          src={c.profile?.avatar_url}
+          name={c.profile?.display_name ?? "?"}
+          className="w-10 h-10 shrink-0"
+          fallbackClassName="bg-primary/15 text-primary"
+        />
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
             <p className="text-sm font-semibold text-foreground">{c.profile?.display_name ?? "ผู้ใช้"}</p>

@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { ArrowLeft, Headphones, Home, RefreshCw } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { BrandLogo } from '@/components/brand/BrandLogo'
@@ -34,8 +34,6 @@ export function HttpErrorPage({
   extraAction,
   className,
 }: Props) {
-  const navigate = useNavigate()
-
   const resolvedKind = resolveErrorKind(code, kind)
   const copy = HTTP_ERROR_COPY[resolvedKind]
   const displayCode = code ?? copy.code
@@ -97,7 +95,7 @@ export function HttpErrorPage({
               <Button
                 variant="outline"
                 className="gap-1.5"
-                onClick={() => navigate(0)}
+                onClick={() => window.location.reload()}
               >
                 <RefreshCw className="h-4 w-4" />
                 <span>

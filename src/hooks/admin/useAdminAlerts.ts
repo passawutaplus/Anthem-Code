@@ -8,6 +8,8 @@ export interface AdminAlertCounts {
   pendingCashouts: number;
   pendingKyc: number;
   openAml: number;
+  highRiskKyc: number;
+  urgentReports: number;
 }
 
 export function useAdminAlertCounts() {
@@ -15,17 +17,29 @@ export function useAdminAlertCounts() {
     queryKey: ["admin-alert-counts"],
     refetchInterval: 30_000,
     queryFn: async () => {
-      const [reports, cashouts, kyc, aml] = await Promise.all([
+      const [reports, cashouts, kyc, aml, kycHigh, urgent] = await Promise.all([
         supabase.from("user_reports" as never).select("*", { count: "exact", head: true }).in("status", ["open", "reviewing"]),
         supabase.from("cashout_requests").select("*", { count: "exact", head: true }).eq("status", "pending"),
         supabase.from("kyc_requests").select("*", { count: "exact", head: true }).eq("status", "pending"),
         supabase.from("aml_flags").select("*", { count: "exact", head: true }).eq("status", "open"),
+        supabase
+          .from("kyc_requests")
+          .select("*", { count: "exact", head: true })
+          .eq("status", "pending")
+          .gt("ai_risk_score", 40),
+        supabase
+          .from("user_reports" as never)
+          .select("*", { count: "exact", head: true })
+          .in("status", ["open", "reviewing"])
+          .or("ai_priority.gte.70,ai_recommendation.eq.urgent"),
       ]);
       return {
         openReports: reports.count ?? 0,
         pendingCashouts: cashouts.count ?? 0,
         pendingKyc: kyc.count ?? 0,
         openAml: aml.count ?? 0,
+        highRiskKyc: kycHigh.count ?? 0,
+        urgentReports: urgent.count ?? 0,
       };
     },
   });

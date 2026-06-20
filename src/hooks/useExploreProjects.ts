@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { PROJECT_FEED_SELECT } from "@/lib/dbSelects";
-import { normalizeTag } from "@/lib/exploreRoutes";
+import { normalizeTag, normalizeToolName } from "@/lib/exploreRoutes";
 import type { DBProject } from "@/hooks/useProjects";
 
 const EXPLORE_LIMIT = 200;
@@ -15,11 +15,17 @@ function tagScore(tag: string, query: string): number {
 }
 
 export function filterProjectsByTool(projects: DBProject[], tool: string): DBProject[] {
-  const needle = tool.trim().toLowerCase();
-  if (!needle) return [];
-  return projects.filter((p) =>
-    (p.tools ?? []).some((t) => t.trim().toLowerCase() === needle),
-  );
+  return filterProjectsByTools(projects, [tool]);
+}
+
+/** Project must list every tool (AND). */
+export function filterProjectsByTools(projects: DBProject[], tools: string[]): DBProject[] {
+  const needles = tools.map(normalizeToolName).filter(Boolean);
+  if (needles.length === 0) return [];
+  return projects.filter((p) => {
+    const projectTools = new Set((p.tools ?? []).map(normalizeToolName));
+    return needles.every((needle) => projectTools.has(needle));
+  });
 }
 
 export function filterProjectsByTag(projects: DBProject[], tag: string): DBProject[] {

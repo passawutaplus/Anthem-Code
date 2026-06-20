@@ -3,8 +3,8 @@
  * Backed by shared.notifications, exposed via public.notifications view.
  */
 import { useEffect, useState, useCallback } from "react";
+import type { RealtimeChannel } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
-import type { Database } from "@/integrations/supabase/types";
 
 export type AppKey = "anthem" | "so1o" | "shared";
 
@@ -53,56 +53,125 @@ function toNotification(row: NotificationRow): Notification | null {
   };
 }
 
-export function useNotifications(userId: string | null | undefined) {
-  const [items, setItems] = useState<Notification[]>([]);
-  const [loading, setLoading] = useState(false);
+type NotificationStore = {
+  items: Notification[];
+  loading: boolean;
+  listeners: Set<() => void>;
+  refCount: number;
+  channel: RealtimeChannel | null;
+};
 
-  const fetchItems = useCallback(async () => {
-    if (!userId) return;
-    setLoading(true);
-    const { data, error } = await supabase
-      .from("ecosystem_notifications")
-      .select("*")
-      .eq("is_dismissed", false)
-      .order("created_at", { ascending: false })
-      .limit(80);
-    if (!error && data) {
-      setItems(
-        (data as NotificationRow[])
-          .map(toNotification)
-          .filter((n): n is Notification => n !== null),
-      );
-    }
-    setLoading(false);
-  }, [userId]);
+const stores = new Map<string, NotificationStore>();
+
+function emit(store: NotificationStore) {
+  store.listeners.forEach((listener) => listener());
+}
+
+async function fetchStoreItems(userId: string, store: NotificationStore) {
+  store.loading = true;
+  emit(store);
+  const { data, error } = await supabase
+    .from("ecosystem_notifications")
+    .select("*")
+    .eq("is_dismissed", false)
+    .order("created_at", { ascending: false })
+    .limit(80);
+  if (!error && data) {
+    store.items = (data as NotificationRow[])
+      .map(toNotification)
+      .filter((n): n is Notification => n !== null);
+  }
+  store.loading = false;
+  emit(store);
+}
+
+function ensureStore(userId: string): NotificationStore {
+  let store = stores.get(userId);
+  if (!store) {
+    store = { items: [], loading: false, listeners: new Set(), refCount: 0, channel: null };
+    stores.set(userId, store);
+  }
+  return store;
+}
+
+function subscribeStore(userId: string, store: NotificationStore) {
+  if (store.channel) return;
+  void fetchStoreItems(userId, store);
+  store.channel = supabase
+    .channel(`notifications:${userId}`)
+    .on(
+      "postgres_changes",
+      { event: "*", schema: "shared", table: "notifications", filter: `user_id=eq.${userId}` },
+      () => fetchStoreItems(userId, store),
+    )
+    .subscribe();
+}
+
+function releaseStore(userId: string) {
+  const store = stores.get(userId);
+  if (!store || store.refCount > 0) return;
+  if (store.channel) {
+    supabase.removeChannel(store.channel);
+    store.channel = null;
+  }
+  stores.delete(userId);
+}
+
+export function useNotifications(userId: string | null | undefined) {
+  const [, tick] = useState(0);
+  const rerender = useCallback(() => tick((n) => n + 1), []);
 
   useEffect(() => {
-    fetchItems();
     if (!userId) return;
-    const channel = supabase
-      .channel(`notifications:${userId}`)
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "shared", table: "notifications", filter: `user_id=eq.${userId}` },
-        () => fetchItems(),
-      )
-      .subscribe();
+    const store = ensureStore(userId);
+    store.listeners.add(rerender);
+    store.refCount += 1;
+    subscribeStore(userId, store);
+
     return () => {
-      supabase.removeChannel(channel);
+      store.listeners.delete(rerender);
+      store.refCount -= 1;
+      releaseStore(userId);
     };
-  }, [userId, fetchItems]);
+  }, [userId, rerender]);
 
-  const markRead = useCallback(async (id: string) => {
-    await supabase.from("notifications").update({ is_read: true }).eq("id", id);
-    setItems((prev) => prev.map((n) => (n.id === id ? { ...n, is_read: true } : n)));
-  }, []);
+  const store = userId ? stores.get(userId) : undefined;
+  const items = store?.items ?? [];
+  const loading = store?.loading ?? false;
 
-  const dismiss = useCallback(async (id: string) => {
-    await supabase.from("notifications").update({ is_dismissed: true }).eq("id", id);
-    setItems((prev) => prev.filter((n) => n.id !== id));
-  }, []);
+  const markRead = useCallback(
+    async (id: string) => {
+      if (!userId) return;
+      await supabase.from("notifications").update({ is_read: true }).eq("id", id);
+      const active = stores.get(userId);
+      if (active) {
+        active.items = active.items.map((n) => (n.id === id ? { ...n, is_read: true } : n));
+        emit(active);
+      }
+    },
+    [userId],
+  );
+
+  const dismiss = useCallback(
+    async (id: string) => {
+      if (!userId) return;
+      await supabase.from("notifications").update({ is_dismissed: true }).eq("id", id);
+      const active = stores.get(userId);
+      if (active) {
+        active.items = active.items.filter((n) => n.id !== id);
+        emit(active);
+      }
+    },
+    [userId],
+  );
+
+  const refetch = useCallback(async () => {
+    if (!userId) return;
+    const active = stores.get(userId);
+    if (active) await fetchStoreItems(userId, active);
+  }, [userId]);
 
   const unreadCount = items.filter((n) => !n.is_read).length;
 
-  return { items, loading, unreadCount, refetch: fetchItems, markRead, dismiss };
+  return { items, loading, unreadCount, refetch, markRead, dismiss };
 }

@@ -1,51 +1,157 @@
 import { Link } from "react-router-dom";
-import { MessageCircle, Lightbulb, HelpCircle } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+
 import type { CommunityPost } from "@/hooks/useCommunityPosts";
+
 import { formatThaiDate } from "@/lib/format";
 
+import { communityCoverUrl } from "@/lib/communityMedia";
+
+import CommunityPostMedia from "@/components/community/CommunityPostMedia";
+
+import CommunityPostMenu from "@/components/community/CommunityPostMenu";
+
+import CommunityPostActionBar from "@/components/community/CommunityPostActionBar";
+import UserAvatar from "@/components/UserAvatar";
+
+import { profilePublicPath } from "@/lib/profileRoutes";
+
+
+
 interface Props {
+
   post: CommunityPost;
+
 }
 
+
+
 const CommunityPostCard = ({ post }: Props) => {
-  const isTip = post.post_kind === "tip";
+
+  const cover = communityCoverUrl(post.gallery_urls, post.video_urls);
+
+  const authorPath = profilePublicPath({
+
+    user_id: post.author_id,
+
+    username: post.profile?.username,
+
+  });
+
+
+
   return (
-    <Link
-      to={`/community/${post.id}`}
-      className="block rounded-2xl glass-panel p-4 hover:ring-2 hover:ring-primary/20 transition-all"
-    >
-      <div className="flex items-start gap-3">
-        {post.profile?.avatar_url ? (
-          <img src={post.profile.avatar_url} alt="" className="w-10 h-10 rounded-full object-cover shrink-0" />
-        ) : (
-          <div className="w-10 h-10 rounded-full bg-primary/15 flex items-center justify-center text-sm font-medium text-primary shrink-0">
-            {(post.profile?.display_name ?? "?")[0]}
-          </div>
-        )}
+
+    <article className="rounded-2xl glass-panel overflow-hidden hover:ring-2 hover:ring-primary/15 transition-all">
+
+      <div className="flex items-center gap-3 px-4 pt-4 pb-2">
+
+        <Link to={authorPath} onClick={(e) => e.stopPropagation()} className="shrink-0">
+
+          <UserAvatar
+
+            src={post.profile?.avatar_url}
+
+            name={post.profile?.display_name ?? "?"}
+
+            className="w-9 h-9"
+
+          />
+
+        </Link>
+
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 flex-wrap mb-1">
-            <Badge variant="secondary" className="rounded-full text-[10px] gap-1">
-              {isTip ? <Lightbulb className="w-3 h-3" /> : <HelpCircle className="w-3 h-3" />}
-              {isTip ? "Tips" : "Q&A"}
-            </Badge>
-            {post.category && (
-              <span className="text-[10px] text-muted-foreground">{post.category}</span>
-            )}
-          </div>
-          <h3 className="font-medium text-foreground line-clamp-2">{post.title}</h3>
-          <p className="text-sm text-muted-foreground line-clamp-2 mt-1">{post.body}</p>
-          <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
-            <span>{post.profile?.display_name ?? "ผู้ใช้"}</span>
-            <span>{formatThaiDate(post.created_at)}</span>
-            <span className="flex items-center gap-1">
-              <MessageCircle className="w-3 h-3" /> {post.reply_count}
-            </span>
-          </div>
+
+          <Link to={authorPath} onClick={(e) => e.stopPropagation()} className="block hover:text-primary">
+
+            <p className="text-sm font-medium truncate">{post.profile?.display_name ?? "ผู้ใช้"}</p>
+
+          </Link>
+
+          <p className="text-[11px] text-muted-foreground">{formatThaiDate(post.created_at)}</p>
+
         </div>
+
+        <CommunityPostMenu postId={post.id} authorId={post.author_id} title={post.title} />
+
       </div>
-    </Link>
+
+
+
+      <Link to={`/community/${post.id}`} className="block">
+
+        {cover ? (
+
+          <div className="relative">
+
+            <CommunityPostMedia
+
+              galleryUrls={post.gallery_urls}
+
+              videoUrls={post.video_urls}
+
+              title={post.title}
+
+              aspectClass="aspect-[4/5] max-h-[420px]"
+
+            />
+
+          </div>
+
+        ) : null}
+
+
+
+        <div className="px-4 py-3 space-y-2">
+
+          <h3 className="font-semibold text-foreground line-clamp-2 leading-snug">{post.title}</h3>
+
+          <p className="text-sm text-muted-foreground line-clamp-3 whitespace-pre-wrap">{post.body}</p>
+
+          {post.tags.length > 0 && (
+
+            <div className="flex flex-wrap gap-1">
+
+              {post.tags.slice(0, 4).map((t) => (
+
+                <span key={t} className="text-[10px] text-primary/80">#{t}</span>
+
+              ))}
+
+            </div>
+
+          )}
+
+        </div>
+
+      </Link>
+
+
+
+      <CommunityPostActionBar
+
+        postId={post.id}
+
+        authorId={post.author_id}
+
+        title={post.title}
+
+        likeCount={post.like_count}
+
+        replyCount={post.reply_count}
+
+        viewCount={post.view_count}
+
+        compact
+
+      />
+
+    </article>
+
   );
+
 };
 
+
+
 export default CommunityPostCard;
+

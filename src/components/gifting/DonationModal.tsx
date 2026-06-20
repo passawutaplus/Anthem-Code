@@ -234,7 +234,6 @@ const DonationModal = ({ open, onOpenChange, recipientId, recipientName, recipie
             <div className="space-y-2">
               <p className="text-xs text-destructive text-center">
                 ยอดพร้อมใช้ไม่พอ — ต้องเติมอีก {(selected!.price_px - available).toLocaleString()} px
-                <br /><span className="text-[10px] text-muted-foreground">(Pixel ที่เพิ่งเติมต้องรอ 24 ชม.)</span>
               </p>
               <Button
                 onClick={() => setTopUpOpen(true)}

@@ -1,12 +1,14 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Banknote, Link2, Loader2 } from "lucide-react";
 import { useWallet } from "@/hooks/useWallet";
-import { useRequestCashout, PLATFORM_FEE_RATE, MIN_CASHOUT_PX } from "@/hooks/useCashout";
+import { useRequestCashout, getCashoutFeeRate, formatCashoutFeeLabel, MIN_CASHOUT_PX } from "@/hooks/useCashout";
 import { useConnectProfile } from "@/hooks/useConnectProfile";
+import { usePayoutProfile } from "@/hooks/useKyc";
+import { useSubscription } from "@/core/subscription/useSubscription";
 import { startConnectOnboarding } from "@/lib/stripePaymentsApi";
 import { toast } from "sonner";
 
@@ -18,6 +20,10 @@ interface Props {
 const CashoutDialog = ({ open, onOpenChange }: Props) => {
   const { data: wallet } = useWallet();
   const { data: connectProfile, refetch: refetchConnect } = useConnectProfile();
+  const { data: payoutProfile } = usePayoutProfile();
+  const { data: subData } = useSubscription();
+  const feeRate = getCashoutFeeRate(subData?.profileTier);
+  const feeLabel = formatCashoutFeeLabel(subData?.profileTier);
   const cashout = useRequestCashout();
   const earnedBalance = wallet?.earned_px ?? 0;
   const [amount, setAmount] = useState<string>("");
@@ -29,8 +35,15 @@ const CashoutDialog = ({ open, onOpenChange }: Props) => {
   const connectReady =
     connectProfile?.connect_onboarding_complete && connectProfile?.connect_payouts_enabled;
 
+  useEffect(() => {
+    if (!open || !payoutProfile) return;
+    if (payoutProfile.bank_name) setBank(payoutProfile.bank_name);
+    if (payoutProfile.account_number) setAccountNumber(payoutProfile.account_number);
+    if (payoutProfile.account_name) setAccountName(payoutProfile.account_name);
+  }, [open, payoutProfile]);
+
   const amountNum = parseInt(amount, 10) || 0;
-  const fee = useMemo(() => Math.floor(amountNum * PLATFORM_FEE_RATE), [amountNum]);
+  const fee = useMemo(() => Math.floor(amountNum * feeRate), [amountNum, feeRate]);
   const net = amountNum - fee;
   const canSubmit =
     connectReady &&
@@ -59,7 +72,7 @@ const CashoutDialog = ({ open, onOpenChange }: Props) => {
       {
         onSuccess: () => {
           toast.success(`ส่งคำขอถอน ${amountNum.toLocaleString()} px แล้ว`, {
-            description: `สุทธิประมาณ ฿ ${net.toLocaleString()} หลังหักค่าธรรมเนียม 15% — admin จะโอนผ่าน Stripe Connect`,
+            description: `สุทธิประมาณ ฿ ${net.toLocaleString()} หลังหักค่าธรรมเนียม ${feeLabel} — admin จะโอนผ่าน Stripe Connect`,
           });
           onOpenChange(false);
           setAmount("");
@@ -83,7 +96,7 @@ const CashoutDialog = ({ open, onOpenChange }: Props) => {
             <Banknote className="w-5 h-5 text-primary" /> ถอน Pixel เข้าบัญชี
           </DialogTitle>
           <DialogDescription>
-            ยอดถอนได้ (จากของขวัญ) <span className="text-primary font-semibold">{earnedBalance.toLocaleString()} px</span> · ขั้นต่ำ {MIN_CASHOUT_PX.toLocaleString()} px · ค่าธรรมเนียม {PLATFORM_FEE_RATE * 100}%
+            ยอดถอนได้ (จากของขวัญ) <span className="text-primary font-semibold">{earnedBalance.toLocaleString()} px</span> · ขั้นต่ำ {MIN_CASHOUT_PX.toLocaleString()} px · ค่าธรรมเนียม {feeLabel}
           </DialogDescription>
         </DialogHeader>
 
@@ -148,7 +161,7 @@ const CashoutDialog = ({ open, onOpenChange }: Props) => {
 
           <div className="rounded-xl bg-muted/50 p-3 space-y-1 text-sm">
             <Row label="ยอดถอน" value={`${amountNum.toLocaleString()} px`} />
-            <Row label={`ค่าธรรมเนียม (${PLATFORM_FEE_RATE * 100}%)`} value={`−${fee.toLocaleString()} px`} muted />
+            <Row label={`ค่าธรรมเนียม (${feeLabel})`} value={`−${fee.toLocaleString()} px`} muted />
             <div className="border-t border-border my-1" />
             <Row label="จะได้รับสุทธิ" value={`฿ ${Math.max(net, 0).toLocaleString()}`} bold />
           </div>

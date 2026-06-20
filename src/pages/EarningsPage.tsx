@@ -7,13 +7,16 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useWallet, useAvailablePurchasedPx } from "@/hooks/useWallet";
 import { useReceivedGifts, useGifts } from "@/hooks/useGifting";
-import { useCashoutHistory, MIN_CASHOUT_PX, PLATFORM_FEE_RATE, cashoutStatusLabel } from "@/hooks/useCashout";
+import { useCashoutHistory, MIN_CASHOUT_PX, getCashoutFeeRate, formatCashoutFeeLabel, cashoutStatusLabel } from "@/hooks/useCashout";
+import { useSubscription } from "@/core/subscription/useSubscription";
 import CashoutDialog from "@/components/gifting/CashoutDialog";
 import TopUpDialog from "@/components/gifting/TopUpDialog";
 import { formatThaiDate } from "@/lib/format";
 import SeoHead from "@/components/SeoHead";
 import { toast } from "sonner";
 import { notifyAnthem } from "@/lib/notifyAnthem";
+import { useCreatorEligibility } from "@/hooks/useCreatorEligibility";
+import CreatorEligibilityProgress from "@/components/verification/CreatorEligibilityProgress";
 
 const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
   Pencil, Coffee, Highlighter, PenTool, Palette, Laptop,
@@ -27,6 +30,10 @@ const EarningsPage = () => {
   const { data: gifts = [] } = useGifts();
   const { data: received = [] } = useReceivedGifts(user?.id);
   const { data: cashouts = [] } = useCashoutHistory();
+  const { data: eligibility } = useCreatorEligibility(user?.id);
+  const { data: subData } = useSubscription();
+  const feeRate = getCashoutFeeRate(subData?.profileTier);
+  const feeLabel = formatCashoutFeeLabel(subData?.profileTier);
   const [cashoutOpen, setCashoutOpen] = useState(false);
   const [topupOpen, setTopupOpen] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
@@ -35,7 +42,7 @@ const EarningsPage = () => {
     const topup = searchParams.get("topup");
     const connect = searchParams.get("connect");
     if (topup === "success") {
-      toast.success("เติม Pixel สำเร็จ — ยอดจะพร้อมส่งของขวัญหลังช่วงพัก 24 ชม.");
+      toast.success("เติม Pixel สำเร็จ — ใช้ส่งของขวัญได้ทันที");
       notifyAnthem({ event: "topup" });
       searchParams.delete("topup");
       setSearchParams(searchParams, { replace: true });
@@ -68,9 +75,8 @@ const EarningsPage = () => {
   const lifetimeEarned = wallet?.lifetime_earned_px ?? 0;
   const earnedPx = wallet?.earned_px ?? 0;
   const purchasedPx = wallet?.purchased_px ?? 0;
-  const heldPx = Math.max(purchasedPx - availablePurchased, 0);
   
-  const canCashout = earnedPx >= MIN_CASHOUT_PX;
+  const canCashout = earnedPx >= MIN_CASHOUT_PX && eligibility?.canCashout === true;
 
   return (
     <div className="min-h-screen bg-app-ambient">
@@ -86,11 +92,13 @@ const EarningsPage = () => {
       </div>
 
       <div className="max-w-5xl mx-auto px-4 py-6 space-y-6">
+        {eligibility && <CreatorEligibilityProgress data={eligibility} />}
+
         <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 text-sm text-foreground/90 leading-relaxed flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
             <p className="font-medium text-foreground">เติม Pixel ด้วย Stripe</p>
             <p className="text-muted-foreground mt-1 text-xs">
-              1 px = 1 บาท · ชำระผ่าน Stripe Checkout · ยอดเติมใช้ส่งของขวัญได้หลังพัก 24 ชม.
+              1 px = 1 บาท · ชำระผ่าน Stripe Checkout · ยอดเติมใช้ส่งของขวัญได้ทันที
             </p>
           </div>
           <Button
@@ -115,13 +123,13 @@ const EarningsPage = () => {
             label="Pixel ที่เติม (ส่งของขวัญ)"
             value={availablePurchased.toLocaleString()}
             unit="px"
-            note={heldPx > 0 ? `+${heldPx.toLocaleString()} px กำลังพัก 24 ชม.` : "ใช้ส่งของขวัญได้ทันที"}
+            note="ใช้ส่งของขวัญได้ทันทีหลังเติม"
           />
           <StatCard
             icon={Banknote}
             label="มูลค่าถอนได้โดยประมาณ"
-            value={`฿ ${Math.floor(earnedPx * (1 - PLATFORM_FEE_RATE)).toLocaleString()}`}
-            note={`หลังหักค่าธรรมเนียม ${PLATFORM_FEE_RATE * 100}% · สะสมรวม ${lifetimeEarned.toLocaleString()} px`}
+            value={`฿ ${Math.floor(earnedPx * (1 - feeRate)).toLocaleString()}`}
+            note={`หลังหักค่าธรรมเนียม ${feeLabel} · สะสมรวม ${lifetimeEarned.toLocaleString()} px`}
           />
         </div>
 
@@ -132,7 +140,7 @@ const EarningsPage = () => {
             <p className="font-medium text-foreground mb-0.5">ระบบ Closed-Loop เพื่อป้องกันการฟอกเงิน</p>
             <p>
               ถอนได้เฉพาะ Pixel ที่ได้จาก<span className="font-medium text-foreground">ของขวัญที่ผู้สนับสนุนส่งให้</span> เท่านั้น
-              ส่วน Pixel ที่คุณเติมเองจะใช้ส่งของขวัญได้อย่างเดียว และต้องผ่านช่วงพัก 24 ชั่วโมงก่อน
+              ส่วน Pixel ที่คุณเติมเองจะใช้ส่งของขวัญได้อย่างเดียว (ถอนไม่ได้)
               การถอนเงินจำเป็นต้องผ่านการยืนยันตัวตน (KYC) เสร็จสิ้นก่อน
             </p>
           </div>
@@ -146,14 +154,20 @@ const EarningsPage = () => {
             </h2>
             <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1.5">
               <Lock className="w-3 h-3" />
-              ขั้นต่ำ {MIN_CASHOUT_PX.toLocaleString()} px จาก earned · ค่าธรรมเนียม {PLATFORM_FEE_RATE * 100}% · ต้อง KYC
+              ขั้นต่ำ {MIN_CASHOUT_PX.toLocaleString()} px จาก earned · ค่าธรรมเนียม {feeLabel} · ต้องครบเงื่อนไขและ KYC
             </p>
           </div>
           <Button
             onClick={() => setCashoutOpen(true)}
             disabled={!canCashout}
             className="rounded-full bg-primary text-primary-foreground hover:bg-primary/90"
-            title={canCashout ? "ถอนเข้าบัญชี" : `ต้องมี earned ≥ ${MIN_CASHOUT_PX.toLocaleString()} px`}
+            title={
+              canCashout
+                ? "ถอนเข้าบัญชี"
+                : eligibility && !eligibility.canCashout
+                  ? "ครบ Welcome Bonus, ผู้ติดตาม และยืนยันตัวตนก่อนถอน"
+                  : `ต้องมี earned ≥ ${MIN_CASHOUT_PX.toLocaleString()} px`
+            }
           >
             <Banknote className="w-4 h-4 mr-1.5" />
             {canCashout ? "ขอถอนเงิน" : `ต้องมี earned ≥ ${MIN_CASHOUT_PX.toLocaleString()} px`}

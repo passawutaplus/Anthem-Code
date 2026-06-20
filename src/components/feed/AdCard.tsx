@@ -9,16 +9,13 @@ interface Props {
 }
 
 /**
- * Sponsored card that mimics ProjectCard layout to blend into the feed.
- * Includes a small but visible "Ads" pill in the top-left.
- * Clicking opens the in-app Ad detail page; the outbound link still works from there.
+ * Sponsored card — click opens advertiser URL or linked portfolio project.
  */
 const AdCard = ({ ad, placement = "feed" }: Props) => {
   const navigate = useNavigate();
   const ref = useRef<HTMLDivElement>(null);
   const loggedRef = useRef(false);
 
-  // Log a single impression when the card first becomes visible
   useEffect(() => {
     if (!ref.current || loggedRef.current) return;
     const el = ref.current;
@@ -42,6 +39,20 @@ const AdCard = ({ ad, placement = "feed" }: Props) => {
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault();
     logAdEvent(ad.id, "click", placement);
+    if (ad.linked_project_id) {
+      navigate(`/project/${ad.linked_project_id}?sponsor=${ad.id}`);
+      return;
+    }
+    if (ad.target_url) {
+      window.open(ad.target_url, "_blank", "noopener,noreferrer");
+      return;
+    }
+    navigate(`/ads/${ad.id}`);
+  };
+
+  const handleDetails = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
     navigate(`/ads/${ad.id}`);
   };
 
@@ -62,6 +73,13 @@ const AdCard = ({ ad, placement = "feed" }: Props) => {
         >
           Ads
         </span>
+        <button
+          type="button"
+          onClick={handleDetails}
+          className="absolute top-2 right-2 px-2 py-0.5 rounded-full text-[9px] font-medium bg-background/80 text-muted-foreground hover:text-foreground"
+        >
+          รายละเอียด
+        </button>
 
         {/* Glass overlay on hover */}
         <div

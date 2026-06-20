@@ -2,7 +2,7 @@ import BriefcaseIcon from "../components/icons/BriefcaseIcon";
 import { useMemo, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, Settings, ExternalLink, LayoutGrid, Sparkles, Phone, UserPlus, FileCheck, Plus, Layers3, ArrowDownUp, Eye, Heart, Clock, ChevronDown, ChevronUp, Gift as GiftIcon, Target } from "lucide-react";
+import { ArrowLeft, Settings, ExternalLink, LayoutGrid, Sparkles, Phone, UserPlus, FileCheck, Plus, Layers3, ArrowDownUp, Eye, Heart, Clock, ChevronDown, ChevronUp, Gift as GiftIcon, Target, Bookmark } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -26,7 +26,13 @@ import { DesignDrillSection } from "@/components/drill/DesignDrillSection";
 import { MOBILE_PAGE_BOTTOM_CLASS } from "@/lib/mobileLayout";
 import { cn } from "@/lib/utils";
 import { markOnboardingVisit } from "@/lib/onboardingStorage";
+import { PORTFOLIO_DRILL_HASH } from "@/lib/drillProject";
 import { profilePublicPath, profilePublicUrl } from "@/lib/profileRoutes";
+import { COMMUNITY_NEW_PATH } from "@/data/createActions";
+import { useSavedCommunityPosts } from "@/hooks/useCommunityPostInteractions";
+import { useCreatorEligibility } from "@/hooks/useCreatorEligibility";
+import CreatorEligibilityProgress from "@/components/verification/CreatorEligibilityProgress";
+import CommunityPostGridCard from "@/components/feed/CommunityPostGridCard";
 import { sortPortfolioProjects, type PortfolioSortMode } from "@/lib/portfolioSort";
 import { Pin } from "lucide-react";
 
@@ -41,6 +47,8 @@ const PortfolioProfilePage = () => {
   const { followers, following } = useFollowState(user?.id);
   const { data: collections = [] } = useCollections(user?.id);
   const { data: inspireBoards = [] } = useInspireBoards(user?.id);
+  const { data: savedPosts = [] } = useSavedCommunityPosts(user?.id);
+  const { data: eligibility } = useCreatorEligibility(user?.id);
 
   const [portfolioSort, setPortfolioSort] = useState<PortfolioSortMode>("portfolio");
   const [showAllPortfolio, setShowAllPortfolio] = useState(false);
@@ -49,6 +57,16 @@ const PortfolioProfilePage = () => {
   useEffect(() => {
     if (!authLoading && !user) navigate("/auth?redirect=/portfolio");
   }, [authLoading, user, navigate]);
+
+  useEffect(() => {
+    if (!profile) return;
+    const drill = new URLSearchParams(window.location.search).get("drill");
+    if (drill !== "daily" && window.location.hash !== `#${PORTFOLIO_DRILL_HASH}`) return;
+    const timer = window.setTimeout(() => {
+      document.getElementById(PORTFOLIO_DRILL_HASH)?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 150);
+    return () => window.clearTimeout(timer);
+  }, [profile]);
 
   const { data: hireCount = 0 } = useQuery({
     queryKey: ["hire-count", user?.id],
@@ -118,6 +136,7 @@ const PortfolioProfilePage = () => {
           userId={user!.id}
           profile={profile}
           stats={{ works: published.length, followers, following }}
+          onPost={() => navigate(COMMUNITY_NEW_PATH)}
           onPreview={() =>
             navigate(profilePublicPath({ user_id: user!.id, username: profile.username }))
           }
@@ -141,8 +160,65 @@ const PortfolioProfilePage = () => {
         <main className="space-y-6 min-w-0">
           <OnboardingChecklist variant="full" />
 
-          <Section icon={Target} title="Design Drill">
+          {eligibility && <CreatorEligibilityProgress data={eligibility} />}
+
+          <Section id={PORTFOLIO_DRILL_HASH} icon={Target} title="Design Drill">
             <DesignDrillSection />
+          </Section>
+
+          <Section
+            id="saved-posts"
+            icon={Bookmark}
+            title="โพสต์ที่บันทึก"
+            count={savedPosts.length}
+            action={
+              savedPosts.length > 6 ? (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => navigate("/portfolio/saved")}
+                  className="rounded-full h-8"
+                >
+                  ดูทั้งหมด ({savedPosts.length})
+                </Button>
+              ) : savedPosts.length > 0 ? (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => navigate("/?mode=community")}
+                  className="rounded-full h-8"
+                >
+                  ไปฟีด
+                </Button>
+              ) : null
+            }
+          >
+            {savedPosts.length ? (
+              <div className="space-y-4">
+                <div className="columns-2 md:columns-3 gap-2 sm:gap-3">
+                  {savedPosts.slice(0, 6).map((post) => (
+                    <div key={post.id} className="break-inside-avoid mb-2 sm:mb-3">
+                      <CommunityPostGridCard post={post} />
+                    </div>
+                  ))}
+                </div>
+                {savedPosts.length > 6 && (
+                  <Button
+                    variant="outline"
+                    onClick={() => navigate("/portfolio/saved")}
+                    className="w-full rounded-full"
+                  >
+                    <ChevronDown className="w-4 h-4 mr-1" /> ดูโพสต์ที่บันทึกทั้งหมด ({savedPosts.length})
+                  </Button>
+                )}
+              </div>
+            ) : (
+              <EmptyHint
+                text="ยังไม่มีโพสต์ที่บันทึก — กดไอคอนบุ๊กมาร์กข้างปุ่มแชร์ในโพสต์เพื่อเก็บไว้อ่านทีหลัง"
+                cta="ไปดูฟีดชุมชน"
+                onClick={() => navigate("/?mode=community")}
+              />
+            )}
           </Section>
 
           {/* About */}
@@ -341,15 +417,17 @@ const MiniStat = ({ icon: Icon, label, value }: { icon: React.ComponentType<{ cl
 );
 
 const Section = ({
+  id,
   icon: Icon, title, count, action, children,
 }: {
+  id?: string;
   icon: React.ComponentType<{ className?: string }>;
   title: string;
   count?: number;
   action?: React.ReactNode;
   children: React.ReactNode;
 }) => (
-  <section className="rounded-3xl glass-panel p-5 md:p-6">
+  <section id={id} className={cn("rounded-3xl glass-panel p-5 md:p-6", id && "scroll-mt-24")}>
     <div className="flex items-center justify-between gap-3 mb-4">
       <div className="flex items-center gap-2">
         <div className="text-primary flex items-center justify-center">

@@ -60,36 +60,42 @@
   }
 
   .dark {
-    /* Coal Black base */
-    --background: 210 7% 9%;
-    --foreground: 0 0% 96%;
-    --card: 210 7% 12%;
-    --card-foreground: 0 0% 96%;
-    --popover: 210 7% 11%;
-    --popover-foreground: 0 0% 96%;
-    --primary: 14 100% 58%;
+    /* Coal Black base — lifted surfaces for clearer hierarchy */
+    --background: 210 8% 7%;
+    --foreground: 0 0% 97%;
+    --card: 210 8% 13%;
+    --card-foreground: 0 0% 97%;
+    --popover: 210 8% 12%;
+    --popover-foreground: 0 0% 97%;
+    --primary: 14 100% 60%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 210 7% 16%;
-    --secondary-foreground: 0 0% 92%;
-    --muted: 210 7% 16%;
-    --muted-foreground: 215 8% 65%;
-    --accent: 210 7% 18%;
-    --accent-foreground: 0 0% 96%;
-    --destructive: 0 70% 45%;
+    --secondary: 210 8% 18%;
+    --secondary-foreground: 0 0% 94%;
+    --muted: 210 8% 18%;
+    --muted-foreground: 215 12% 72%;
+    --accent: 210 8% 22%;
+    --accent-foreground: 0 0% 97%;
+    --destructive: 0 72% 52%;
     --destructive-foreground: 0 0% 100%;
-    --success: 142 60% 45%;
+    --success: 142 62% 48%;
     --success-foreground: 0 0% 100%;
-    --border: 210 7% 20%;
-    --input: 210 7% 20%;
-    --ring: 14 100% 58%;
-    --sidebar-background: 210 7% 10%;
-    --sidebar-foreground: 0 0% 90%;
-    --sidebar-primary: 14 100% 58%;
+    --border: 210 8% 26%;
+    --input: 210 8% 22%;
+    --ring: 14 100% 60%;
+    --sidebar-background: 210 8% 9%;
+    --sidebar-foreground: 0 0% 92%;
+    --sidebar-primary: 14 100% 60%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 210 7% 14%;
-    --sidebar-accent-foreground: 0 0% 92%;
-    --sidebar-border: 210 7% 20%;
-    --sidebar-ring: 14 100% 58%;
+    --sidebar-accent: 210 8% 16%;
+    --sidebar-accent-foreground: 0 0% 94%;
+    --sidebar-border: 210 8% 26%;
+    --sidebar-ring: 14 100% 60%;
+
+    /* Chat persona tokens */
+    --chat-hire: 215 88% 62%;
+    --chat-hire-soft: 215 45% 18%;
+    --chat-collab: 14 100% 60%;
+    --chat-collab-soft: 14 55% 16%;
   }
 
 }
@@ -248,7 +254,9 @@
   .dark .glass-panel {
     background-color: hsl(var(--card));
     border-color: hsl(var(--border));
-    box-shadow: 0 1px 2px hsl(0 0% 0% / 0.3);
+    box-shadow:
+      inset 0 1px 0 0 hsl(0 0% 100% / 0.05),
+      0 2px 10px hsl(0 0% 0% / 0.35);
   }
 
   .glass-panel-strong {
@@ -259,8 +267,11 @@
     box-shadow: 0 2px 8px hsl(0 0% 0% / 0.04);
   }
   .dark .glass-panel-strong {
-    background-color: hsl(var(--card) / 0.85);
+    background-color: hsl(var(--card) / 0.92);
     border-color: hsl(var(--border));
+    box-shadow:
+      inset 0 1px 0 0 hsl(0 0% 100% / 0.04),
+      0 4px 16px hsl(0 0% 0% / 0.4);
   }
 
   .glass-chip {
@@ -289,6 +300,43 @@
   }
   .dark .bg-app-ambient {
     background-color: hsl(var(--background));
+  }
+
+  /* Dark mode contrast lifts — opacity utilities that sink on coal black */
+  .dark .text-foreground\/65 {
+    color: hsl(var(--foreground) / 0.78);
+  }
+  .dark .text-foreground\/70 {
+    color: hsl(var(--foreground) / 0.84);
+  }
+  .dark .text-foreground\/80 {
+    color: hsl(var(--foreground) / 0.9);
+  }
+  .dark .text-foreground\/85 {
+    color: hsl(var(--foreground) / 0.94);
+  }
+  .dark .text-muted-foreground\/50 {
+    color: hsl(var(--muted-foreground) / 0.72);
+  }
+  .dark .text-muted-foreground\/70 {
+    color: hsl(var(--muted-foreground) / 0.88);
+  }
+  .dark .hover\:bg-foreground\/5:hover {
+    background-color: hsl(var(--accent));
+  }
+  .dark .border-border\/35,
+  .dark .border-border\/40,
+  .dark .border-border\/50 {
+    border-color: hsl(var(--border) / 0.8);
+  }
+  .dark .ring-border\/35 {
+    --tw-ring-color: hsl(var(--border) / 0.7);
+  }
+  .dark .bg-secondary\/60 {
+    background-color: hsl(var(--secondary));
+  }
+  .dark .bg-muted\/50 {
+    background-color: hsl(var(--muted));
   }
 
 }

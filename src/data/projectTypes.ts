@@ -11,7 +11,7 @@ export type Category =
   | "Video"
   | "Music/Audio";
 
-export type SpecialFilter = "For You" | "Following" | "Newest" | "Collections" | "Top 1" | "Tips" | "Q&A";
+export type SpecialFilter = "Following" | "Newest" | "Collections" | "Top 1";
 export type FeedFilter = Category | SpecialFilter;
 
 export type ProjectStatus = "Published" | "Draft" | "Private";
@@ -33,6 +33,7 @@ export interface Project {
   status: ProjectStatus;
   publishedDate: string;
   tools?: string[];
+  tags?: string[];
   description?: string;
   price?: string;
   allowHire?: boolean;
@@ -55,15 +56,15 @@ export const categories: Category[] = [
   "Explore",
   "Graphic",
   "Illustration",
+  "Photography",
+  "Video",
   "Craft",
   "Web/UI",
   "Content",
-  "Photography",
-  "Video",
-  "Music/Audio",
+  "Music/Audio", // ไว้ท้าย — แพลตฟอร์มเน้นงานภาพ/วิดีโอก่อน
 ];
 
-export const specialFilters: SpecialFilter[] = ["For You", "Following", "Newest", "Collections", "Top 1", "Tips", "Q&A"];
+export const specialFilters: SpecialFilter[] = ["Following", "Newest", "Collections", "Top 1"];
 export const feedFilters: FeedFilter[] = [
   "Explore",
   ...specialFilters,

@@ -8,6 +8,7 @@ import FollowButton from "@/components/FollowButton";
 import { useProjectLike } from "@/hooks/useProjectInteractions";
 import { highlight } from "@/lib/highlight";
 import { imageCrossfadeVariants, imageRevealTransition } from "@/lib/motion";
+import UserAvatar from "@/components/UserAvatar";
 
 interface Props {
   data: DesignerCardData;
@@ -42,11 +43,11 @@ const DesignerCard = ({ data, onHire, onCollab, search = "" }: Props) => {
     <article className="rounded-2xl glass-panel p-4 flex flex-col gap-3">
       <div className="flex items-center gap-3">
         <button onClick={gotoProfile} className="shrink-0">
-          {profile.avatar_url ? (
-            <img src={profile.avatar_url} alt={name} className="w-11 h-11 rounded-full object-cover" />
-          ) : (
-            <div className="w-11 h-11 rounded-full bg-gradient-brand" />
-          )}
+          <UserAvatar
+            src={profile.avatar_url}
+            name={name}
+            className="w-11 h-11"
+          />
         </button>
         <div className="flex-1 min-w-0">
           <button onClick={gotoProfile} className="block text-left text-sm font-semibold text-foreground truncate hover:underline">

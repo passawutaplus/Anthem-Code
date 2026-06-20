@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import ToolIcon from "@/components/ToolIcon";
-import { useToolSuggestions, normalizeToolKey } from "@/hooks/useToolSuggestions";
+import { useToolSuggestions, normalizeToolKey, isAudioTool } from "@/hooks/useToolSuggestions";
 import { cn } from "@/lib/utils";
 
 interface Props {
@@ -55,7 +55,12 @@ const ToolPicker = ({ userId, tools, onChange, input, setInput, max = 20 }: Prop
 
   const filteredSuggestions = useMemo(() => {
     const q = normalizeToolKey(input);
-    const pool = suggestions.filter((s) => !selectedKeys.has(normalizeToolKey(s)));
+    const pool = suggestions.filter((s) => {
+      if (selectedKeys.has(normalizeToolKey(s))) return false;
+      // ไม่โผล่ DAW ใน quick-pick จนกว่าจะพิมพ์ค้นหา
+      if (!q && isAudioTool(s)) return false;
+      return true;
+    });
     if (!q) return pool.slice(0, 12);
     return pool
       .filter((s) => normalizeToolKey(s).includes(q) || q.includes(normalizeToolKey(s)))

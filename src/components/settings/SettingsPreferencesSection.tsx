@@ -3,17 +3,13 @@ import {
   ChevronRight,
   Flag,
   MessageSquare,
-  Moon,
   Settings2,
   Shield,
-  Sun,
 } from "lucide-react";
 import { requestOpenCookiePreferences } from "@/lib/cookieConsent";
-import { useThemeFade } from "@/hooks/useThemeFade";
 
 export function SettingsPreferencesSection() {
   const navigate = useNavigate();
-  const { isDark, toggleTheme } = useThemeFade();
 
   return (
     <section className="rounded-2xl glass-panel p-6 space-y-5">
@@ -21,24 +17,6 @@ export function SettingsPreferencesSection() {
         <Settings2 className="w-5 h-5 text-primary" />
         <h2 className="font-semibold text-foreground">การตั้งค่าเพิ่มเติม</h2>
       </div>
-
-      {/* โหมดสี */}
-      <div className="flex items-center justify-between gap-4 py-1">
-        <div>
-          <p className="text-sm font-medium text-foreground">โหมดสี</p>
-          <p className="text-xs text-muted-foreground">สลับระหว่างโหมดสว่างและมืด</p>
-        </div>
-        <button
-          type="button"
-          onClick={toggleTheme}
-          className="inline-flex items-center gap-2 rounded-full bg-secondary hover:bg-accent px-4 py-2 text-sm font-medium text-foreground transition-colors shrink-0"
-        >
-          {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-          {isDark ? "โหมดสว่าง" : "โหมดมืด"}
-        </button>
-      </div>
-
-      <div className="border-t border-border/40" />
 
       {/* การติดตาม */}
       <div className="space-y-2">

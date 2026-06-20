@@ -192,7 +192,7 @@ export function DesignDrillSection() {
             </Badge>
           )}
           <Button variant="outline" size="sm" asChild className="gap-1.5 rounded-full">
-            <Link to="/drill">
+            <Link to="/?mode=community&feed=drill">
               <Users className="h-3.5 w-3.5" aria-hidden />
               ดูผลงานวันนี้
             </Link>

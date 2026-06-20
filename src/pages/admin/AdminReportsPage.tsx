@@ -9,10 +9,11 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/hooks/useAuth";
-import { Download } from "lucide-react";
+import { Download, Bot } from "lucide-react";
 import { toCsv, downloadCsv } from "@/lib/csv";
 import { getLicenseMeta } from "@/lib/licenses";
 import { useAdminApplyModeration } from "@/hooks/useModeration";
+import { enrichReportRow, ReportAiSummaryCard } from "@/components/admin/ReportAiSummary";
 
 type EvidenceFile = { url: string; type: string; name: string; size: number };
 type ReportRow = {
@@ -28,6 +29,9 @@ type ReportRow = {
   status: "open" | "reviewing" | "resolved" | "dismissed";
   admin_note: string;
   created_at: string;
+  ai_priority?: number | null;
+  ai_summary?: string | null;
+  ai_recommendation?: string | null;
 };
 
 const STATUSES = ["open", "reviewing", "resolved", "dismissed"] as const;
@@ -55,6 +59,7 @@ export default function AdminReportsPage() {
   const { user } = useAuth();
   const qc = useQueryClient();
   const [tab, setTab] = useState<(typeof STATUSES)[number]>("open");
+  const [urgentOnly, setUrgentOnly] = useState(false);
   const [notes, setNotes] = useState<Record<string, string>>({});
   const applyMod = useAdminApplyModeration();
 
@@ -78,16 +83,29 @@ export default function AdminReportsPage() {
         .select("id, license_type, license_note, rights_attested_at")
         .in("id", projectIds);
       const licenseMap = new Map((projects ?? []).map((p) => [p.id, p]));
-      return reports.map((r) => {
-        if (r.target_type !== "project" || r.reason !== "copyright") return r;
-        const lic = licenseMap.get(r.target_id);
-        if (!lic) return r;
-        const meta = getLicenseMeta(lic.license_type);
-        const suffix = ` [ลิขสิทธิ์: ${meta.shortLabel}${lic.rights_attested_at ? "" : ", ไม่ยืนยันสิทธิ์"}]`;
-        return { ...r, details: (r.details || "") + suffix };
+      const enriched = reports.map((r) => {
+        let row = enrichReportRow(r);
+        if (row.target_type === "project" && row.reason === "copyright") {
+          const lic = licenseMap.get(row.target_id);
+          if (lic) {
+            const meta = getLicenseMeta(lic.license_type);
+            const suffix = ` [ลิขสิทธิ์: ${meta.shortLabel}${lic.rights_attested_at ? "" : ", ไม่ยืนยันสิทธิ์"}]`;
+            row = { ...row, details: (row.details || "") + suffix };
+          }
+        }
+        return row;
       });
+      enriched.sort((a, b) => (b.ai_priority ?? 0) - (a.ai_priority ?? 0));
+      return enriched;
     },
   });
+
+  const displayRows = useMemo(() => {
+    if (!urgentOnly) return rows;
+    return rows.filter(
+      (r) => (r.ai_priority ?? 0) >= 70 || r.ai_recommendation === "urgent",
+    );
+  }, [rows, urgentOnly]);
 
   const update = useMutation({
     mutationFn: async ({ id, status, adminNote }: { id: string; status: ReportRow["status"]; adminNote?: string }) => {
@@ -146,6 +164,18 @@ export default function AdminReportsPage() {
         key: "reason",
         header: "เหตุผล",
         render: (r) => <StatusPill status={r.reason} tone="accent" />,
+      },
+      {
+        key: "ai",
+        header: "AI สรุป",
+        render: (r) => (
+          <ReportAiSummaryCard
+            priority={r.ai_priority}
+            summary={r.ai_summary}
+            recommendation={r.ai_recommendation}
+            compact
+          />
+        ),
       },
       {
         key: "details",
@@ -250,7 +280,7 @@ export default function AdminReportsPage() {
       <SectionHeader
         eyebrow="moderation"
         title="รายงานเนื้อหา"
-        description="คำร้องเรียนจากผู้ใช้ — ตรวจสอบและดำเนินการตามนโยบายชุมชน"
+        description="AI สรุปและจัดลำดับความสำคัญให้แล้ว — แอดมินกด ตรวจสอบ/ดำเนินการ/ปัด/strike เอง (ไม่ auto-resolve)"
       />
       <Tabs value={tab} onValueChange={(v) => setTab(v as typeof tab)} className="mb-4">
         <TabsList>
@@ -259,11 +289,28 @@ export default function AdminReportsPage() {
           ))}
         </TabsList>
       </Tabs>
+      {(tab === "open" || tab === "reviewing") && (
+        <div className="mb-3 flex flex-wrap items-center gap-2">
+          <Button
+            size="sm"
+            variant={urgentOnly ? "default" : "outline"}
+            onClick={() => setUrgentOnly((v) => !v)}
+            className="gap-1.5"
+          >
+            <Bot className="w-3.5 h-3.5" />
+            {urgentOnly ? "แสดงด่วนเท่านั้น" : "กรองเฉพาะด่วน (AI)"}
+          </Button>
+          <span className="text-xs text-admin-muted">
+            เรียงตาม ai_priority · โทษคำหยาบ = ระบบลง strike อัตโนมัติแยกต่างหาก
+          </span>
+        </div>
+      )}
       <div className="flex justify-end mb-2">
         <Button size="sm" variant="outline" onClick={() => {
-          const csv = toCsv(rows.map((r) => ({
+          const csv = toCsv(displayRows.map((r) => ({
             created_at: r.created_at, status: r.status, target_type: r.target_type,
             target_id: r.target_id, reason: r.reason, details: r.details,
+            ai_priority: r.ai_priority, ai_summary: r.ai_summary, ai_recommendation: r.ai_recommendation,
             reporter_id: r.reporter_id, admin_note: r.admin_note,
             evidence: (r.evidence_files ?? []).map((f) => f.url).join(" | "),
           })));
@@ -274,10 +321,10 @@ export default function AdminReportsPage() {
       </div>
       <DataTable
         columns={cols}
-        rows={rows}
+        rows={displayRows}
         loading={isLoading}
         rowKey={(r) => r.id}
-        empty={`ยังไม่มีรายงานสถานะ "${tab}"`}
+        empty={`ยังไม่มีรายงานสถานะ "${tab}"${urgentOnly ? " ที่ AI จัดเป็นด่วน" : ""}`}
       />
     </div>
   );

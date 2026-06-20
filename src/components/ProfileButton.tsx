@@ -17,6 +17,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import UserAvatar from "@/components/UserAvatar";
 const ProfileButton = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -40,7 +41,7 @@ const ProfileButton = () => {
           onClick={() => navigate("/jobs")}
           aria-label="งานจาก Studio"
           title="งานจาก Studio"
-          className="inline-flex items-center justify-center w-9 h-9 rounded-full text-foreground/70 hover:text-foreground hover:bg-foreground/5 transition-colors"
+          className="inline-flex items-center justify-center w-9 h-9 rounded-full text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
         >
           <BriefcaseIcon className="w-5 h-5" />
         </button>
@@ -48,14 +49,14 @@ const ProfileButton = () => {
           onClick={() => navigate("/auth?redirect=/chat")}
           aria-label="ข้อความ"
           title="ข้อความ"
-          className="inline-flex items-center justify-center w-9 h-9 rounded-full text-foreground/70 hover:text-foreground hover:bg-foreground/5 transition-colors"
+          className="inline-flex items-center justify-center w-9 h-9 rounded-full text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
         >
           <MessageCircle className="w-5 h-5" />
         </button>
         <button
           onClick={() => navigate("/auth?redirect=/notifications")}
           aria-label="แจ้งเตือน"
-          className="hidden sm:inline-flex items-center justify-center w-9 h-9 rounded-full text-foreground/70 hover:text-foreground hover:bg-foreground/5 transition-colors"
+          className="hidden sm:inline-flex items-center justify-center w-9 h-9 rounded-full text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
         >
           <Bell className="w-5 h-5" />
         </button>
@@ -70,15 +71,13 @@ const ProfileButton = () => {
     );
   }
 
-  const initial = profile?.display_name?.[0]?.toUpperCase() ?? "P";
-
   return (
     <div className="flex items-center gap-1.5">
       <button
         onClick={() => navigate("/jobs")}
         aria-label="งานจาก Studio"
         title="งานจาก Studio"
-        className="inline-flex items-center justify-center w-9 h-9 rounded-full text-foreground/70 hover:text-foreground hover:bg-foreground/5 transition-colors"
+        className="inline-flex items-center justify-center w-9 h-9 rounded-full text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
       >
         <BriefcaseIcon className="w-5 h-5" />
       </button>
@@ -86,7 +85,7 @@ const ProfileButton = () => {
         onClick={() => navigate("/chat")}
         aria-label="ข้อความ"
         title="ข้อความ"
-        className="inline-flex items-center justify-center w-9 h-9 rounded-full text-foreground/70 hover:text-foreground hover:bg-foreground/5 transition-colors"
+        className="inline-flex items-center justify-center w-9 h-9 rounded-full text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
       >
         <MessageCircle className="w-5 h-5" />
       </button>
@@ -99,13 +98,12 @@ const ProfileButton = () => {
           aria-label="โปรไฟล์"
           className="flex items-center gap-1.5 pl-1 pr-2 py-1 rounded-full glass-chip hover:shadow-md hover:shadow-primary/20 transition-all"
         >
-          {profile?.avatar_url ? (
-            <img src={profile.avatar_url} alt="" className="w-8 h-8 rounded-full object-cover" />
-          ) : (
-            <div className="w-8 h-8 rounded-full bg-gradient-brand text-white flex items-center justify-center text-sm font-medium">
-              {initial}
-            </div>
-          )}
+          <UserAvatar
+            src={profile?.avatar_url}
+            name={profile?.display_name ?? "P"}
+            className="w-8 h-8"
+            fallbackClassName="text-sm"
+          />
           <ChevronDown className="w-4 h-4 text-muted-foreground" />
         </button>
       </DropdownMenuTrigger>

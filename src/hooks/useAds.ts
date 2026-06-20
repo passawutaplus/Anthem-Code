@@ -29,6 +29,7 @@ export interface AdCampaign {
   rejection_reason: string;
   application_id: string | null;
   promotion_text: string;
+  linked_project_id: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -53,6 +54,7 @@ export interface AdApplication {
   amount_thb: number;
   paid_at: string | null;
   notes: string;
+  linked_project_id: string | null;
   status: AdApplicationStatus;
   admin_note: string;
   reviewed_at: string | null;
@@ -262,6 +264,26 @@ export const useMockPayAdApplication = () => {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["my-ad-applications"] });
       qc.invalidateQueries({ queryKey: ["admin-ad-applications"] });
+    },
+  });
+};
+
+/** Stripe checkout for brand ad campaigns */
+export const useStripePayAdApplication = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (vars: { id: string; package: AdApplication["package"] }) => {
+      const { startAdCheckout, adPriceIdForPackage } = await import("@/lib/stripePaymentsApi");
+      await startAdCheckout({
+        applicationId: vars.id,
+        package: vars.package,
+        successPath: "/advertise?paid=1",
+        cancelPath: "/advertise?pay=canceled",
+      });
+      return adPriceIdForPackage(vars.package);
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["my-ad-applications"] });
     },
   });
 };
