@@ -23,24 +23,30 @@ const META_IDS = {
 } as const;
 
 function upsertMeta(id: string, attr: "name" | "property", key: string, content: string) {
-  let el = document.getElementById(id) as HTMLMetaElement | null;
+  let el = (
+    document.getElementById(id)
+    ?? document.head.querySelector(`meta[${attr}="${key}"]`)
+  ) as HTMLMetaElement | null;
   if (!el) {
     el = document.createElement("meta");
-    el.id = id;
     el.setAttribute(attr, key);
     document.head.appendChild(el);
   }
+  el.id = id;
   el.setAttribute("content", content);
 }
 
 function upsertCanonical(id: string, href: string) {
-  let el = document.getElementById(id) as HTMLLinkElement | null;
+  let el = (
+    document.getElementById(id)
+    ?? document.head.querySelector('link[rel="canonical"]')
+  ) as HTMLLinkElement | null;
   if (!el) {
     el = document.createElement("link");
-    el.id = id;
     el.rel = "canonical";
     document.head.appendChild(el);
   }
+  el.id = id;
   el.href = href;
 }
 
