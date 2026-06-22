@@ -73,6 +73,7 @@ async function fetchStoreItems(userId: string, store: NotificationStore) {
   const { data, error } = await supabase
     .from("ecosystem_notifications")
     .select("*")
+    .eq("user_id", userId)
     .eq("is_dismissed", false)
     .order("created_at", { ascending: false })
     .limit(80);
@@ -142,7 +143,12 @@ export function useNotifications(userId: string | null | undefined) {
   const markRead = useCallback(
     async (id: string) => {
       if (!userId) return;
-      await supabase.from("notifications").update({ is_read: true }).eq("id", id);
+      const { error } = await supabase
+        .from("notifications")
+        .update({ is_read: true })
+        .eq("id", id)
+        .eq("user_id", userId);
+      if (error) throw error;
       const active = stores.get(userId);
       if (active) {
         active.items = active.items.map((n) => (n.id === id ? { ...n, is_read: true } : n));
@@ -155,7 +161,12 @@ export function useNotifications(userId: string | null | undefined) {
   const dismiss = useCallback(
     async (id: string) => {
       if (!userId) return;
-      await supabase.from("notifications").update({ is_dismissed: true }).eq("id", id);
+      const { error } = await supabase
+        .from("notifications")
+        .update({ is_dismissed: true })
+        .eq("id", id)
+        .eq("user_id", userId);
+      if (error) throw error;
       const active = stores.get(userId);
       if (active) {
         active.items = active.items.filter((n) => n.id !== id);

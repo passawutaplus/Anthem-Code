@@ -26,8 +26,12 @@ set -a && source .env && set +a
 export VITE_DEMO_MODE=true
 # ไม่บังคับ VITE_SITE_URL — ให้ OAuth ใช้ *.vercel.app อัตโนมัติบน preview
 
-: "${VITE_SUPABASE_URL:?Set VITE_SUPABASE_URL in .env}"
-: "${VITE_SUPABASE_PUBLISHABLE_KEY:?Set VITE_SUPABASE_PUBLISHABLE_KEY in .env}"
+: "${VITE_DEMO_SUPABASE_URL:?Set VITE_DEMO_SUPABASE_URL in .env}"
+: "${VITE_DEMO_SUPABASE_PUBLISHABLE_KEY:?Set VITE_DEMO_SUPABASE_PUBLISHABLE_KEY in .env}"
+if [[ -n "${VITE_SUPABASE_URL:-}" && "${VITE_DEMO_SUPABASE_URL}" == "${VITE_SUPABASE_URL}" ]]; then
+  echo "ERROR: Demo and production must use different Supabase projects." >&2
+  exit 1
+fi
 
 echo "→ Deploying demo to 1px-demo.vercel.app (production slot on demo project)…"
 if [[ "${1:-}" == "--prod" ]]; then
@@ -36,8 +40,8 @@ if [[ "${1:-}" == "--prod" ]]; then
   exit 1
 fi
 BUILD_ENVS=(
-  --build-env "VITE_SUPABASE_URL=${VITE_SUPABASE_URL}"
-  --build-env "VITE_SUPABASE_PUBLISHABLE_KEY=${VITE_SUPABASE_PUBLISHABLE_KEY}"
+  --build-env "VITE_DEMO_SUPABASE_URL=${VITE_DEMO_SUPABASE_URL}"
+  --build-env "VITE_DEMO_SUPABASE_PUBLISHABLE_KEY=${VITE_DEMO_SUPABASE_PUBLISHABLE_KEY}"
   --build-env "VITE_DEMO_MODE=true"
 )
 if [[ -n "${VITE_SO1O_APP_URL:-}" ]]; then
@@ -57,5 +61,5 @@ echo ""
 echo "Next steps:"
 echo "  1. Supabase Dashboard → Authentication → URL Configuration"
 echo "     Add redirect: ${DEPLOY_URL%/}/auth/callback"
-echo "  2. Share demo login: phatsawut@demo.pixel100.com / pixel100-demo-seed"
+echo "  2. Share the isolated demo account password through a private channel"
 echo "  3. Production: VITE_DEMO_MODE=false + npx vercel deploy --prod (never use this script with --prod)"

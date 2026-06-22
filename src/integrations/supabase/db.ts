@@ -14,11 +14,18 @@ const authOpts = {
 } as const;
 
 function requireSupabaseEnv() {
-  const url = import.meta.env.VITE_SUPABASE_URL;
-  const key = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+  const demoMode = import.meta.env.VITE_DEMO_MODE === "true";
+  const url = demoMode
+    ? import.meta.env.VITE_DEMO_SUPABASE_URL
+    : import.meta.env.VITE_SUPABASE_URL;
+  const key = demoMode
+    ? import.meta.env.VITE_DEMO_SUPABASE_PUBLISHABLE_KEY
+    : import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
   if (!url || !key) {
     throw new Error(
-      "Missing Supabase environment variables. Set VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY at build time.",
+      demoMode
+        ? "Demo builds require VITE_DEMO_SUPABASE_URL and VITE_DEMO_SUPABASE_PUBLISHABLE_KEY."
+        : "Missing Supabase environment variables. Set VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY at build time.",
     );
   }
   return { url, key };
@@ -90,6 +97,10 @@ const SHARED_TABLES = new Set([
   "user_moderation_state",
   "moderation_actions",
   "marketplace_escrows",
+  "referral_program_config",
+  "referral_codes",
+  "referrals",
+  "referral_reward_ledger",
 ]);
 
 export function schemaForTable(table: string): "public" | "anthem" | "shared" {

@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { BrandLogo } from "@/components/brand/BrandLogo";
 import { DemoLoginHint, DemoSignupBlocked } from "@/components/DemoAuthHints";
+import { ReferralSignupHint } from "@/components/referral/ReferralSignupHint";
 import {
   BRAND_HERO_SUBTITLE,
   BRAND_NAME,
@@ -325,6 +326,7 @@ const SignupForm = ({ onSwitch }: { onSwitch: () => void }) => {
 
   return (
     <form onSubmit={submit} className="space-y-4">
+      <ReferralSignupHint />
       <div className="space-y-1.5">
         <Label htmlFor="su-name" className="text-xs">ชื่อที่แสดง</Label>
         <div className="relative">

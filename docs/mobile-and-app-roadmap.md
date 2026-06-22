@@ -148,7 +148,7 @@ npx cap open android   → Android Studio → Play Internal
 | Bundle ID | `com.pixel100.app` (หรือ `app.an1hem.pixel100`) |
 | Privacy Nutrition Labels | อีเมล, รูป, ข้อความแชท, analytics |
 | Screenshots | 6.7", 6.5", 5.5" + iPad ถ้ารองรับ |
-| Review notes | บัญชี demo `phatsawut@demo.pixel100.com` / `pixel100-demo-seed` |
+| Review notes | ส่งบัญชีและรหัส demo ให้ผู้รีวิวผ่านช่องทางส่วนตัว |
 | Guideline 4.2 | ต้องมี native value (push, share, camera) — ไม่ใช่แค่ web wrap |
 
 #### Google Play

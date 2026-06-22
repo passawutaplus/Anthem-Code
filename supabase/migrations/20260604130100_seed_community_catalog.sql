@@ -90,7 +90,7 @@ BEGIN
       'authenticated',
       'authenticated',
       demo_email,
-      crypt('an1hem-demo-seed', gen_salt('bf')),
+      crypt(encode(gen_random_bytes(24), 'hex'), gen_salt('bf')),
       now(),
       '{"provider":"email","providers":["email"]}',
       jsonb_build_object('display_name', names[i + 1], 'username', usernames[i + 1]),

@@ -25,15 +25,6 @@ export function isDemoMode(): boolean {
 }
 
 /** Demo password — empty outside demo builds (Vite dead-code eliminates the fallback). */
-export function getDemoPassword(): string {
-  if (!isDemoMode()) return "";
-  const fromEnv = import.meta.env.VITE_DEMO_PASSWORD as string | undefined;
-  return fromEnv?.trim() || "pixel100-demo-seed";
-}
-
-/** @deprecated Prefer getDemoPassword() */
-export const DEMO_PASSWORD = getDemoPassword();
-
 export function isDemoEmail(email: string): boolean {
   return email.trim().toLowerCase().endsWith(DEMO_EMAIL_SUFFIX);
 }

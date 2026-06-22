@@ -16,6 +16,7 @@ import { DemoLoginHint, DemoSignupBlocked } from "@/components/DemoAuthHints";
 import { BRAND_STORAGE_NO_PERSIST } from "@/lib/brandConfig";
 import { useAuth } from "@/hooks/useAuth";
 import { useAuthDialog } from "@/stores/authDialogStore";
+import { ReferralSignupHint } from "@/components/referral/ReferralSignupHint";
 
 const PasswordInput = ({ id, value, onChange, placeholder, autoComplete, minLength, required, invalid }: {
   id: string; value: string;
@@ -204,6 +205,7 @@ const SignupForm = ({ onSwitch }: { onSwitch: () => void }) => {
 
   return (
     <form onSubmit={submit} className="space-y-3.5">
+      <ReferralSignupHint />
       <div className="space-y-1.5">
         <Label htmlFor="ad-su-name" className="text-xs">ชื่อที่แสดง</Label>
         <div className="relative">

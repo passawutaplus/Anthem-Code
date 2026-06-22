@@ -6,7 +6,7 @@ We take the security of Anthem seriously. Thank you for helping keep our users s
 
 Please **do not** open public GitHub issues for security reports.
 
-Email: `security@anthem.example` (replace with real address before publishing).
+Email: `security@pixel100.com`.
 PGP: optional — request a key in your first message.
 
 We aim to respond within **3 business days** and to issue a fix or mitigation within **30 days** for high/critical reports.

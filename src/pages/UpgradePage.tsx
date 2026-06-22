@@ -29,6 +29,7 @@ import Footer from "@/components/Footer";
 import { BRAND_NAME } from "@/lib/brandConfig";
 import { SO1O_APP_URL, SO1O_PRICING_URL } from "@/lib/productLinks";
 import { cn } from "@/lib/utils";
+import { isNativeShell } from "@/lib/nativePlatform";
 
 const UpgradePage = () => {
   const [cycle, setCycle] = useState<BillingCycle>("yearly");
@@ -36,6 +37,7 @@ const UpgradePage = () => {
   const { user } = useAuth();
   const { tier, isPro } = useSubscription();
   const navigate = useNavigate();
+  const nativeShell = isNativeShell();
 
   return (
     <div className="min-h-screen bg-background">
@@ -255,6 +257,10 @@ const UpgradePage = () => {
                           <Link to={user ? "/portfolio" : "/auth"}>{plan.cta}</Link>
                         </Button>
                       )
+                    ) : nativeShell ? (
+                      <Button disabled variant="secondary" className="w-full rounded-full">
+                        Available on the web
+                      </Button>
                     ) : isCurrent ? (
                       <Button asChild className="w-full rounded-full">
                         <a href={SO1O_APP_URL} target="_blank" rel="noopener noreferrer">
@@ -280,9 +286,9 @@ const UpgradePage = () => {
         <TierDetailsSection
           currentTier={user ? tier : undefined}
           className="mt-16 sm:mt-20"
-          showUpgradeRow
+          showUpgradeRow={!nativeShell}
           onUpgrade={(targetTier: PlanId) => {
-            if (targetTier !== "free") {
+            if (!nativeShell && targetTier !== "free") {
               window.open(SO1O_PRICING_URL, "_blank", "noopener,noreferrer");
             }
           }}
@@ -294,7 +300,7 @@ const UpgradePage = () => {
           <p className="mt-2 text-sm text-muted-foreground">
             ระบบ billing รวมศูนย์ที่ So1o — หลังสมัครแล้วสิทธิ์ Pro จะใช้ได้ทั้ง My Desk และ {BRAND_NAME} ทันที
           </p>
-          {!isPro && (
+          {!isPro && !nativeShell && (
             <Button asChild className="mt-4 rounded-full bg-gradient-primary">
               <a href={SO1O_PRICING_URL} target="_blank" rel="noopener noreferrer">
                 ไปหน้าชำระเงิน So1o

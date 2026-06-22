@@ -154,17 +154,17 @@ export function useLiveActivity() {
   useEffect(() => {
     const ch = supabase
       .channel("admin-activity")
-      .on("postgres_changes", { event: "INSERT", schema: "public", table: "projects" }, (p) => {
+      .on("postgres_changes", { event: "INSERT", schema: "anthem", table: "projects" }, (p) => {
         const r = p.new as { id: string; title: string; created_at: string };
         const ev: ActivityEvent = { id: `p-${r.id}`, type: "project", title: "ผลงานใหม่", subtitle: r.title, at: r.created_at };
         setEvents((e) => [ev, ...e].slice(0, 50));
       })
-      .on("postgres_changes", { event: "INSERT", schema: "public", table: "job_posts" }, (p) => {
+      .on("postgres_changes", { event: "INSERT", schema: "anthem", table: "job_posts" }, (p) => {
         const r = p.new as { id: string; title: string; created_at: string };
         const ev: ActivityEvent = { id: `j-${r.id}`, type: "job", title: "ประกาศงานใหม่", subtitle: r.title, at: r.created_at };
         setEvents((e) => [ev, ...e].slice(0, 50));
       })
-      .on("postgres_changes", { event: "INSERT", schema: "public", table: "hiring_requests" }, (p) => {
+      .on("postgres_changes", { event: "INSERT", schema: "anthem", table: "hiring_requests" }, (p) => {
         const r = p.new as { id: string; project_title: string; client_name: string; created_at: string };
         const ev: ActivityEvent = { id: `h-${r.id}`, type: "hire", title: "คำขอจ้างงาน", subtitle: `${r.client_name} → ${r.project_title}`, at: r.created_at };
         setEvents((e) => [ev, ...e].slice(0, 50));

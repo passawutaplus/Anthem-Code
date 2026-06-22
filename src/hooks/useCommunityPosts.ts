@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { buildCommentTree, type CommentNode } from "@/lib/commentTree";
 import { notifyCommunityEvent } from "@/lib/communityNotify";
@@ -55,6 +55,8 @@ export type CommunityCommentTree = CommentNode<CommunityComment>;
 
 const POST_SELECT =
   "id, author_id, post_kind, title, body, category, tags, gallery_urls, video_urls, question_topic, status, reply_count, like_count, view_count, created_at, updated_at";
+const COMMUNITY_PAGE_SIZE = 24;
+const COMMUNITY_COMMENT_LIMIT = 300;
 
 export async function enrichCommunityPosts(rows: CommunityPost[]): Promise<CommunityPost[]> {
   const ids = Array.from(new Set(rows.map((r) => r.author_id)));
@@ -85,9 +87,10 @@ export type CommunityPostsFilter = {
 };
 
 export const useCommunityPosts = (filter?: CommunityPostsFilter) => {
-  return useQuery({
+  const query = useInfiniteQuery({
     queryKey: ["community-posts", filter ?? "all"],
-    queryFn: async (): Promise<CommunityPost[]> => {
+    initialPageParam: 0,
+    queryFn: async ({ pageParam }): Promise<{ items: CommunityPost[]; rawCount: number }> => {
       let authorIds: string[] | null = null;
       if (filter?.feedSource === "following" && filter.viewerId) {
         const { data: follows, error: fErr } = await supabase
@@ -96,7 +99,7 @@ export const useCommunityPosts = (filter?: CommunityPostsFilter) => {
           .eq("follower_id", filter.viewerId);
         if (fErr) throw fErr;
         authorIds = (follows ?? []).map((f) => f.following_id);
-        if (!authorIds.length) return [];
+        if (!authorIds.length) return { items: [], rawCount: 0 };
       }
 
       let q = supabase
@@ -104,7 +107,7 @@ export const useCommunityPosts = (filter?: CommunityPostsFilter) => {
         .select(POST_SELECT)
         .eq("status", "published")
         .order("created_at", { ascending: false })
-        .limit(80);
+        .range(pageParam * COMMUNITY_PAGE_SIZE, (pageParam + 1) * COMMUNITY_PAGE_SIZE - 1);
       if (filter?.postKind) q = q.eq("post_kind", filter.postKind);
       if (filter?.category && filter.category !== "All") q = q.eq("category", filter.category);
       if (filter?.questionTopic) q = q.eq("question_topic", filter.questionTopic);
@@ -112,11 +115,18 @@ export const useCommunityPosts = (filter?: CommunityPostsFilter) => {
       const { data, error } = await q;
       if (error) throw error;
       let rows = (data ?? []) as CommunityPost[];
+      const rawCount = rows.length;
       const blocked = new Set(filter?.blockedIds ?? []);
       if (blocked.size) rows = rows.filter((r) => !blocked.has(r.author_id));
-      return enrichCommunityPosts(rows);
+      return { items: await enrichCommunityPosts(rows), rawCount };
     },
+    getNextPageParam: (lastPage, pages) =>
+      lastPage.rawCount === COMMUNITY_PAGE_SIZE ? pages.length : undefined,
   });
+  return {
+    ...query,
+    data: query.data?.pages.flatMap((page) => page.items) ?? [],
+  };
 };
 
 export const useCommunityPostsByAuthor = (authorId: string | undefined) =>
@@ -244,7 +254,8 @@ export const useCommunityComments = (postId: string | undefined) => {
         .from("community_post_comments")
         .select("id, post_id, user_id, content, parent_id, depth, created_at")
         .eq("post_id", postId!)
-        .order("created_at", { ascending: true });
+        .order("created_at", { ascending: true })
+        .limit(COMMUNITY_COMMENT_LIMIT);
       if (error) throw error;
       const rows = (data ?? []) as CommunityComment[];
       const ids = Array.from(new Set(rows.map((r) => r.user_id)));

@@ -26,6 +26,7 @@ export default defineConfig({
 
   projects: [
     { name: "smoke",   testMatch: /.*\.smoke\.spec\.ts/,   use: { ...devices["Desktop Chrome"] } },
+    { name: "mobile-smoke", testMatch: /.*\.smoke\.spec\.ts/, use: { ...devices["Pixel 7"] } },
     { name: "chromium", testMatch: /.*\.e2e\.spec\.ts/,    use: { ...devices["Desktop Chrome"] } },
     { name: "mobile",   testMatch: /.*\.e2e\.spec\.ts/,    use: { ...devices["iPhone 13"] } },
   ],

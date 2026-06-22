@@ -13,7 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { BRAND_NAME, BRAND_TAGLINE } from "@/lib/brandConfig";
 import { DEMO_WARNING_BULLETS } from "@/lib/copyConstants";
-import { getDemoPassword, isDemoMode } from "@/lib/demoMode";
+import { isDemoMode } from "@/lib/demoMode";
 import SeoHead from "@/components/SeoHead";
 import ResearchChecklistSection from "@/components/research/ResearchChecklistSection";
 import {
@@ -90,7 +90,7 @@ export default function ResearchPage() {
           </h2>
           <p className="text-sm text-muted-foreground">
             รหัสผ่านทุกบัญชี:{" "}
-            <code className="bg-muted px-1.5 py-0.5 rounded text-xs">{getDemoPassword() || "pixel100-demo-seed"}</code>
+            <span>Demo passwords are shared privately and are not embedded in this site.</span>
           </p>
           <div className="grid gap-3">
             {RESEARCH_PERSONAS.map((acc) => (

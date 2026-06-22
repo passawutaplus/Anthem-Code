@@ -48,8 +48,12 @@ export const cookieConsentState = {
 };
 
 export function getDemoAccount() {
+  const password = process.env.E2E_DEMO_PASSWORD;
+  if (!password) {
+    throw new Error("E2E_DEMO_PASSWORD is required for authenticated demo tests.");
+  }
   return {
     email: process.env.E2E_DEMO_EMAIL ?? "phatsawut@demo.pixel100.com",
-    password: process.env.E2E_DEMO_PASSWORD ?? "pixel100-demo-seed",
+    password,
   };
 }

@@ -20,7 +20,7 @@ npm run db:push
 | ฟิลด์ | ค่า |
 |--------|-----|
 | อีเมล | `{username}@demo.an1hem.app` |
-| รหัสผ่าน | `an1hem-demo-seed` |
+| รหัสผ่าน | กำหนดด้วย `DEMO_SEED_PASSWORD` และส่งให้ผู้รีวิวเป็นการส่วนตัว |
 
 ### Username ทั้ง 50 คน
 

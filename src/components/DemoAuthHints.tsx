@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { DEMO_LOGIN_HINT, DEMO_SIGNUP_BLOCKED } from "@/lib/copyConstants";
 import {
   DEMO_RESEARCH_ACCOUNTS,
-  getDemoPassword,
   isDemoMode,
 } from "@/lib/demoMode";
 
@@ -30,7 +29,7 @@ export function DemoLoginHint({
             variant="outline"
             size="sm"
             className="h-8 rounded-full text-[11px]"
-            onClick={() => onUseAccount(acc.email, getDemoPassword())}
+            onClick={() => onUseAccount(acc.email, "")}
           >
             {acc.label}
           </Button>

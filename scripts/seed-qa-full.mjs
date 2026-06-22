@@ -175,7 +175,7 @@ async function report() {
 
   const stats = await pub.rpc("public_feed_stats");
   console.log("public_feed_stats:", stats.data ?? stats.error?.message);
-  console.log("\nDemo login: phatsawut@demo.an1hem.app / an1hem-demo-seed");
+  console.log("\nSet reviewer passwords with DEMO_SEED_PASSWORD after seeding.");
   console.log("Admin: passawut.a.plus@gmail.com (your password)");
   console.log("Studio URL example: /s/doi-studio");
 }

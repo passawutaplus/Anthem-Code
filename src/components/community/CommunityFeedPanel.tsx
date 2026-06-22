@@ -78,7 +78,13 @@ const CommunityFeedPanel = ({ search = "" }: Props) => {
 
 
 
-  const { data: posts = [], isLoading } = useCommunityPosts(postsFilter);
+  const {
+    data: posts = [],
+    isLoading,
+    hasNextPage,
+    fetchNextPage,
+    isFetchingNextPage,
+  } = useCommunityPosts(postsFilter);
 
   const { data: activeBoosts = [] } = useActiveBoosts(80);
   const boostedPosts = useMemo(() => buildBoostedIdSet(activeBoosts).posts, [activeBoosts]);
@@ -245,6 +251,19 @@ const CommunityFeedPanel = ({ search = "" }: Props) => {
         </div>
 
       )}
+      {hasNextPage && (
+        <div className="flex justify-center pt-2">
+          <Button
+            type="button"
+            variant="outline"
+            className="rounded-full"
+            disabled={isFetchingNextPage}
+            onClick={() => void fetchNextPage()}
+          >
+            {isFetchingNextPage ? "กำลังโหลด..." : "โหลดโพสต์เพิ่มเติม"}
+          </Button>
+        </div>
+      )}
         </>
       )}
 
@@ -257,4 +276,3 @@ const CommunityFeedPanel = ({ search = "" }: Props) => {
 
 
 export default CommunityFeedPanel;
-
