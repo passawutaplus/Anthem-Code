@@ -15,5 +15,6 @@ jobs:
       - run: bunx playwright install --with-deps chromium
       - run: bun run build
       - run: bun run e2e:smoke
+      - run: bun run e2e:mobile
         env:
           CI: true
