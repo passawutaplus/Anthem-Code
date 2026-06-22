@@ -35,7 +35,7 @@ jobs:
       - name: Apply reviewed files
         run: |
           base64 -d /tmp/codex-upload.b64 > /tmp/codex-upload.zip
-          unzip -o /tmp/codex-upload.zip -d . || true
+          unzip -oq /tmp/codex-upload.zip -d . || true
           rm -f -- 'tsconfig.app.tsbuildinfo'
           rm -f -- 'tsconfig.node.tsbuildinfo'
           rm -f .github/workflows/codex-upload.yml
