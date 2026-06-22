@@ -33,7 +33,9 @@ function upsertMeta(id: string, attr: "name" | "property", key: string, content:
     document.head.appendChild(el);
   }
   el.id = id;
-  el.setAttribute("content", content);
+  document.head
+    .querySelectorAll<HTMLMetaElement>(`meta[${attr}="${key}"]`)
+    .forEach((meta) => meta.setAttribute("content", content));
 }
 
 function upsertCanonical(id: string, href: string) {
@@ -47,7 +49,11 @@ function upsertCanonical(id: string, href: string) {
     document.head.appendChild(el);
   }
   el.id = id;
-  el.href = href;
+  document.head
+    .querySelectorAll<HTMLLinkElement>('link[rel="canonical"]')
+    .forEach((link) => {
+      link.href = href;
+    });
 }
 
 function upsertJsonLd(id: string, data: Record<string, unknown> | Record<string, unknown>[]) {
