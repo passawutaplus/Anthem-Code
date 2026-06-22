@@ -9,6 +9,7 @@ jobs:
   smoke:
     runs-on: ubuntu-latest
     env:
+      VITE_SITE_URL: https://pixel100.com
       VITE_SUPABASE_URL: https://example.supabase.co
       VITE_SUPABASE_PUBLISHABLE_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlIiwiZXhwIjo0MTAyNDQ0ODAwfQ.test-signature
     steps:
