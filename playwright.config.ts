@@ -18,7 +18,7 @@ export default defineConfig({
   reporter: [["list"], ["html", { open: "never", outputFolder: "playwright-report" }]],
 
   use: {
-    baseURL: process.env.E2E_BASE_URL ?? "https://1px-demo.vercel.app",
+    baseURL: process.env.E2E_BASE_URL ?? "http://127.0.0.1:8080",
     trace: "retain-on-failure",
     screenshot: "only-on-failure",
     video: "retain-on-failure",
