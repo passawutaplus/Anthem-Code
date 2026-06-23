@@ -285,18 +285,3 @@ const FeedToolbar = ({
 };
 
 export default FeedToolbar;
-
-                    onSelect={(c) => onCategoryChange(c as ProjectChipFilter)}
-                  />
-                </div>
-              )}
-              {rowActions}
-            </>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-};
-
-export default FeedToolbar;
