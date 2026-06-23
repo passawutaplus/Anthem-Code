@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, Sparkles, Banknote, Gift as GiftIcon, Coins, Pencil, Coffee, Highlighter, PenTool, Palette, Laptop, ShieldCheck, Lock } from "lucide-react";
+import { ArrowLeft, Sparkles, Banknote, Gift as GiftIcon, Coins, Pencil, Coffee, Highlighter, PenTool, Palette, Laptop, ShieldCheck, Lock, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -93,6 +93,20 @@ const EarningsPage = () => {
 
       <div className="max-w-5xl mx-auto px-4 py-6 space-y-6">
         {eligibility && <CreatorEligibilityProgress data={eligibility} />}
+
+        <div className="rounded-xl border border-border bg-card p-4 text-sm flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div>
+            <p className="font-medium text-foreground">ชวนเพื่อน รับ 50 px ต่อคน</p>
+            <p className="text-muted-foreground mt-1 text-xs">
+              รับเมื่อเพื่อนสมัครและเผยแพร่ผลงานหรือโพสต์ครั้งแรกสำเร็จ
+            </p>
+          </div>
+          <Button asChild variant="outline" className="rounded-full shrink-0">
+            <Link to="/referrals">
+              <UserPlus className="w-4 h-4 mr-1.5" /> เปิดลิงก์ Affiliate
+            </Link>
+          </Button>
+        </div>
 
         <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 text-sm text-foreground/90 leading-relaxed flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>

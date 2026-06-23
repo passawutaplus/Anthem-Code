@@ -39,7 +39,11 @@ const shared = createClient(url, key, { ...opts, db: { schema: "shared" } });
 const anthem = createClient(url, key, { ...opts, db: { schema: "anthem" } });
 const admin = createClient(url, key, opts);
 
-const DEMO_PASSWORD = "pixel100-demo-seed";
+const DEMO_PASSWORD = process.env.DEMO_SEED_PASSWORD;
+if (!DEMO_PASSWORD) {
+  console.error("Missing DEMO_SEED_PASSWORD");
+  process.exit(1);
+}
 
 const uid = (i) => {
   const hex = i.toString(16).padStart(2, "0");
@@ -277,7 +281,7 @@ async function main() {
     console.log(`  cleaned ${extra.length} extra conversation(s) for phatsawut`);
   }
 
-  console.log("\nDone. Login: phatsawut@demo.pixel100.com / pixel100-demo-seed");
+  console.log("\nDone. Demo password was loaded from DEMO_SEED_PASSWORD.");
   console.log("Open: /chat");
 }
 

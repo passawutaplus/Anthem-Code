@@ -2,7 +2,7 @@ import { Info } from "lucide-react";
 import { Link } from "react-router-dom";
 import { BRAND_NAME } from "@/lib/brandConfig";
 import { DEMO_BANNER_SHORT } from "@/lib/copyConstants";
-import { getDemoPassword, isDemoMode } from "@/lib/demoMode";
+import { isDemoMode } from "@/lib/demoMode";
 
 /** แถบแจ้งโหมดทดสอบ — เปิดด้วย VITE_DEMO_MODE=true */
 export default function DemoModeBanner() {
@@ -16,8 +16,7 @@ export default function DemoModeBanner() {
       <Info className="w-3.5 h-3.5 shrink-0 text-primary" aria-hidden />
       <span>
         <strong>{BRAND_NAME}</strong> — {DEMO_BANNER_SHORT} (
-        <code className="text-[11px] bg-muted px-1 rounded">*@demo.pixel100.com</code> /{" "}
-        <code className="text-[11px] bg-muted px-1 rounded">{getDemoPassword()}</code>)
+        <code className="text-[11px] bg-muted px-1 rounded">*@demo.pixel100.com</code>)
       </span>
       <Link to="/research" className="text-primary font-medium hover:underline whitespace-nowrap">
         คู่มือทดสอบ

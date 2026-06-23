@@ -20,6 +20,7 @@ import RouteFallback from "./components/RouteFallback.tsx";
 import DemoModeBanner from "./components/DemoModeBanner.tsx";
 import AvatarPoolBootstrap from "./components/AvatarPoolBootstrap.tsx";
 import { ErrorBoundary } from "./components/ErrorBoundary.tsx";
+import { ReferralAttribution } from "./components/referral/ReferralAttribution.tsx";
 
 // Code-split routes — only the home feed stays in the main chunk.
 const AuthPage = lazy(() => import("./pages/AuthPage.tsx"));
@@ -95,6 +96,7 @@ const ContractEditorPage = lazy(() => import("./pages/ContractEditorPage.tsx"));
 const ContractsListPage = lazy(() => import("./pages/ContractsListPage.tsx"));
 const DrillGalleryPage = lazy(() => import("./pages/DrillGalleryPage.tsx"));
 const SavedPostsPage = lazy(() => import("./pages/SavedPostsPage.tsx"));
+const ReferralPage = lazy(() => import("./pages/ReferralPage.tsx"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -118,6 +120,7 @@ const App = () => (
           <ErrorBoundary>
           <DemoModeBanner />
           <AvatarPoolBootstrap />
+          <ReferralAttribution />
           <Suspense fallback={<RouteFallback />}>
             <Routes>
               <Route path="/" element={<Index />} />
@@ -138,6 +141,7 @@ const App = () => (
               <Route path="/inspire/:boardId" element={<InspireBoardDetailPage />} />
               <Route path="/u/:userId" element={<PublicProfilePage />} />
               <Route path="/earnings" element={<RequireAuth><EarningsPage /></RequireAuth>} />
+              <Route path="/referrals" element={<RequireAuth><ReferralPage /></RequireAuth>} />
 
               <Route path="/settings" element={<RequireAuth><SettingsPage /></RequireAuth>} />
               <Route path="/notifications" element={<RequireAuth><NotificationsPage /></RequireAuth>} />

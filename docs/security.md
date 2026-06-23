@@ -91,7 +91,8 @@ Every public-facing edge function:
 
 ## Known gaps (open for reviewer)
 
-- No application-level rate limiting on edge functions yet (Supabase platform limits apply).
+- Community posts, comments, and chat messages have database-enforced per-user rate limits.
+- Edge Functions still require gateway-level rate limits and abuse monitoring before a large public launch.
 
 ## Production checklist
 

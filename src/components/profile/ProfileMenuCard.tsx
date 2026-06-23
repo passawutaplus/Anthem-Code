@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { LayoutGrid, Layers3, Coins, MessageCircle, Settings, LogOut, Plus, Building2, Flag, MessageSquare, ShieldCheck, Sparkles, Bookmark } from "lucide-react";
+import { LayoutGrid, Layers3, Coins, MessageCircle, Settings, LogOut, Plus, Building2, Flag, MessageSquare, ShieldCheck, Sparkles, Bookmark, UserPlus } from "lucide-react";
 import { useSubscription } from "@/core/subscription";
 import BriefcaseIcon from "@/components/icons/BriefcaseIcon";
 import KycStatusBadge from "@/components/verification/KycStatusBadge";
@@ -34,6 +34,9 @@ const ProfileMenuCard = () => {
       </button>
       <button onClick={() => navigate("/earnings")} className={item}>
         <Coins className="w-4 h-4 text-primary" /> รายได้ &amp; กระเป๋า Pixel
+      </button>
+      <button onClick={() => navigate("/referrals")} className={item}>
+        <UserPlus className="w-4 h-4 text-primary" /> ชวนเพื่อนรับ Pixel
       </button>
       <button onClick={() => navigate("/chat")} className={item}>
         <MessageCircle className="w-4 h-4 text-primary" /> ข้อความ

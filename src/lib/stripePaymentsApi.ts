@@ -1,5 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 import { SO1O_APP_URL } from "@/lib/productLinks";
+import { assertExternalDigitalPurchaseAllowed } from "@/lib/nativePlatform";
 
 export type StripePaymentsEnv = "sandbox" | "live";
 
@@ -24,6 +25,7 @@ export async function startStripeCheckout(opts: {
   successPath: string;
   cancelPath?: string;
 }): Promise<void> {
+  assertExternalDigitalPurchaseAllowed();
   const origin = window.location.origin;
   const successUrl = opts.successPath.startsWith("http")
     ? opts.successPath
@@ -122,6 +124,7 @@ export async function startBoostCheckout(opts: {
   successPath: string;
   cancelPath?: string;
 }): Promise<void> {
+  assertExternalDigitalPurchaseAllowed();
   const origin = window.location.origin;
   const successUrl = opts.successPath.startsWith("http")
     ? opts.successPath

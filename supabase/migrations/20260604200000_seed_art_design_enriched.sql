@@ -1,5 +1,5 @@
 -- Enrich demo catalog: art/design imagery, social graph, active feed ads.
--- Demo users: *_catalog_demo_uid(0..19) — password via migration 20260604130100: an1hem-demo-seed
+-- Demo users: *_catalog_demo_uid(0..19); reviewer passwords are set outside migrations.
 -- Delete later: see docs/demo-catalog.md
 
 CREATE OR REPLACE FUNCTION public._unsplash_art(i integer, w int DEFAULT 1200, h int DEFAULT 900)

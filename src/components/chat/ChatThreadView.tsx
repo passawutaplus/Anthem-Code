@@ -136,9 +136,9 @@ const ChatThreadView = ({
       .map((m) => m.id);
     if (unread.length === 0) return;
     supabase
-      .from("messages")
-      .update({ read_at: new Date().toISOString() })
-      .in("id", unread)
+      .rpc("mark_conversation_read" as never, {
+        p_conversation_id: conv.id,
+      } as never)
       .then(() => {
         qc.invalidateQueries({ queryKey: ["chat-unread-counts"] });
       });

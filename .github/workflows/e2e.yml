@@ -8,6 +8,10 @@ on:
 jobs:
   smoke:
     runs-on: ubuntu-latest
+    env:
+      VITE_SITE_URL: https://pixel100.com
+      VITE_SUPABASE_URL: https://example.supabase.co
+      VITE_SUPABASE_PUBLISHABLE_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlIiwiZXhwIjo0MTAyNDQ0ODAwfQ.test-signature
     steps:
       - uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v2
@@ -15,5 +19,6 @@ jobs:
       - run: bunx playwright install --with-deps chromium
       - run: bun run build
       - run: bun run e2e:smoke
+      - run: bun run e2e:mobile
         env:
           CI: true

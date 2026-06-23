@@ -33,13 +33,14 @@ function loadEnv(path) {
 for (const p of envPaths) loadEnv(p);
 
 const url = process.env.SUPABASE_URL;
+const demoPassword = process.env.DEMO_SEED_PASSWORD;
 // Prefer legacy service_role JWT (eyJ...); sb_secret_* often fails Auth Admin via REST on Lovable-hosted projects.
 const key =
   process.env.SUPABASE_SERVICE_ROLE_KEY ||
   process.env.SUPABASE_SECRET_KEY;
-if (!url || !key) {
+if (!url || !key || !demoPassword) {
   console.error(
-    "Missing SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY (or SUPABASE_SECRET_KEY) in scripts/ecosystem/.env.seed.local",
+    "Missing SUPABASE_URL, service-role key, or DEMO_SEED_PASSWORD in scripts/ecosystem/.env.seed.local",
   );
   process.exit(1);
 }
@@ -180,13 +181,23 @@ async function ensureAuthUser(i) {
   const email = `${usernames[i]}@demo.pixel100.com`;
 
   const { res: getRes, body: existing } = await authAdminFetch(`/admin/users/${id}`);
-  if (getRes.ok && existing?.id) return id;
+  if (getRes.ok && existing?.id) {
+    const { res: updateRes, body: updated } = await authAdminFetch(`/admin/users/${id}`, {
+      method: "PUT",
+      body: JSON.stringify({ password: demoPassword }),
+    });
+    if (!updateRes.ok) {
+      throw new Error(`auth password ${i}: ${updated?.msg ?? updated?.message ?? updateRes.statusText}`);
+    }
+    return id;
+  }
 
   const { res: createRes, body: created } = await authAdminFetch("/admin/users", {
     method: "POST",
     body: JSON.stringify({
       id,
       email,
+      password: demoPassword,
       email_confirm: true,
       user_metadata: { display_name: names[i], username: usernames[i] },
     }),
@@ -405,7 +416,7 @@ async function main() {
     .eq("status", "Published");
   console.log("Published projects after:", after ?? 0);
   console.log("Seed complete.");
-  console.log("Demo login: phatsawut@demo.pixel100.com / pixel100-demo-seed");
+  console.log("Demo accounts use the password from DEMO_SEED_PASSWORD.");
   console.log("See docs/demo-catalog.md");
 }
 

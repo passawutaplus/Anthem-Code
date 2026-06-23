@@ -1,5 +1,5 @@
 -- 50 demo creators + full platform activity (extends catalog users 0..19 → 0..49)
--- Login: {username}@demo.an1hem.app / an1hem-demo-seed
+-- Seed users receive random unusable passwords. Set reviewer passwords with the admin seed script.
 -- Requires: _catalog_demo_uid, _unsplash_art from prior migrations
 
 CREATE OR REPLACE FUNCTION public._catalog_demo_project_id(i integer)
@@ -119,7 +119,7 @@ BEGIN
       raw_app_meta_data, raw_user_meta_data, created_at, updated_at
     ) VALUES (
       uid, '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated',
-      demo_email, crypt('an1hem-demo-seed', gen_salt('bf')), now() - ((49 - i) || ' days')::interval,
+      demo_email, crypt(encode(gen_random_bytes(24), 'hex'), gen_salt('bf')), now() - ((49 - i) || ' days')::interval,
       '{"provider":"email","providers":["email"]}',
       jsonb_build_object('display_name', names[i - 19], 'username', usernames[i - 19]),
       now() - ((49 - i) || ' days')::interval, now()

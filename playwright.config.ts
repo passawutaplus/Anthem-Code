@@ -18,7 +18,7 @@ export default defineConfig({
   reporter: [["list"], ["html", { open: "never", outputFolder: "playwright-report" }]],
 
   use: {
-    baseURL: process.env.E2E_BASE_URL ?? "https://1px-demo.vercel.app",
+    baseURL: process.env.E2E_BASE_URL ?? "http://127.0.0.1:8080",
     trace: "retain-on-failure",
     screenshot: "only-on-failure",
     video: "retain-on-failure",
@@ -26,6 +26,7 @@ export default defineConfig({
 
   projects: [
     { name: "smoke",   testMatch: /.*\.smoke\.spec\.ts/,   use: { ...devices["Desktop Chrome"] } },
+    { name: "mobile-smoke", testMatch: /.*\.smoke\.spec\.ts/, use: { ...devices["Pixel 7"] } },
     { name: "chromium", testMatch: /.*\.e2e\.spec\.ts/,    use: { ...devices["Desktop Chrome"] } },
     { name: "mobile",   testMatch: /.*\.e2e\.spec\.ts/,    use: { ...devices["iPhone 13"] } },
   ],

@@ -32,6 +32,8 @@ import { splitCommunityMedia } from "@/lib/communityMedia";
 import CommunityRulesCard from "@/components/community/CommunityRulesCard";
 import CommunityProfanityHint from "@/components/community/CommunityProfanityHint";
 import { detectProfanityInFields } from "@/lib/profanity";
+import { supabase } from "@/integrations/supabase/client";
+import { cn } from "@/lib/utils";
 
 const TOPIC_CATEGORIES = categories.filter((c) => c !== "Explore");
 

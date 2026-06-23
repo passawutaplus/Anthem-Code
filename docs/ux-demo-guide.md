@@ -23,7 +23,7 @@ npm run db:qa-full
 
 | อีเมล | รหัส |
 |--------|------|
-| `phatsawut@demo.pixel100.com` (และ username อื่น ๆ) | `pixel100-demo-seed` |
+| `phatsawut@demo.pixel100.com` (และ username อื่น ๆ) | รับรหัสผ่านจากผู้ดูแล demo |
 
 ดูรายชื่อครบใน `docs/demo-catalog.md`
 

@@ -32,6 +32,8 @@ export type ConversationPin = {
 };
 
 const UNSEND_WINDOW_MS = 24 * 60 * 60 * 1000;
+const CONVERSATION_LIST_LIMIT = 100;
+const MESSAGE_WINDOW_LIMIT = 150;
 
 export function isGroupConversation(conv: Conversation): boolean {
   return conv.conversation_type === "group" || conv.kind === "group" || conv.kind === "studio";
@@ -65,7 +67,8 @@ export const useConversations = (kind?: ChatKind) => {
         .from("conversations")
         .select("*")
         .or(`client_id.eq.${user!.id},freelancer_id.eq.${user!.id}`)
-        .order("last_message_at", { ascending: false });
+        .order("last_message_at", { ascending: false })
+        .limit(CONVERSATION_LIST_LIMIT);
 
       const { data: direct, error: directErr } = await directQuery;
       if (directErr) throw directErr;
@@ -83,7 +86,8 @@ export const useConversations = (kind?: ChatKind) => {
           .from("conversations")
           .select("*")
           .in("id", groupIds)
-          .order("last_message_at", { ascending: false });
+          .order("last_message_at", { ascending: false })
+          .limit(CONVERSATION_LIST_LIMIT);
         if (groupErr) throw groupErr;
         groups = (groupRows ?? []) as Conversation[];
       }
@@ -162,9 +166,10 @@ export const useMessages = (conversationId: string | undefined, opts?: UseMessag
         .from("messages")
         .select("*")
         .eq("conversation_id", conversationId!)
-        .order("created_at", { ascending: true });
+        .order("created_at", { ascending: false })
+        .limit(MESSAGE_WINDOW_LIMIT);
       if (error) throw error;
-      return (data ?? []) as Message[];
+      return ((data ?? []) as Message[]).reverse();
     },
   });
 
@@ -244,10 +249,6 @@ export const useSendMessage = () => {
 
       const { error } = await supabase.from("messages").insert(row as never);
       if (error) throw error;
-      await supabase
-        .from("conversations")
-        .update({ last_message_at: new Date().toISOString() })
-        .eq("id", conversationId);
 
       void supabase.functions.invoke("notify-anthem-chat", {
         body: { conversation_id: conversationId },
@@ -269,11 +270,9 @@ export const useUnsendMessage = () => {
       if (!user?.id) throw new Error("ต้องเข้าสู่ระบบ");
       const age = Date.now() - new Date(createdAt).getTime();
       if (age > UNSEND_WINDOW_MS) throw new Error("ยกเลิกได้ภายใน 24 ชั่วโมงเท่านั้น");
-      const { error } = await supabase
-        .from("messages")
-        .update({ deleted_at: new Date().toISOString() })
-        .eq("id", messageId)
-        .eq("sender_id", user.id);
+      const { error } = await supabase.rpc("unsend_message" as never, {
+        p_message_id: messageId,
+      } as never);
       if (error) throw error;
       return conversationId;
     },
@@ -338,31 +337,13 @@ export const useCreateGroupConversation = () => {
   return useMutation({
     mutationFn: async ({ title, memberIds }: { title: string; memberIds: string[] }) => {
       if (!user?.id) throw new Error("ต้องเข้าสู่ระบบ");
-      const uniqueMembers = Array.from(new Set([user.id, ...memberIds]));
-      const { data: conv, error: convErr } = await supabase
-        .from("conversations")
-        .insert({
-          kind: "group",
-          conversation_type: "group",
-          title: title.trim(),
-          created_by: user.id,
-          client_id: user.id,
-          freelancer_id: user.id,
-          request_id: null,
-          project_title: title.trim(),
-        } as never)
-        .select("id")
-        .single();
-      if (convErr) throw convErr;
-
-      const rows = uniqueMembers.map((uid) => ({
-        conversation_id: conv.id,
-        user_id: uid,
-        role: uid === user.id ? "owner" : "member",
-      }));
-      const { error: memErr } = await supabase.from("conversation_members").insert(rows);
-      if (memErr) throw memErr;
-      return conv.id as string;
+      const uniqueMembers = Array.from(new Set(memberIds.filter((id) => id !== user.id)));
+      const { data, error } = await supabase.rpc("create_group_conversation" as never, {
+        p_title: title.trim(),
+        p_member_ids: uniqueMembers,
+      } as never);
+      if (error) throw error;
+      return data as string;
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["conversations"] });
@@ -416,7 +397,19 @@ export const useAcceptRequest = () => {
         } as never)
         .select("id")
         .single();
-      if (error) throw error;
+      if (error) {
+        if (error.code === "23505") {
+          const { data: raced, error: racedError } = await supabase
+            .from("conversations")
+            .select("id")
+            .eq("kind", kind)
+            .eq("request_id", requestId)
+            .single();
+          if (racedError) throw racedError;
+          return raced.id as string;
+        }
+        throw error;
+      }
       return data.id as string;
     },
     onSuccess: () => {

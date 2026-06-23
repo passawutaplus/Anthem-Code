@@ -10,7 +10,14 @@ lerna-debug.log*
 node_modules
 dist
 .vercel
+supabase/.temp/
+supabase/.deploy-payloads/
+supabase/.mcp-payload.json
+supabase/.tmp-*
 dist-ssr
+test-results
+playwright-report
+*.tsbuildinfo
 *.local
 
 # Secrets — use shell env or scripts/ecosystem/.env.seed.local (never commit)
