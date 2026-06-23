@@ -28,8 +28,8 @@ const NotificationsDialog = ({ open, onOpenChange }: NotificationsDialogProps) =
               <span className="text-gradient">การแจ้งเตือน</span>
             </SheetTitle>
           </SheetHeader>
-          <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain px-4 pt-3 pb-[max(1.25rem,env(safe-area-inset-bottom))]">
-            <NotificationsPanel onBeforeNavigate={close} />
+          <div className="flex flex-col flex-1 min-h-0 overflow-hidden px-4 pt-3 pb-[max(1.25rem,env(safe-area-inset-bottom))]">
+            <NotificationsPanel embedded onBeforeNavigate={close} />
           </div>
         </SheetContent>
       </Sheet>
@@ -47,8 +47,8 @@ const NotificationsDialog = ({ open, onOpenChange }: NotificationsDialogProps) =
             <span className="text-gradient">การแจ้งเตือน</span>
           </DialogTitle>
         </DialogHeader>
-        <div className="flex-1 min-h-0 overflow-y-auto px-6 pt-4 pb-6">
-          <NotificationsPanel onBeforeNavigate={close} />
+        <div className="flex flex-col flex-1 min-h-0 overflow-hidden px-6 pt-4 pb-6">
+          <NotificationsPanel embedded onBeforeNavigate={close} />
         </div>
       </DialogContent>
     </Dialog>

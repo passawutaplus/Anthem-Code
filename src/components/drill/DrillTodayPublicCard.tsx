@@ -4,6 +4,7 @@ import {
   DRILL_DIFFICULTY_META,
 } from "@/data/designDrillPrompts.vendored";
 import { pickDailyDrill } from "@/lib/designDrillPick.vendored";
+import { projectsDrillFeedUrl } from "@/lib/drillProject";
 import { DrillDifficultyDot } from "./DrillDifficultyDot";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -30,7 +31,7 @@ export function DrillTodayPublicCard() {
       </div>
       <p className="text-sm font-semibold leading-snug">{drill.brief}</p>
       <Button variant="outline" size="sm" asChild className="rounded-full">
-        <Link to="/?mode=community&feed=drill">ดูผลงานช community วันนี้</Link>
+        <Link to={projectsDrillFeedUrl()}>ดูผลงานวันนี้</Link>
       </Button>
     </div>
   );

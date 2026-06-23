@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { useTopProjects, type DBProject } from "@/hooks/useProjects";
 import { imageCrossfadeVariants, imageRevealTransition } from "@/lib/motion";
-import { cn } from "@/lib/utils";
 
 const projectCover = (p: DBProject) =>
   p.cover_url?.trim() || p.gallery_urls?.find((url) => url?.trim()) || "";
@@ -66,32 +65,6 @@ const TopProjectShowcase = () => {
           แตะเพื่อดูผลงาน
         </span>
       </button>
-
-      {slides.length > 1 && (
-        <div
-          className="absolute bottom-4 right-4 sm:bottom-5 sm:right-6 z-10 flex items-center gap-2 rounded-full bg-black/30 px-2.5 py-1.5 backdrop-blur-md"
-          role="tablist"
-          aria-label="สไลด์ผลงานแนะนำ"
-        >
-          {slides.map((_, i) => (
-            <button
-              key={i}
-              type="button"
-              role="tab"
-              aria-selected={i === idx}
-              onClick={(e) => {
-                e.stopPropagation();
-                setIdx(i);
-              }}
-              aria-label={`สไลด์ ${i + 1}`}
-              className={cn(
-                "h-1.5 rounded-full transition-all duration-300",
-                i === idx ? "w-5 bg-primary shadow-sm" : "w-1.5 bg-white/75 hover:bg-white",
-              )}
-            />
-          ))}
-        </div>
-      )}
     </>
   );
 };

@@ -18,7 +18,7 @@ const WalletBadge = () => {
       <button
         onClick={() => setOpen(true)}
         title={welcomePx > 0 ? `กระเป๋า Pixel — Welcome ${welcomePx} px ส่งของขวัญได้` : "กระเป๋า Pixel"}
-        className="hidden sm:inline-flex items-center gap-1.5 pl-2.5 pr-1 py-1 rounded-full glass-chip hover:shadow-md hover:shadow-primary/20 transition-all group"
+        className="inline-flex items-center gap-1.5 pl-2.5 pr-1 py-1 rounded-full glass-chip hover:shadow-md hover:shadow-primary/20 transition-all group shrink-0"
       >
         <Sparkles className="w-3.5 h-3.5 text-primary" />
         <span className="text-xs font-medium text-foreground tabular-nums">

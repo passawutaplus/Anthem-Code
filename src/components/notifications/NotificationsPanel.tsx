@@ -1,9 +1,10 @@
 import BriefcaseIcon from "../icons/BriefcaseIcon";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Heart, Bookmark, MessageCircle, Handshake, Bell, Sparkles, Megaphone, CheckCircle2, XCircle, CreditCard, Inbox } from "lucide-react";
+import { Heart, Bookmark, MessageCircle, Handshake, Bell, Sparkles, Megaphone, CheckCircle2, XCircle, CreditCard, Inbox, UserPlus } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useActivityNotifications, useHireNotifications, useCollabNotifications } from "@/hooks/useNotifications";
+import { useFollowNotifications } from "@/hooks/useFollowLists";
 import { useUnreadJobMatchCount } from "@/hooks/useJobMatchNotifications";
 import { JobMatchList } from "@/components/notifications/JobMatchList";
 import { useAdApplicationNotifications } from "@/hooks/useAds";
@@ -11,9 +12,13 @@ import { useAuth } from "@/hooks/useAuth";
 import { useUpdateCollabStatus } from "@/hooks/useCollabRequests";
 import { useNotifications as useInbox } from "@/core/notifications";
 import InboxList from "@/components/notifications/InboxList";
+import FollowNotificationsList from "@/components/notifications/FollowNotificationsList";
+import UserAvatar from "@/components/UserAvatar";
 import { useCreateEscrowFromHire } from "@/hooks/useEscrow";
 import { Button } from "@/components/ui/button";
 import { ShieldCheck } from "lucide-react";
+import { cn } from "@/lib/utils";
+import type { LucideIcon } from "lucide-react";
 
 const timeAgo = (iso: string) => {
   const diff = Date.now() - new Date(iso).getTime();
@@ -40,9 +45,48 @@ const Empty = ({ icon: Icon, text }: { icon: typeof Bell; text: string }) => (
 
 interface NotificationsPanelProps {
   onBeforeNavigate?: () => void;
+  /** Sheet / dialog — tabs stay fixed, list scrolls inside. */
+  embedded?: boolean;
 }
 
-const NotificationsPanel = ({ onBeforeNavigate }: NotificationsPanelProps) => {
+type TabDef = {
+  value: string;
+  label: string;
+  icon: LucideIcon;
+  count?: number;
+};
+
+const NotificationTabTrigger = ({ tab }: { tab: TabDef }) => {
+  const Icon = tab.icon;
+  const count = tab.count ?? 0;
+  return (
+    <TabsTrigger
+      value={tab.value}
+      className={cn(
+        "relative col-span-1 inline-flex items-center justify-center gap-1.5",
+        "h-10 rounded-full px-2 text-xs font-medium shrink-0",
+        "data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm",
+        "text-muted-foreground hover:text-foreground",
+        "md:px-3",
+      )}
+    >
+      <Icon className="w-4 h-4 shrink-0" aria-hidden />
+      <span className="hidden md:inline whitespace-nowrap">{tab.label}</span>
+      {count > 0 && (
+        <>
+          <span className="md:hidden absolute top-1 right-1 min-w-[15px] h-[15px] px-0.5 rounded-full bg-primary text-primary-foreground text-[9px] font-semibold flex items-center justify-center leading-none">
+            {count > 9 ? "9+" : count}
+          </span>
+          <span className="hidden md:inline text-[10px] bg-primary text-primary-foreground px-1.5 py-0.5 rounded-full leading-none">
+            {count > 99 ? "99+" : count}
+          </span>
+        </>
+      )}
+    </TabsTrigger>
+  );
+};
+
+const NotificationsPanel = ({ onBeforeNavigate, embedded = false }: NotificationsPanelProps) => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [tab, setTab] = useState("inbox");
@@ -50,6 +94,7 @@ const NotificationsPanel = ({ onBeforeNavigate }: NotificationsPanelProps) => {
   const { data: activity = [], isLoading: la } = useActivityNotifications();
   const { data: hires = [], isLoading: lh } = useHireNotifications();
   const { data: collabs = [], isLoading: lc } = useCollabNotifications();
+  const { data: followNotifs = [] } = useFollowNotifications();
   const { data: unreadMatches = 0 } = useUnreadJobMatchCount();
   const updateCollab = useUpdateCollabStatus();
   const { data: adNotifs = [], isLoading: lad } = useAdApplicationNotifications();
@@ -60,38 +105,44 @@ const NotificationsPanel = ({ onBeforeNavigate }: NotificationsPanelProps) => {
     navigate(path);
   };
 
-  return (
-    <Tabs value={tab} onValueChange={setTab} className="w-full">
-      <TabsList className="grid w-full grid-cols-3 sm:grid-cols-6 bg-secondary rounded-full p-1 h-11 border border-border">
-        <TabsTrigger value="inbox" className="rounded-full data-[state=active]:bg-background data-[state=active]:shadow-sm gap-1 text-xs px-1.5">
-          <Inbox className="w-3.5 h-3.5" /> <span className="hidden sm:inline">กล่อง</span>
-          {inbox.unreadCount > 0 && (
-            <span className="text-[10px] bg-primary text-primary-foreground px-1.5 py-0.5 rounded-full">{inbox.unreadCount}</span>
-          )}
-        </TabsTrigger>
-        <TabsTrigger value="matches" className="rounded-full data-[state=active]:bg-background data-[state=active]:shadow-sm gap-1 text-xs px-1.5">
-          <Sparkles className="w-3.5 h-3.5" /> <span className="hidden sm:inline">งานที่ใช่</span>
-          {unreadMatches > 0 && <span className="text-[10px] bg-primary text-primary-foreground px-1.5 py-0.5 rounded-full">{unreadMatches}</span>}
-        </TabsTrigger>
-        <TabsTrigger value="activity" className="rounded-full data-[state=active]:bg-background data-[state=active]:shadow-sm gap-1 text-xs px-1.5">
-          <Bell className="w-3.5 h-3.5" /> <span className="hidden sm:inline">กิจกรรม</span>
-          {activity.length > 0 && <span className="text-[10px] bg-primary text-primary-foreground px-1.5 py-0.5 rounded-full">{activity.length}</span>}
-        </TabsTrigger>
-        <TabsTrigger value="hire" className="rounded-full data-[state=active]:bg-background data-[state=active]:shadow-sm gap-1 text-xs px-1.5">
-          <BriefcaseIcon className="w-3.5 h-3.5" /> <span className="hidden sm:inline">จ้างงาน</span>
-          {hires.length > 0 && <span className="text-[10px] bg-primary text-primary-foreground px-1.5 py-0.5 rounded-full">{hires.length}</span>}
-        </TabsTrigger>
-        <TabsTrigger value="collab" className="rounded-full data-[state=active]:bg-background data-[state=active]:shadow-sm gap-1 text-xs px-1.5">
-          <Handshake className="w-3.5 h-3.5" /> <span className="hidden sm:inline">Collab</span>
-          {collabs.length > 0 && <span className="text-[10px] bg-primary text-primary-foreground px-1.5 py-0.5 rounded-full">{collabs.length}</span>}
-        </TabsTrigger>
-        <TabsTrigger value="ads" className="rounded-full data-[state=active]:bg-background data-[state=active]:shadow-sm gap-1 text-xs px-1.5">
-          <Megaphone className="w-3.5 h-3.5" /> <span className="hidden sm:inline">โฆษณา</span>
-          {adNotifs.length > 0 && <span className="text-[10px] bg-primary text-primary-foreground px-1.5 py-0.5 rounded-full">{adNotifs.length}</span>}
-        </TabsTrigger>
-      </TabsList>
+  const tabs: TabDef[] = [
+    { value: "inbox", label: "กล่อง", icon: Inbox, count: inbox.unreadCount },
+    { value: "follows", label: "ติดตาม", icon: UserPlus, count: followNotifs.length },
+    { value: "matches", label: "งานที่ใช่", icon: Sparkles, count: unreadMatches },
+    { value: "activity", label: "กิจกรรม", icon: Bell, count: activity.length },
+    { value: "hire", label: "จ้างงาน", icon: BriefcaseIcon, count: hires.length },
+    { value: "collab", label: "Collab", icon: Handshake, count: collabs.length },
+    { value: "ads", label: "โฆษณา", icon: Megaphone, count: adNotifs.length },
+  ];
 
-      <TabsContent value="inbox" className="mt-5">
+  const tabBar = (
+    <TabsList
+      className={cn(
+        "w-full h-auto min-h-0 p-1.5 gap-1.5",
+        "grid grid-cols-4 auto-rows-fr",
+        "md:grid-cols-7 md:gap-1",
+        "bg-secondary rounded-2xl border border-border",
+        "justify-items-stretch",
+      )}
+    >
+      {tabs.map((t) => (
+        <NotificationTabTrigger key={t.value} tab={t} />
+      ))}
+    </TabsList>
+  );
+
+  const contentMt = embedded ? "mt-0" : "mt-4";
+
+  return (
+    <Tabs
+      value={tab}
+      onValueChange={setTab}
+      className={cn("w-full", embedded && "flex flex-col min-h-0 flex-1")}
+    >
+      <div className={cn("shrink-0", embedded && "pb-3 border-b border-border/40")}>{tabBar}</div>
+
+      <div className={cn(embedded && "flex-1 min-h-0 overflow-y-auto overscroll-contain pt-3 -mx-1 px-1")}>
+      <TabsContent value="inbox" className={contentMt}>
         <InboxList
           items={inbox.items}
           loading={inbox.loading}
@@ -103,11 +154,15 @@ const NotificationsPanel = ({ onBeforeNavigate }: NotificationsPanelProps) => {
         />
       </TabsContent>
 
-      <TabsContent value="matches" className="mt-5">
+      <TabsContent value="follows" className={contentMt}>
+        <FollowNotificationsList onBeforeNavigate={onBeforeNavigate} />
+      </TabsContent>
+
+      <TabsContent value="matches" className={contentMt}>
         <JobMatchList onBeforeNavigate={onBeforeNavigate} />
       </TabsContent>
 
-      <TabsContent value="activity" className="mt-5 space-y-2">
+      <TabsContent value="activity" className={cn(contentMt, "space-y-2")}>
         {la ? (
           <div className="text-center py-10 text-muted-foreground text-sm">กำลังโหลด...</div>
         ) : activity.length === 0 ? (
@@ -147,7 +202,7 @@ const NotificationsPanel = ({ onBeforeNavigate }: NotificationsPanelProps) => {
         )}
       </TabsContent>
 
-      <TabsContent value="hire" className="mt-5 space-y-2">
+      <TabsContent value="hire" className={cn(contentMt, "space-y-2")}>
         {lh ? (
           <div className="text-center py-10 text-muted-foreground text-sm">กำลังโหลด...</div>
         ) : hires.length === 0 ? (
@@ -196,7 +251,7 @@ const NotificationsPanel = ({ onBeforeNavigate }: NotificationsPanelProps) => {
         )}
       </TabsContent>
 
-      <TabsContent value="collab" className="mt-5 space-y-2">
+      <TabsContent value="collab" className={cn(contentMt, "space-y-2")}>
         {lc ? (
           <div className="text-center py-10 text-muted-foreground text-sm">กำลังโหลด...</div>
         ) : collabs.length === 0 ? (
@@ -246,7 +301,7 @@ const NotificationsPanel = ({ onBeforeNavigate }: NotificationsPanelProps) => {
         )}
       </TabsContent>
 
-      <TabsContent value="ads" className="mt-5 space-y-2">
+      <TabsContent value="ads" className={cn(contentMt, "space-y-2")}>
         {lad ? (
           <div className="text-center py-10 text-muted-foreground text-sm">กำลังโหลด...</div>
         ) : adNotifs.length === 0 ? (
@@ -289,6 +344,7 @@ const NotificationsPanel = ({ onBeforeNavigate }: NotificationsPanelProps) => {
           })
         )}
       </TabsContent>
+      </div>
     </Tabs>
   );
 };

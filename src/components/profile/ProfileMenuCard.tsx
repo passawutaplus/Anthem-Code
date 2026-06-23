@@ -1,5 +1,21 @@
 import { useNavigate } from "react-router-dom";
-import { LayoutGrid, Layers3, Coins, MessageCircle, Settings, LogOut, Plus, Building2, Flag, MessageSquare, ShieldCheck, Sparkles, Bookmark, UserPlus } from "lucide-react";
+import {
+  LayoutGrid,
+  Layers3,
+  Coins,
+  MessageCircle,
+  Settings,
+  LogOut,
+  Plus,
+  Building2,
+  Flag,
+  MessageSquare,
+  ShieldCheck,
+  Sparkles,
+  Bookmark,
+  UserPlus,
+  FolderKanban,
+} from "lucide-react";
 import { useSubscription } from "@/core/subscription";
 import BriefcaseIcon from "@/components/icons/BriefcaseIcon";
 import KycStatusBadge from "@/components/verification/KycStatusBadge";
@@ -22,6 +38,9 @@ const ProfileMenuCard = () => {
     >
       <button onClick={() => navigate("/portfolio")} className={item}>
         <LayoutGrid className="w-4 h-4 text-primary" /> โปรไฟล์ของฉัน
+      </button>
+      <button onClick={() => navigate("/portfolio/manage")} className={item}>
+        <FolderKanban className="w-4 h-4 text-primary" /> ตัวจัดการผลงาน
       </button>
       <button onClick={() => navigate("/collections")} className={item}>
         <Layers3 className="w-4 h-4 text-primary" /> คอลเลกชันของฉัน

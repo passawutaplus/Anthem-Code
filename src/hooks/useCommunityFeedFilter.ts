@@ -14,11 +14,17 @@ export function useCommunityFeedFilter() {
     const category = searchParams.get("category") ?? stored.category;
     const feedParam = searchParams.get("feed");
     const feedSource =
-      feedParam === "following" || feedParam === "drill"
+      feedParam === "following"
         ? feedParam
-        : stored.feedSource === "following" || stored.feedSource === "drill" || stored.feedSource === "all"
-          ? stored.feedSource
-          : DEFAULT_COMMUNITY_FILTER.feedSource;
+        : feedParam === "drill"
+          ? "all"
+          : stored.feedSource === "following"
+            ? stored.feedSource
+            : stored.feedSource === "drill"
+              ? "all"
+              : stored.feedSource === "all"
+                ? stored.feedSource
+                : DEFAULT_COMMUNITY_FILTER.feedSource;
     return {
       category: category || stored.category,
       feedSource,
@@ -29,12 +35,12 @@ export function useCommunityFeedFilter() {
     setFilterState(next);
     saveCommunityFilter(next);
     const params = new URLSearchParams(searchParams);
-    if (params.get("mode") === "community" || next.feedSource === "drill") {
+    if (params.get("mode") === "community") {
       params.set("mode", "community");
     }
     if (next.category !== "All") params.set("category", next.category);
     else params.delete("category");
-    if (next.feedSource === "following" || next.feedSource === "drill") {
+    if (next.feedSource === "following") {
       params.set("feed", next.feedSource);
     } else {
       params.delete("feed");

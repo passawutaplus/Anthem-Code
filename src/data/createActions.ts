@@ -1,4 +1,4 @@
-import { Briefcase, ImagePlus, Lightbulb, type LucideIcon } from "lucide-react";
+import { ImagePlus, type LucideIcon } from "lucide-react";
 import type { CommunityPostKind } from "@/hooks/useCommunityPosts";
 
 export type CreateAction = {
@@ -34,13 +34,15 @@ export const communityNewPath = (_kind?: CommunityPostKind) => COMMUNITY_NEW_PAT
 export const CREATE_ACTIONS: CreateAction[] = [
   { label: "ลงผลงาน", desc: "เผยแพร่ผลงานใหม่ลงพอร์ตโฟลิโอ", icon: ImagePlus, to: "/portfolio/new" },
   {
-    label: "โพสต์ชุมชน",
+    label: "โพสชุมชน",
     desc: "แชร์เรื่องราว รูป หรือคำถามกับชุมชน",
-    icon: Lightbulb,
+    icon: ImagePlus,
     to: COMMUNITY_NEW_PATH,
   },
-  { label: "โพสต์งาน", desc: "รับสมัครหรือหางานจาก Studio", icon: Briefcase, to: "/jobs?post=1" },
 ];
 
 export const parseCommunityKind = (value: string | null): CommunityPostKind | null =>
   value === "tip" || value === "question" ? value : null;
+
+export const communityNewPathWithKind = (kind: CommunityPostKind) =>
+  `${COMMUNITY_NEW_PATH}?kind=${kind}`;

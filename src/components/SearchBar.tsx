@@ -1,6 +1,7 @@
 import { Search, SlidersHorizontal } from "lucide-react";
 import { ReactNode } from "react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
 
 interface SearchBarProps {
   placeholder?: string;
@@ -8,6 +9,7 @@ interface SearchBarProps {
   onChange: (value: string) => void;
   filterContent?: ReactNode;
   filterCount?: number;
+  compact?: boolean;
 }
 
 const SearchBar = ({
@@ -16,16 +18,23 @@ const SearchBar = ({
   onChange,
   filterContent,
   filterCount = 0,
+  compact = false,
 }: SearchBarProps) => {
   return (
     <div className="relative">
-      <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+      <Search className={cn(
+        "absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground",
+        compact ? "w-3.5 h-3.5" : "w-4 h-4 left-4",
+      )} />
       <input
         type="text"
         placeholder={placeholder}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full pl-11 pr-12 py-3 rounded-2xl bg-secondary border border-border text-foreground placeholder:text-muted-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 transition-shadow"
+        className={cn(
+          "w-full rounded-2xl bg-secondary border border-border text-foreground placeholder:text-muted-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 transition-shadow",
+          compact ? "pl-9 pr-10 py-2" : "pl-11 pr-12 py-3",
+        )}
       />
       {filterContent && (
         <Popover>

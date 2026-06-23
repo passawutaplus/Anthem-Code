@@ -8,7 +8,7 @@ import JobCard from "@/components/jobs/JobCard";
 import JobPostDialog from "@/components/jobs/JobPostDialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Plus, ArrowLeft, UserSearch, SlidersHorizontal, X, FileSignature, Crown } from "lucide-react";
+import { Search, Plus, ArrowLeft, UserSearch, SlidersHorizontal, X } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import Footer from "@/components/Footer";
 import { cn } from "@/lib/utils";
@@ -99,42 +99,34 @@ const JobsPage = () => {
         path="/jobs"
       />
       <div className="max-w-6xl mx-auto px-4 py-6 space-y-5">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
           <button
             onClick={() => navigate("/")}
-            className="w-9 h-9 rounded-full glass-chip grid place-items-center"
+            className="w-9 h-9 rounded-full glass-chip grid place-items-center shrink-0"
             aria-label="กลับหน้าแรก"
           >
             <ArrowLeft className="w-4 h-4" />
           </button>
-          {mode === "hiring" ? <BriefcaseIcon className="w-7 h-7 text-primary shrink-0" /> : <UserSearch className="w-7 h-7 text-primary shrink-0" />}
-          <div className="flex-1">
-            <h1 className="text-2xl font-medium tracking-tight thai-display">
-              {mode === "hiring" ? "บอร์ดหางาน" : "ผู้กำลังหางาน"}
-            </h1>
-            <p className="text-xs text-muted-foreground thai-body">
-              {mode === "hiring" ? "หาฟรีแลนซ์/พนักงาน — เปิดให้ทุกคนประกาศ" : "ดู CV และพอร์ตของคนที่กำลังหางาน"}
-            </p>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button
-              onClick={() => requireAuth(user, () => navigate("/contracts/new"))}
-              variant="outline"
-              className="rounded-xl border-primary/30 text-primary hover:bg-primary/5 gap-1.5"
-              title="ให้ AI ช่วยร่างสัญญาจ้างงาน"
-            >
-              <FileSignature className="w-4 h-4" />
-              <span className="hidden sm:inline">ร่างสัญญา</span>
-              <Crown className="w-3 h-3 opacity-70" />
-            </Button>
-            <Button
-              onClick={() => requireAuth(user, () => setDialogOpen(true))}
-              className="rounded-xl bg-gradient-brand text-white border-0"
-            >
-              <Plus className="w-4 h-4 mr-1.5" /> ลงประกาศ
-            </Button>
-          </div>
+          {mode === "hiring" ? (
+            <BriefcaseIcon className="w-6 h-6 sm:w-7 sm:h-7 text-primary shrink-0 hidden sm:block" />
+          ) : (
+            <UserSearch className="w-6 h-6 sm:w-7 sm:h-7 text-primary shrink-0 hidden sm:block" />
+          )}
+          <h1 className="flex-1 text-lg sm:text-2xl font-medium tracking-tight thai-display truncate">
+            {mode === "hiring" ? "บอร์ดหางาน" : "ผู้กำลังหางาน"}
+          </h1>
+          <Button
+            onClick={() => requireAuth(user, () => setDialogOpen(true))}
+            size="sm"
+            className="rounded-xl bg-gradient-brand text-white border-0 shrink-0"
+          >
+            <Plus className="w-4 h-4 sm:mr-1.5" />
+            <span className="hidden sm:inline">ลงประกาศ</span>
+          </Button>
         </div>
+        <p className="text-xs text-muted-foreground thai-body -mt-2 hidden sm:block">
+          {mode === "hiring" ? "หาฟรีแลนซ์/พนักงาน — เปิดให้ทุกคนประกาศ" : "ดู CV และพอร์ตของคนที่กำลังหางาน"}
+        </p>
 
         {/* Mode toggle */}
         <div className="flex gap-2 p-1 glass-panel rounded-full w-full sm:w-fit">

@@ -1,12 +1,14 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { Home, MessageCircle, Handshake, Pin, PinOff, Plus, Search, Users } from "lucide-react";
+import { LayoutGrid, MessageCircle, Handshake, Orbit, Pin, PinOff, Plus, Search, Users } from "lucide-react";
 import BriefcaseIcon from "../icons/BriefcaseIcon";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useProfile } from "@/hooks/useProfile";
+import UserAvatar from "@/components/UserAvatar";
 import { useSubscription } from "@/core/subscription/useSubscription";
 import {
   useConversations,
@@ -51,6 +53,7 @@ const ChatSidebar = ({
 }: Props) => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { data: myProfile } = useProfile(user?.id);
   const { tier } = useSubscription();
   const [groupOpen, setGroupOpen] = useState(false);
   const { data: conversations = [], isLoading, isError, error } = useConversations(
@@ -184,22 +187,66 @@ const ChatSidebar = ({
     togglePin.mutate({ conversationId: convId, pinned: pinnedSet.has(convId) });
   };
 
+  const goProjectsHome = () => {
+    localStorage.setItem("feed-mode", "projects");
+    navigate("/", { state: { feedHomeReset: Date.now() } });
+  };
+
+  const goArea = () => {
+    localStorage.setItem("feed-mode", "community");
+    navigate("/?mode=community");
+  };
+
   return (
     <aside className={cn("flex flex-col h-full border-r border-border bg-background", className)}>
       <div className="shrink-0 p-3 border-b border-border space-y-3">
         <div className="flex items-center justify-between gap-2 px-1">
-          <h1 className="text-lg font-semibold text-foreground">ข้อความ</h1>
-          <div className="flex items-center gap-1">
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8 rounded-full"
-              aria-label="กลับหน้าแรก"
-              onClick={() => navigate("/")}
-            >
-              <Home className="w-4 h-4" />
-            </Button>
+          <div className="flex items-center gap-2 min-w-0">
+            <h1 className="text-lg font-semibold text-foreground shrink-0">ข้อความ</h1>
+            {user && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="hidden md:inline-flex h-9 w-9 rounded-full shrink-0 p-0"
+                aria-label="โปรไฟล์ของฉัน"
+                title="โปรไฟล์ของฉัน"
+                onClick={() => navigate("/portfolio")}
+              >
+                <UserAvatar
+                  src={myProfile?.avatar_url}
+                  name={myProfile?.display_name ?? user.email ?? "P"}
+                  className="w-8 h-8"
+                  fallbackClassName="text-xs"
+                />
+              </Button>
+            )}
+          </div>
+          <div className="flex items-center gap-1 shrink-0">
+            <div className="flex items-center gap-0.5 rounded-full border border-border/60 bg-muted/40 p-0.5">
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 rounded-full"
+                aria-label="หน้าแรก Projects"
+                title="หน้าแรก Projects"
+                onClick={goProjectsHome}
+              >
+                <LayoutGrid className="w-4 h-4" />
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 rounded-full"
+                aria-label="Area"
+                title="Area"
+                onClick={goArea}
+              >
+                <Orbit className="w-4 h-4" />
+              </Button>
+            </div>
             <Button
               type="button"
               variant="ghost"

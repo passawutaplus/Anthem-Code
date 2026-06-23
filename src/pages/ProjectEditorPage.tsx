@@ -53,6 +53,13 @@ import { cn } from "@/lib/utils";
 
 type Status = "Published" | "Draft" | "Private";
 
+const EDITOR_STEPS = [
+  { id: 1, label: "รูป" },
+  { id: 2, label: "รายละเอียด" },
+  { id: 3, label: "ตั้งค่า" },
+  { id: 4, label: "เผยแพร่" },
+] as const;
+
 const ProjectEditorPage = () => {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -96,8 +103,9 @@ const ProjectEditorPage = () => {
   const [uploadingGallery, setUploadingGallery] = useState(false);
   const [uploadingVideo, setUploadingVideo] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
-  const [editorMode, setEditorMode] = useState<PortfolioEditorMode>(editing ? "manual" : "ai");
+  const [editorMode, setEditorMode] = useState<PortfolioEditorMode>("manual");
   const [aiHint, setAiHint] = useState("");
+  const [editorStep, setEditorStep] = useState(1);
 
   const {
     loading: aiLoading,
@@ -419,7 +427,7 @@ const ProjectEditorPage = () => {
           targetStatus === "Published" &&
           drillMetaRef.current.drill_type === "daily"
         ) {
-          navigate("/?mode=community&feed=drill");
+          navigate("/?drill=1");
         } else {
           navigate(`/project/${created.id}`);
         }
@@ -480,7 +488,7 @@ const ProjectEditorPage = () => {
             <ArrowLeft className="w-4 h-4" /> กลับ
           </button>
           <h1 className="text-base font-semibold text-foreground ml-2">{editing ? "แก้ไขผลงาน" : "เพิ่มผลงานใหม่"}</h1>
-          <div className="ml-auto flex items-center gap-2">
+          <div className="ml-auto hidden sm:flex items-center gap-2">
             <Button
               variant="outline"
               size="icon"
@@ -508,6 +516,39 @@ const ProjectEditorPage = () => {
         </div>
       </div>
 
+      {/* Step indicator */}
+      <div className="border-b border-border/60 bg-background/60">
+        <div className="max-w-6xl mx-auto px-4 py-3">
+          <div className="flex items-center gap-1 sm:gap-2">
+            {EDITOR_STEPS.map((s, i) => (
+              <div key={s.id} className="flex items-center gap-1 sm:gap-2 flex-1 min-w-0">
+                <button
+                  type="button"
+                  onClick={() => setEditorStep(s.id)}
+                  className={cn(
+                    "flex items-center gap-1.5 min-w-0 rounded-full px-2 sm:px-3 py-1.5 text-[11px] sm:text-xs font-medium transition-colors",
+                    editorStep === s.id
+                      ? "bg-primary text-primary-foreground"
+                      : "text-muted-foreground hover:bg-muted",
+                  )}
+                >
+                  <span className={cn(
+                    "w-5 h-5 rounded-full grid place-items-center text-[10px] shrink-0",
+                    editorStep === s.id ? "bg-primary-foreground/20" : "bg-muted",
+                  )}>
+                    {s.id}
+                  </span>
+                  <span className="truncate hidden sm:inline">{s.label}</span>
+                </button>
+                {i < EDITOR_STEPS.length - 1 && (
+                  <div className={cn("h-0.5 flex-1 rounded hidden sm:block", editorStep > s.id ? "bg-primary" : "bg-muted")} />
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
       <PortfolioEditorModeToggle mode={editorMode} onModeChange={handleEditorModeChange} />
 
       {isDrillPost ? (
@@ -516,9 +557,10 @@ const ProjectEditorPage = () => {
         </div>
       ) : null}
 
-      <div className="max-w-6xl mx-auto px-4 py-6 grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6">
+      <div className="max-w-6xl mx-auto px-4 py-6 pb-28 lg:pb-6 grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6">
         {/* Left: content */}
         <div className="space-y-6">
+          <div className={cn(editorStep !== 1 && "hidden lg:block")}>
           {editorMode === "ai" ? (
             <PortfolioAiAssistPanel
               mediaItems={mediaItems}
@@ -553,6 +595,9 @@ const ProjectEditorPage = () => {
             </section>
           )}
 
+          </div>
+
+          <div className={cn(editorStep !== 2 && "hidden lg:block", "space-y-6")}>
           {/* Title */}
           <section className="space-y-2">
             <Label className="text-sm font-semibold">ชื่อผลงาน *</Label>
@@ -588,9 +633,11 @@ const ProjectEditorPage = () => {
             />
             <p className="text-xs text-muted-foreground text-right">{description.length}/5000</p>
           </section>
+          </div>
 
           {/* Gallery — manual mode only (AI mode uses panel above) */}
           {editorMode === "manual" && (
+          <div className={cn(editorStep !== 1 && "hidden lg:block")}>
           <section className="space-y-2">
             <div className="flex items-center justify-between gap-2">
               <div>
@@ -630,11 +677,12 @@ const ProjectEditorPage = () => {
               </div>
             )}
           </section>
+          </div>
           )}
         </div>
 
         {/* Right: sidebar */}
-        <aside className="space-y-5 lg:sticky lg:top-20 lg:self-start">
+        <aside className={cn("space-y-5 lg:sticky lg:top-20 lg:self-start", editorStep !== 3 && editorStep !== 4 && "hidden lg:block")}>
           <div className="rounded-2xl border border-border bg-card p-4 space-y-4">
             <div className="space-y-2">
               <Label className="text-xs font-semibold text-muted-foreground uppercase">หมวดงาน *</Label>
@@ -737,6 +785,46 @@ const ProjectEditorPage = () => {
         </aside>
       </div>
 
+      {/* Mobile sticky CTA */}
+      <div
+        className="lg:hidden fixed inset-x-0 z-40 border-t border-border bg-background/95 backdrop-blur-md px-4 py-3"
+        style={{ bottom: "env(safe-area-inset-bottom, 0px)" }}
+      >
+        <div className="max-w-6xl mx-auto flex items-center gap-2">
+          {editorStep > 1 && (
+            <Button type="button" variant="outline" className="rounded-xl shrink-0" onClick={() => setEditorStep((s) => s - 1)}>
+              ย้อนกลับ
+            </Button>
+          )}
+          {editorStep < 4 ? (
+            <Button type="button" className="flex-1 rounded-xl" onClick={() => setEditorStep((s) => s + 1)}>
+              ถัดไป — {EDITOR_STEPS[editorStep]?.label ?? ""}
+            </Button>
+          ) : (
+            <>
+              <Button
+                type="button"
+                variant="outline"
+                className="flex-1 rounded-xl"
+                onClick={() => handleSubmit(false)}
+                disabled={saving}
+              >
+                บันทึกฉบับร่าง
+              </Button>
+              <Button
+                type="button"
+                className="flex-1 rounded-xl bg-primary text-primary-foreground"
+                onClick={() => handleSubmit(true)}
+                disabled={saving || !canPublish}
+                title={publishBlockedReason}
+              >
+                เผยแพร่
+              </Button>
+            </>
+          )}
+        </div>
+      </div>
+
       <ProjectPreviewDialog
         open={previewOpen}
         onOpenChange={setPreviewOpen}
@@ -772,8 +860,8 @@ const CoverDrop = ({ url, loading, onPick, onClear }: { url: string; loading: bo
         const f = e.dataTransfer.files?.[0]; if (f) onPick(f);
       }}
       onClick={() => ref.current?.click()}
-      className={`rounded-2xl border-2 border-dashed cursor-pointer transition aspect-[16/9] flex flex-col items-center justify-center gap-2 ${
-        drag ? "border-primary bg-primary/5" : "border-border bg-card hover:bg-muted/30"
+      className={`rounded-2xl border-2 border-dashed cursor-pointer transition aspect-[16/9] min-h-[200px] flex flex-col items-center justify-center gap-3 glass-panel ${
+        drag ? "border-primary bg-primary/10 shadow-lg shadow-primary/10" : "border-border/80 hover:border-primary/40 hover:bg-muted/20"
       }`}
     >
       {loading ? <Loader2 className="w-6 h-6 animate-spin text-primary" /> : <ImagePlus className="w-8 h-8 text-muted-foreground" />}
@@ -793,8 +881,8 @@ const GalleryDrop = ({ loading, onPick }: { loading: boolean; onPick: (f: FileLi
       onDragLeave={() => setDrag(false)}
       onDrop={(e) => { e.preventDefault(); setDrag(false); if (e.dataTransfer.files?.length) onPick(e.dataTransfer.files); }}
       onClick={() => ref.current?.click()}
-      className={`rounded-2xl border-2 border-dashed cursor-pointer p-10 flex flex-col items-center justify-center gap-2 transition ${
-        drag ? "border-primary bg-primary/5" : "border-border bg-card hover:bg-muted/30"
+      className={`rounded-2xl border-2 border-dashed cursor-pointer p-12 min-h-[180px] flex flex-col items-center justify-center gap-3 transition glass-panel ${
+        drag ? "border-primary bg-primary/10 shadow-lg shadow-primary/10" : "border-border/80 hover:border-primary/40 hover:bg-muted/20"
       }`}
     >
       {loading ? <Loader2 className="w-6 h-6 animate-spin text-primary" /> : <Upload className="w-8 h-8 text-muted-foreground" />}

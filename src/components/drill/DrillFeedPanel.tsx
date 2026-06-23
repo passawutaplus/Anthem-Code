@@ -1,22 +1,15 @@
-import { useMemo } from "react";
-import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Target } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { PROJECT_FEED_SELECT } from "@/lib/dbSelects";
-import { DRILL_DIFFICULTY_META } from "@/data/designDrillPrompts.vendored";
-import { pickDailyDrill } from "@/lib/designDrillPick.vendored";
 import { todayISO } from "@/lib/dailySeedPick.vendored";
-import { portfolioDrillUrl, projectHasDailyDrillTag } from "@/lib/drillProject";
+import { projectHasDailyDrillTag } from "@/lib/drillProject";
 import PortfolioGrid from "@/components/profile/PortfolioGrid";
-import { DrillDifficultyDot } from "@/components/drill/DrillDifficultyDot";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { DrillDailyInlineCard } from "@/components/drill/DrillDailyInlineCard";
 import PageLoader from "@/components/ui/PageLoader";
 
 export default function DrillFeedPanel() {
   const date = todayISO();
-  const drill = useMemo(() => pickDailyDrill(), []);
 
   const { data: projects = [], isLoading } = useQuery({
     queryKey: ["drill-gallery", date],
@@ -45,17 +38,7 @@ export default function DrillFeedPanel() {
             <h2 className="text-base sm:text-lg font-bold">โจทย์เดียวกับ So1o ทุกคน</h2>
           </div>
         </div>
-        <div className="flex flex-wrap gap-2">
-          <Badge variant="secondary">{drill.meta.label}</Badge>
-          <Badge variant="outline" className="gap-1.5">
-            <DrillDifficultyDot difficulty={drill.difficulty} />
-            {DRILL_DIFFICULTY_META[drill.difficulty].label}
-          </Badge>
-        </div>
-        <p className="text-base font-semibold leading-snug">{drill.brief}</p>
-        <Button asChild className="rounded-full">
-          <Link to={portfolioDrillUrl()}>ทำโจทย์วันนี้</Link>
-        </Button>
+        <DrillDailyInlineCard />
       </section>
 
       <section className="space-y-4">

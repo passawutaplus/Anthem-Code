@@ -1,10 +1,11 @@
 import type { Category } from "@/data/projectTypes";
+import type { ProjectChipFilter } from "@/lib/drillProject";
 import { cn } from "@/lib/utils";
 
 interface FilterChipsProps {
-  categories: Category[];
-  selected: Category | string;
-  onSelect: (cat: Category) => void;
+  categories: ProjectChipFilter[];
+  selected: ProjectChipFilter;
+  onSelect: (cat: ProjectChipFilter) => void;
 }
 
 const FilterChips = ({ categories, selected, onSelect }: FilterChipsProps) => {

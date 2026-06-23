@@ -97,6 +97,7 @@ const ContractsListPage = lazy(() => import("./pages/ContractsListPage.tsx"));
 const DrillGalleryPage = lazy(() => import("./pages/DrillGalleryPage.tsx"));
 const SavedPostsPage = lazy(() => import("./pages/SavedPostsPage.tsx"));
 const ReferralPage = lazy(() => import("./pages/ReferralPage.tsx"));
+const FollowConnectionsPage = lazy(() => import("./pages/FollowConnectionsPage.tsx"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -130,6 +131,7 @@ const App = () => (
               <Route path="/portfolio" element={<RequireAuth><PortfolioProfilePage /></RequireAuth>} />
               <Route path="/portfolio/saved" element={<RequireAuth><SavedPostsPage /></RequireAuth>} />
               <Route path="/portfolio/manage" element={<RequireAuth><PortfolioManagePage /></RequireAuth>} />
+              <Route path="/portfolio/followers" element={<RequireAuth><FollowConnectionsPage /></RequireAuth>} />
               <Route path="/hire-requests" element={<RequireAuth><RedirectTo to="/portfolio/manage?focus=hiring" /></RequireAuth>} />
               <Route path="/collab-requests" element={<RequireAuth><RedirectTo to="/portfolio/manage?focus=collab" /></RequireAuth>} />
               <Route path="/portfolio/new" element={<RequireAuth><ProjectEditorPage /></RequireAuth>} />
@@ -140,6 +142,7 @@ const App = () => (
               <Route path="/similar/:projectId" element={<SimilarImagesPage />} />
               <Route path="/inspire/:boardId" element={<InspireBoardDetailPage />} />
               <Route path="/u/:userId" element={<PublicProfilePage />} />
+              <Route path="/u/:userId/followers" element={<FollowConnectionsPage />} />
               <Route path="/earnings" element={<RequireAuth><EarningsPage /></RequireAuth>} />
               <Route path="/referrals" element={<RequireAuth><ReferralPage /></RequireAuth>} />
 

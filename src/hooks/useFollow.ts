@@ -59,6 +59,8 @@ export const useFollowState = (followingId: string | undefined) => {
       }
       qc.invalidateQueries({ queryKey: ["follow-counts", followingId] });
       qc.invalidateQueries({ queryKey: ["is-following", followingId, user?.id] });
+      qc.invalidateQueries({ queryKey: ["followers-list"] });
+      qc.invalidateQueries({ queryKey: ["following-list"] });
     },
   });
 

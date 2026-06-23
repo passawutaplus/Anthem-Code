@@ -8,7 +8,9 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Building2, FileText, MapPin, Globe, CheckCircle2, Users, ArrowLeft } from "lucide-react";
+import { Building2, CheckCircle2, FileText, MapPin, Globe, Users, ArrowLeft } from "lucide-react";
+import StudioFollowButton from "@/components/StudioFollowButton";
+import { useStudioFollowState } from "@/hooks/useStudioFollow";
 import { safeHttpUrl } from "@/lib/safeUrl";
 import JobCard from "@/components/jobs/JobCard";
 import { useAuth } from "@/hooks/useAuth";
@@ -30,6 +32,7 @@ import {
 } from "@/components/studio/StudioClientPickerDialog";
 import { StudioQuoteUpsellDialog } from "@/components/studio/StudioQuoteUpsellDialog";
 import { toast } from "sonner";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 const StudioProfilePage = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -43,6 +46,7 @@ const StudioProfilePage = () => {
   const { tier } = useSubscription();
   const isMember = myStudios.some((s) => s.id === studio?.id);
   const myMembership = members.find((m) => m.user_id === user?.id);
+  const { followers: studioFollowers } = useStudioFollowState(studio?.id);
   const canCombinedQuote =
     isMember && canOpenStudioCombinedQuote(tier, myMembership?.role);
   const showQuoteUpsell =
@@ -107,11 +111,21 @@ const StudioProfilePage = () => {
               <div className="flex flex-wrap items-center gap-2">
                 <h1 className="text-2xl font-medium tracking-tight thai-display">{studio.name}</h1>
                 <Badge className="bg-primary/10 text-primary border-primary/30 hover:bg-primary/15">STUDIO</Badge>
-                {studio.verified && <CheckCircle2 className="w-5 h-5 text-primary" />}
+                {studio.verified && (
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <CheckCircle2 className="w-5 h-5 text-primary cursor-help" aria-label="Studio ยืนยันนิติบุคคลแล้ว" />
+                      </TooltipTrigger>
+                      <TooltipContent>Studio ยืนยันนิติบุคคลแล้ว — ออกใบกำกับ/สัญญาได้</TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                )}
               </div>
               {studio.tagline && <p className="text-sm text-muted-foreground mt-1 thai-body">{studio.tagline}</p>}
               <div className="flex flex-wrap gap-3 mt-2 text-xs text-muted-foreground">
                 <span className="flex items-center gap-1"><Users className="w-3.5 h-3.5" /> {studio.member_count} สมาชิก</span>
+                <span className="flex items-center gap-1"><Users className="w-3.5 h-3.5" /> {studioFollowers} ผู้ติดตาม</span>
                 {studio.location && <span className="flex items-center gap-1"><MapPin className="w-3.5 h-3.5" /> {studio.location}</span>}
                 {websiteUrl && (
                   <a href={websiteUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 hover:text-foreground">
@@ -121,6 +135,7 @@ const StudioProfilePage = () => {
               </div>
             </div>
             <div className="flex flex-wrap gap-2 items-center">
+              <StudioFollowButton studioId={studio.id} size="sm" />
               {canCombinedQuote && (
                 <Button
                   variant="outline"
@@ -235,6 +250,7 @@ const StudioProfilePage = () => {
         onOpenChange={setHireOpen}
         studioId={studio.id}
         studioName={studio.name}
+        studioVerified={studio.verified}
         projectTitle={studio.name}
       />
       <StudioClientPickerDialog

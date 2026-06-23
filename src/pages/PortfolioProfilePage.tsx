@@ -142,6 +142,8 @@ const PortfolioProfilePage = () => {
           }
           onManage={() => navigate("/portfolio/manage")}
           onShare={sharePublic}
+          onFollowersClick={() => navigate("/portfolio/followers")}
+          onFollowingClick={() => navigate("/portfolio/followers?tab=following")}
         />
       </div>
 

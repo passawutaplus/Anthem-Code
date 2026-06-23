@@ -35,3 +35,10 @@ export function mergeDrillTags(
 
 export const PORTFOLIO_DRILL_HASH = "design-drill";
 export const portfolioDrillUrl = () => `/portfolio?drill=daily#${PORTFOLIO_DRILL_HASH}`;
+
+/** Chip label in the projects feed toolbar (before All). */
+export const DESIGN_DRILL_CHIP = "Design Drill" as const;
+
+export type ProjectChipFilter = import("@/data/projectTypes").Category | "All" | typeof DESIGN_DRILL_CHIP;
+
+export const projectsDrillFeedUrl = () => "/?drill=1";

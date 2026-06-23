@@ -6,8 +6,8 @@ import { useNavigate } from "react-router-dom";
 import type { Project } from "@/data/projectTypes";
 import { useProjectLike } from "@/hooks/useProjectInteractions";
 import SaveToCollectionPopover from "@/components/collections/SaveToCollectionPopover";
+import SharePopover from "@/components/SharePopover";
 import { cn } from "@/lib/utils";
-import { toast } from "sonner";
 import SafeDemoImage from "@/components/SafeDemoImage";
 import { smoothEase } from "@/lib/motion";
 import BoostBadge from "@/components/boost/BoostBadge";
@@ -81,13 +81,7 @@ const ProjectCard = ({ project, onHireClick, onCollabClick, boosted, boostId }: 
     fn();
   };
 
-  const handleShare = () => {
-    const url = `${window.location.origin}/project/${project.id}`;
-    navigator.clipboard?.writeText(url).then(
-      () => toast.success("คัดลอกลิงก์แล้ว"),
-      () => toast.error("คัดลอกไม่สำเร็จ")
-    );
-  };
+  const shareUrl = `${typeof window !== "undefined" ? window.location.origin : ""}/project/${project.id}`;
 
   const goToOwner = () => {
     if (project.ownerId) navigate(`/profile/${project.ownerId}`);
@@ -149,13 +143,13 @@ const ProjectCard = ({ project, onHireClick, onCollabClick, boosted, boostId }: 
           </p>
         </div>
 
-        {/* Action icons row — appears ABOVE the title when 3-dot menu is open */}
+        {/* Action icons — hover on desktop, menu open, or tap ⋯ on mobile */}
         <div
           className={cn(
             "absolute bottom-9 left-2 right-2 flex items-center gap-0.5 transition-all duration-200",
             menuOpen
               ? "opacity-100 translate-y-0 pointer-events-auto"
-              : "opacity-0 translate-y-1 pointer-events-none"
+              : "opacity-0 translate-y-1 pointer-events-none md:group-hover:opacity-100 md:group-hover:translate-y-0 md:group-hover:pointer-events-auto",
           )}
           onClick={(e) => e.stopPropagation()}
         >
@@ -168,14 +162,16 @@ const ProjectCard = ({ project, onHireClick, onCollabClick, boosted, boostId }: 
               <Layers3 className="w-4 h-4" />
             </button>
           </SaveToCollectionPopover>
-          <button
-            onClick={stop(handleShare)}
-            aria-label="แชร์"
-            title="แชร์"
-            className="p-1.5 rounded-full text-white hover:bg-white/15 transition-colors"
-          >
-            <Share2 className="w-4 h-4" />
-          </button>
+          <SharePopover url={shareUrl} title={project.title} label="แชร์ผลงาน">
+            <button
+              onClick={stop(() => {})}
+              aria-label="แชร์"
+              title="แชร์"
+              className="p-1.5 rounded-full text-white hover:bg-white/15 transition-colors"
+            >
+              <Share2 className="w-4 h-4" />
+            </button>
+          </SharePopover>
           {(project.allowHire ?? true) && (
             <button
               onClick={stop(() => onHireClick?.(project.id))}

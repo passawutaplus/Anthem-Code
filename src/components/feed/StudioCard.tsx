@@ -1,6 +1,9 @@
 import { useNavigate } from "react-router-dom";
-import { Building2, CheckCircle2, MapPin, Users } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { motion } from "framer-motion";
+import { Building2, CheckCircle2, Heart, MapPin, Users } from "lucide-react";
+import StudioFollowButton from "@/components/StudioFollowButton";
+import { useStudioFollowState } from "@/hooks/useStudioFollow";
+import { useProjectLike } from "@/hooks/useProjectInteractions";
 import type { StudioCardData } from "@/hooks/usePublicStudios";
 
 interface Props {
@@ -10,6 +13,9 @@ interface Props {
 const StudioCard = ({ data }: Props) => {
   const navigate = useNavigate();
   const { studio, memberAvatars, projectCovers } = data;
+  const { followers } = useStudioFollowState(studio.id);
+  const featuredProjectId = projectCovers[0]?.id?.startsWith("_") ? undefined : projectCovers[0]?.id;
+  const like = useProjectLike(featuredProjectId);
   const tiles = [...projectCovers];
   while (tiles.length < 3) tiles.push({ id: `_${tiles.length}`, title: "", cover: "" });
 
@@ -42,18 +48,12 @@ const StudioCard = ({ data }: Props) => {
           </p>
           <div className="flex items-center gap-2 mt-0.5 text-[11px] text-muted-foreground">
             <span className="inline-flex items-center gap-0.5"><Users className="w-3 h-3" />{studio.member_count}</span>
+            <span className="inline-flex items-center gap-0.5">{followers} ติดตาม</span>
             {studio.location && (
               <span className="inline-flex items-center gap-0.5 truncate"><MapPin className="w-3 h-3" />{studio.location}</span>
             )}
           </div>
         </div>
-        <Button
-          size="sm"
-          onClick={() => navigate(`/s/${studio.slug}`)}
-          className="rounded-full bg-gradient-brand text-white border-0 h-7 px-3 text-xs"
-        >
-          ดู Studio
-        </Button>
       </div>
 
       <div className="grid grid-cols-3 gap-2">
@@ -80,28 +80,53 @@ const StudioCard = ({ data }: Props) => {
         ))}
       </div>
 
-      {memberAvatars.length > 0 && (
-        <div className="flex items-center gap-2">
-          <div className="flex -space-x-2">
-            {memberAvatars.map((m) => (
-              <div
-                key={m.id}
-                className="w-7 h-7 rounded-full ring-2 ring-background overflow-hidden bg-muted"
-                title={m.display_name}
-              >
-                {m.avatar_url ? (
-                  <img src={m.avatar_url} alt="" className="w-full h-full object-cover" />
-                ) : (
-                  <div className="w-full h-full bg-gradient-brand" />
-                )}
+      <div className="flex items-center gap-2">
+        <div className="flex flex-1 items-center gap-2 min-w-0">
+          {memberAvatars.length > 0 && (
+            <>
+              <div className="flex -space-x-2 shrink-0">
+                {memberAvatars.map((m) => (
+                  <div
+                    key={m.id}
+                    className="w-7 h-7 rounded-full ring-2 ring-background overflow-hidden bg-muted"
+                    title={m.display_name}
+                  >
+                    {m.avatar_url ? (
+                      <img src={m.avatar_url} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full bg-gradient-brand" />
+                    )}
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-          <span className="text-xs text-muted-foreground">
-            {studio.member_count} สมาชิก · {projectCovers.length} ผลงาน
-          </span>
+              <span className="text-xs text-muted-foreground truncate">
+                {studio.member_count} สมาชิก · {projectCovers.length} ผลงาน
+              </span>
+            </>
+          )}
         </div>
-      )}
+        <div className="flex items-center gap-1.5 shrink-0">
+          <StudioFollowButton studioId={studio.id} iconOnly tone="muted" />
+          <button
+            type="button"
+            onClick={() => navigate(`/s/${studio.slug}`)}
+            className="h-9 px-3 rounded-full glass-panel text-foreground text-xs font-medium hover:bg-accent/40 transition shrink-0"
+          >
+            ดู Studio
+          </button>
+          <motion.button
+            whileTap={{ scale: 0.92 }}
+            onClick={() => featuredProjectId && like.toggle()}
+            disabled={!featuredProjectId}
+            aria-label="ถูกใจผลงานเด่น"
+            className="w-9 h-9 flex items-center justify-center rounded-full glass-panel hover:bg-accent/40 transition disabled:opacity-40"
+          >
+            <Heart
+              className={`w-4 h-4 ${like.isLiked ? "fill-primary text-primary" : "text-muted-foreground"}`}
+            />
+          </motion.button>
+        </div>
+      </div>
     </article>
   );
 };

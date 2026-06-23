@@ -112,12 +112,18 @@ export const useConversations = (kind?: ChatKind) => {
       .on(
         "postgres_changes",
         { event: "*", schema: "shared", table: "conversations" },
-        () => qc.invalidateQueries({ queryKey: ["conversations", user.id] }),
+        () => {
+          qc.invalidateQueries({ queryKey: ["conversations", user.id] });
+          qc.invalidateQueries({ queryKey: ["chat-inbox-badge", user.id] });
+        },
       )
       .on(
         "postgres_changes",
         { event: "*", schema: "shared", table: "conversation_members", filter: `user_id=eq.${user.id}` },
-        () => qc.invalidateQueries({ queryKey: ["conversations", user.id] }),
+        () => {
+          qc.invalidateQueries({ queryKey: ["conversations", user.id] });
+          qc.invalidateQueries({ queryKey: ["chat-inbox-badge", user.id] });
+        },
       )
       .subscribe();
     return () => {
@@ -499,6 +505,74 @@ export const useConversationUnreadCounts = (conversationIds: string[]) => {
       return map;
     },
   });
+};
+
+/** Unread messages + pending hire/collab requests for header chat badge */
+export const useChatInboxBadgeCount = () => {
+  const { user } = useAuth();
+
+  const query = useQuery({
+    queryKey: ["chat-inbox-badge", user?.id],
+    enabled: !!user?.id,
+    refetchInterval: 60_000,
+    refetchOnWindowFocus: true,
+    queryFn: async (): Promise<number> => {
+      const uid = user!.id;
+
+      const [{ data: direct }, { data: memberships }] = await Promise.all([
+        supabase.from("conversations").select("id").or(`client_id.eq.${uid},freelancer_id.eq.${uid}`),
+        supabase.from("conversation_members").select("conversation_id").eq("user_id", uid),
+      ]);
+
+      const convIds = Array.from(
+        new Set([
+          ...(direct ?? []).map((c) => c.id),
+          ...(memberships ?? []).map((m) => m.conversation_id),
+        ]),
+      );
+
+      let unreadMessages = 0;
+      if (convIds.length > 0) {
+        const { count, error } = await supabase
+          .from("messages")
+          .select("*", { count: "exact", head: true })
+          .in("conversation_id", convIds)
+          .neq("sender_id", uid)
+          .is("read_at", null)
+          .is("deleted_at", null);
+        if (error && String(error.message).includes("deleted_at")) {
+          const { count: fbCount } = await supabase
+            .from("messages")
+            .select("*", { count: "exact", head: true })
+            .in("conversation_id", convIds)
+            .neq("sender_id", uid)
+            .is("read_at", null);
+          unreadMessages = fbCount ?? 0;
+        } else if (error) {
+          throw error;
+        } else {
+          unreadMessages = count ?? 0;
+        }
+      }
+
+      const [{ count: pendingHires }, { count: pendingCollabs }] = await Promise.all([
+        supabase
+          .from("hiring_requests")
+          .select("*", { count: "exact", head: true })
+          .eq("freelancer_id", uid)
+          .in("status", ["pending", "รอตอบ"]),
+        supabase
+          .from("collab_requests")
+          .select("*", { count: "exact", head: true })
+          .eq("recipient_id", uid)
+          .eq("status", "pending"),
+      ]);
+
+      return unreadMessages + (pendingHires ?? 0) + (pendingCollabs ?? 0);
+    },
+  });
+
+  return query;
 };
 
 export const useFindConversationByRequest = () => {

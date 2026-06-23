@@ -3,6 +3,7 @@ import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowLeft, Share2 } from "lucide-react";
 import SaveToCollectionPopover from "@/components/collections/SaveToCollectionPopover";
+import SharePopover from "@/components/SharePopover";
 import { Layers3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import HireDialog from "@/components/HireDialog";
@@ -10,7 +11,6 @@ import CollabDialog from "@/components/CollabDialog";
 import CommentSection from "@/components/CommentSection";
 import ProjectSidePanel from "@/components/ProjectSidePanel";
 import ProjectCreditsBlock from "@/components/ProjectCreditsBlock";
-import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import ImageActionBar from "@/components/project/ImageActionBar";
 import ImageLightbox from "@/components/project/ImageLightbox";
@@ -152,14 +152,8 @@ const ProjectDetailPage = () => {
     setLiked(!liked);
     setLikeCount((p) => (liked ? p - 1 : p + 1));
   };
-  const handleShare = async () => {
-    try {
-      await navigator.clipboard.writeText(window.location.href);
-      toast.success("คัดลอกลิงก์แล้ว");
-    } catch {
-      toast.error("แชร์ไม่สำเร็จ");
-    }
-  };
+
+  const shareUrl = typeof window !== "undefined" ? window.location.href : `/project/${id}`;
 
   const coverImage =
     dbProject?.cover_url ??
@@ -206,9 +200,11 @@ const ProjectDetailPage = () => {
                 <Layers3 className="w-5 h-5" />
               </Button>
             </SaveToCollectionPopover>
-            <Button variant="ghost" size="icon" onClick={handleShare}>
-              <Share2 className="w-5 h-5" />
-            </Button>
+            <SharePopover url={shareUrl} title={project.title} label="แชร์ผลงาน">
+              <Button variant="ghost" size="icon">
+                <Share2 className="w-5 h-5" />
+              </Button>
+            </SharePopover>
           </div>
         </div>
       </div>

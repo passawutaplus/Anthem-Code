@@ -1,10 +1,11 @@
 import BriefcaseIcon from "../icons/BriefcaseIcon";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { Heart, Users } from "lucide-react";
 import type { DesignerCardData } from "@/hooks/useDesigners";
 import FollowButton from "@/components/FollowButton";
+import { useFollowState } from "@/hooks/useFollow";
 import { useProjectLike } from "@/hooks/useProjectInteractions";
 import { highlight } from "@/lib/highlight";
 import { imageCrossfadeVariants, imageRevealTransition } from "@/lib/motion";
@@ -20,10 +21,18 @@ interface Props {
 const DesignerCard = ({ data, onHire, onCollab, search = "" }: Props) => {
   const navigate = useNavigate();
   const { profile, projects } = data;
+  const profileUserId =
+    (profile as { user_id?: string; id?: string }).user_id ?? profile.id;
   const visible = projects.slice(0, 3);
   const extras = projects.slice(3, 6);
   const featured = projects[0];
   const like = useProjectLike(featured?.id);
+  const { followers } = useFollowState(profileUserId);
+
+  const totalLikes = useMemo(
+    () => projects.reduce((sum, p) => sum + (p.likes ?? 0), 0),
+    [projects],
+  );
 
   const [tick, setTick] = useState(0);
   useEffect(() => {
@@ -36,11 +45,11 @@ const DesignerCard = ({ data, onHire, onCollab, search = "" }: Props) => {
   const goto = (id: string) => navigate(`/project/${id}`);
   const gotoProfile = () => {
     const qs = search ? `?q=${encodeURIComponent(search)}` : "";
-    navigate(`/u/${profile.id}${qs}`);
+    navigate(`/u/${profileUserId}${qs}`);
   };
 
   return (
-    <article className="rounded-2xl glass-panel p-4 flex flex-col gap-3">
+    <article className="relative rounded-2xl glass-panel p-4 flex flex-col gap-3">
       <div className="flex items-center gap-3">
         <button onClick={gotoProfile} className="shrink-0">
           <UserAvatar
@@ -56,8 +65,14 @@ const DesignerCard = ({ data, onHire, onCollab, search = "" }: Props) => {
           <p className="text-xs text-muted-foreground truncate">
             {highlight(profile.role || profile.bio || "Designer", search)}
           </p>
+          <div className="flex items-center gap-2 mt-1 text-[11px] text-muted-foreground">
+            <span>{followers.toLocaleString("th-TH")} ผู้ติดตาม</span>
+            <span aria-hidden>·</span>
+            <span className="flex items-center gap-0.5">
+              <Heart className="w-3 h-3" /> {totalLikes.toLocaleString("th-TH")} ถูกใจ
+            </span>
+          </div>
         </div>
-        <FollowButton freelancerId={profile.id} size="sm" variant="compact" />
       </div>
 
       <div className="grid grid-cols-3 gap-2">
@@ -95,17 +110,18 @@ const DesignerCard = ({ data, onHire, onCollab, search = "" }: Props) => {
 
       <div className="flex items-center gap-1.5">
         <button
-          onClick={() => onHire(profile.id, name)}
+          onClick={() => onHire(profileUserId, name)}
           className="flex-1 flex items-center justify-center gap-1.5 rounded-full bg-gradient-brand text-white text-xs font-medium py-2 hover:opacity-90 transition"
         >
           <BriefcaseIcon className="w-3.5 h-3.5" /> จ้างงาน
         </button>
         <button
-          onClick={() => onCollab(profile.id, name)}
+          onClick={() => onCollab(profileUserId, name)}
           className="flex-1 flex items-center justify-center gap-1.5 rounded-full glass-panel text-foreground text-xs font-medium py-2 hover:bg-accent/40 transition"
         >
           <Users className="w-3.5 h-3.5" /> คอลแลป
         </button>
+        <FollowButton freelancerId={profileUserId} iconOnly tone="muted" />
         <motion.button
           whileTap={{ scale: 0.92 }}
           onClick={() => featured && like.toggle()}

@@ -24,9 +24,21 @@ type Props = {
   onShare: () => void;
   onPreview?: () => void;
   onPost?: () => void;
+  onFollowersClick?: () => void;
+  onFollowingClick?: () => void;
 };
 
-export default function ProfileCoverHeader({ userId, profile, stats, onManage, onShare, onPreview, onPost }: Props) {
+export default function ProfileCoverHeader({
+  userId,
+  profile,
+  stats,
+  onManage,
+  onShare,
+  onPreview,
+  onPost,
+  onFollowersClick,
+  onFollowingClick,
+}: Props) {
   const { tier } = useSubscription();
   const updateMedia = useUpdateProfileMedia(userId);
   const coverInput = useRef<HTMLInputElement>(null);
@@ -157,14 +169,24 @@ export default function ProfileCoverHeader({ userId, profile, stats, onManage, o
                   <strong className="text-foreground">{stats.works}</strong>{" "}
                   <span className="text-muted-foreground">ผลงาน</span>
                 </span>
-                <span>
+                <button
+                  type="button"
+                  onClick={onFollowersClick}
+                  className={cn(onFollowersClick && "hover:text-primary transition-colors")}
+                  disabled={!onFollowersClick}
+                >
                   <strong className="text-foreground">{stats.followers}</strong>{" "}
                   <span className="text-muted-foreground">ผู้ติดตาม</span>
-                </span>
-                <span>
+                </button>
+                <button
+                  type="button"
+                  onClick={onFollowingClick}
+                  className={cn(onFollowingClick && "hover:text-primary transition-colors")}
+                  disabled={!onFollowingClick}
+                >
                   <strong className="text-foreground">{stats.following}</strong>{" "}
                   <span className="text-muted-foreground">ติดตาม</span>
-                </span>
+                </button>
               </div>
             </div>
 

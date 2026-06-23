@@ -38,6 +38,7 @@ import {
 import { parseTimeHintToMinutes } from "@/lib/parseTimeHint.vendored";
 import { todayISO } from "@/lib/dailySeedPick.vendored";
 import { fetchDrillRerollStatus, requestDrillReroll, saltToRollSeed } from "@/lib/drillReroll";
+import { projectsDrillFeedUrl } from "@/lib/drillProject";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { DrillDifficultyDot } from "./DrillDifficultyDot";
@@ -192,7 +193,7 @@ export function DesignDrillSection() {
             </Badge>
           )}
           <Button variant="outline" size="sm" asChild className="gap-1.5 rounded-full">
-            <Link to="/?mode=community&feed=drill">
+            <Link to={projectsDrillFeedUrl()}>
               <Users className="h-3.5 w-3.5" aria-hidden />
               ดูผลงานวันนี้
             </Link>

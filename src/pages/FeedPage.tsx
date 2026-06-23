@@ -1,17 +1,17 @@
 import { useState, useMemo, useEffect } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams, useLocation } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { LogIn, Plus, SearchX } from "lucide-react";
+import { LogIn, SearchX } from "lucide-react";
 import EmptyState from "@/components/ui/EmptyState";
 import ProjectGridSkeleton from "@/components/ui/ProjectGridSkeleton";
 import { useProfilesByIds } from "@/core/profiles";
 
 
 import Footer from "@/components/Footer";
-import SearchBar from "@/components/SearchBar";
-import FilterChips from "@/components/FilterChips";
-import FeedModeDropdown from "@/components/feed/FeedModeDropdown";
+import FeedHero from "@/components/feed/FeedHero";
+import FeedToolbar from "@/components/feed/FeedToolbar";
+import DrillFeedPanel from "@/components/drill/DrillFeedPanel";
 import ProjectCard from "@/components/ProjectCard";
 import AdCard from "@/components/feed/AdCard";
 import { useActiveAds } from "@/hooks/useAds";
@@ -20,16 +20,15 @@ import { sortByBoostedIds } from "@/lib/boostFeedSort";
 import { interleaveAds } from "@/lib/interleaveAds";
 import HireDialog from "@/components/HireDialog";
 import CollabDialog from "@/components/CollabDialog";
-import ProfileButton from "@/components/ProfileButton";
-import FeedHero from "@/components/feed/FeedHero";
 import { StaggerGrid } from "@/components/motion/StaggerGrid";
-import FeedModeToggle, { type FeedMode } from "@/components/feed/FeedModeToggle";
+import { type FeedMode } from "@/components/feed/FeedModeToggle";
 import DesignerGrid from "@/components/feed/DesignerGrid";
-import { FilterPanel, type DesignerSort } from "@/components/feed/DesignerToolbar";
+import { type DesignerSort } from "@/components/feed/DesignerToolbar";
 import StudioGrid from "@/components/feed/StudioGrid";
+import type { StudioFeedSource } from "@/components/studio/StudioFilterPanel";
 import { useDesigners } from "@/hooks/useDesigners";
 
-import { categories as allCategories, type Category, type Project, type ProjectStatus, type SpecialFilter } from "@/data/projectTypes";
+import { categories as allCategories, type Category, type Project, type ProjectStatus } from "@/data/projectTypes";
 import { isCategoryAllowed } from "@/lib/cookieConsent";
 import {
   usePublishedProjects,
@@ -42,25 +41,29 @@ import { useAuth } from "@/hooks/useAuth";
 import { useAuthDialog } from "@/stores/authDialogStore";
 import CommunityFeedPanel from "@/components/community/CommunityFeedPanel";
 import CreateContentDrawer from "@/components/CreateContentDrawer";
+import { useCommunityFeedFilter } from "@/hooks/useCommunityFeedFilter";
 import { cn } from "@/lib/utils";
 import { sortToolsVisualFirst } from "@/lib/toolIcons";
 import { recordFeedSearch } from "@/lib/feedSearchSignals";
 
 import { MOBILE_PAGE_BOTTOM_CLASS } from "@/lib/mobileLayout";
+import { DESIGN_DRILL_CHIP, type ProjectChipFilter } from "@/lib/drillProject";
 
 type FeedMode2 = "Explore" | SpecialFilter;
 const requiresAuth = (m: FeedMode2) => m === "Following";
 
 const CATEGORY_CHIPS: Category[] = allCategories.filter((c) => c !== "Explore");
+const PROJECT_CHIP_FILTERS: ProjectChipFilter[] = [DESIGN_DRILL_CHIP, "All", ...CATEGORY_CHIPS];
 
 const FeedPage = (_props: { onMyPortClick: () => void }) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams] = useSearchParams();
   const queryClient = useQueryClient();
   const { user } = useAuth();
   const [search, setSearch] = useState("");
   const [feedMode, setFeedModeRaw] = useState<FeedMode2>("Explore");
-  const [category, setCategory] = useState<Category | "All">("All");
+  const [category, setCategory] = useState<ProjectChipFilter>("All");
   const [mode, setMode] = useState<FeedMode>(() => {
     if (typeof window === "undefined") return "projects";
     if (!isCategoryAllowed("functional")) return "projects";
@@ -77,9 +80,19 @@ const FeedPage = (_props: { onMyPortClick: () => void }) => {
   const [collabOpen, setCollabOpen] = useState(false);
   const [collabTarget, setCollabTarget] = useState<{ recipientId?: string; recipientName: string; projectId?: string; projectTitle?: string }>({ recipientName: "" });
   const [designerSort, setDesignerSort] = useState<DesignerSort>("newest");
-  const [designerCats, setDesignerCats] = useState<string[]>([]);
+  const [designerCategory, setDesignerCategory] = useState<Category | "All">("All");
   const [designerTools, setDesignerTools] = useState<string[]>([]);
+  const [studioFeedSource, setStudioFeedSource] = useState<StudioFeedSource>("all");
   const [createOpen, setCreateOpen] = useState(false);
+  const { filter: communityFilter, setFilter: setCommunityFilter } = useCommunityFeedFilter();
+
+  const openCreatePicker = () => {
+    if (!user) {
+      useAuthDialog.getState().openSignup("/portfolio/new");
+      return;
+    }
+    setCreateOpen(true);
+  };
 
   const { data: designersAll = [] } = useDesigners();
   const designerToolOptions = useMemo(() => {
@@ -92,17 +105,33 @@ const FeedPage = (_props: { onMyPortClick: () => void }) => {
     designersAll.forEach((d) => d.projects.forEach((p) => p.category && set.add(p.category)));
     return Array.from(set).sort();
   }, [designersAll]);
+  const designerCategoryChips = useMemo((): (Category | "All")[] => {
+    const fromData = designerCatOptions.filter((c): c is Category =>
+      allCategories.includes(c as Category),
+    );
+    if (fromData.length > 0) return ["All", ...fromData];
+    return ["All", ...allCategories.filter((c) => c !== "Explore")];
+  }, [designerCatOptions]);
 
   const toggle = (list: string[], v: string) =>
     list.includes(v) ? list.filter((x) => x !== v) : [...list, v];
   const changeMode = (m: FeedMode) => {
     setMode(m);
+    if (m === "projects") setCategory("All");
     if (isCategoryAllowed("functional")) localStorage.setItem("feed-mode", m);
     const params = new URLSearchParams(searchParams);
+    params.delete("drill");
     if (m === "projects") params.delete("mode");
     else params.set("mode", m);
     const q = params.toString();
     navigate(q ? `/?${q}` : "/", { replace: true });
+  };
+
+  const openDrill = () => {
+    setMode("projects");
+    setCategory(DESIGN_DRILL_CHIP);
+    if (isCategoryAllowed("functional")) localStorage.setItem("feed-mode", "projects");
+    navigate("/?drill=1", { replace: true });
   };
 
   useEffect(() => {
@@ -111,11 +140,31 @@ const FeedPage = (_props: { onMyPortClick: () => void }) => {
     if (view === "designers" || view === "studios" || view === "projects" || view === "community") {
       setMode(view);
       if (isCategoryAllowed("functional")) localStorage.setItem("feed-mode", view);
-    } else if (feed === "drill") {
-      setMode("community");
-      if (isCategoryAllowed("functional")) localStorage.setItem("feed-mode", "community");
+    } else if (feed === "drill" || searchParams.get("drill") === "1") {
+      setMode("projects");
+      setCategory(DESIGN_DRILL_CHIP);
+      if (isCategoryAllowed("functional")) localStorage.setItem("feed-mode", "projects");
+    } else if (!searchParams.toString()) {
+      setMode("projects");
+      setCategory("All");
     }
   }, [searchParams]);
+
+  useEffect(() => {
+    const resetAt = (location.state as { feedHomeReset?: number } | null)?.feedHomeReset;
+    if (!resetAt) return;
+    setMode("projects");
+    setCategory("All");
+    setSearch("");
+    setFeedModeRaw("Explore");
+    setDesignerSort("newest");
+    setDesignerCategory("All");
+    setDesignerTools([]);
+    setStudioFeedSource("all");
+    if (isCategoryAllowed("functional")) localStorage.setItem("feed-mode", "projects");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    navigate("/", { replace: true, state: null });
+  }, [location.state, navigate]);
 
   const setFeedMode = (m: FeedMode2) => {
     if (m === "Collections") {
@@ -212,7 +261,10 @@ const FeedPage = (_props: { onMyPortClick: () => void }) => {
     return mapped;
   }, [sourceData, ownersMap, feedMode]);
 
+  const isDrillView = mode === "projects" && category === DESIGN_DRILL_CHIP;
+
   const filtered = projects.filter((p) => {
+    if (isDrillView) return false;
     const matchCat = category === "All" || p.category === category;
     const matchSearch =
       !search ||
@@ -250,81 +302,50 @@ const FeedPage = (_props: { onMyPortClick: () => void }) => {
   return (
     <main className={cn("min-h-screen bg-app-ambient", MOBILE_PAGE_BOTTOM_CLASS)}>
       <div className="max-w-[1920px] mx-auto px-3 sm:px-4 lg:px-6 2xl:px-10 pt-4 py-4 space-y-4">
-        {mode !== "community" && <FeedHero />}
+        <FeedHero mode={mode} />
 
-        <div className="sticky top-0 z-30 -mx-3 sm:-mx-4 lg:-mx-6 2xl:-mx-10 px-3 sm:px-4 lg:px-6 2xl:px-10 py-3 bg-background/75 backdrop-blur-md supports-[backdrop-filter]:bg-background/60 border-b border-border/50 space-y-3">
-          <div className="flex items-center gap-3">
-            <div className="flex-1">
-              <SearchBar
-                value={search}
-                onChange={setSearch}
-                placeholder={
-                  mode === "community"
-                    ? "ค้นหาโพสต์ชุมชน"
-                    : mode === "designers"
-                      ? "ค้นหาดีไซเนอร์ / แนวงาน เช่น logo, ux, branding"
-                      : "ค้นหาผลงานหรือผู้สร้าง"
-                }
-                filterCount={(designerSort !== "newest" ? 1 : 0) + (mode === "designers" ? designerTools.length : 0)}
-                filterContent={
-                  <FilterPanel
-                    sort={designerSort}
-                    onSort={setDesignerSort}
-                    tools={mode === "designers" ? designerToolOptions : []}
-                    selectedTools={designerTools}
-                    onToggleTool={(t) => setDesignerTools((l) => toggle(l, t))}
-                    showTools={mode === "designers"}
-                    onClear={() => { setDesignerSort("newest"); setDesignerTools([]); }}
-                  />
-                }
-              />
-            </div>
-            <div className="shrink-0">
-              <ProfileButton />
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            {mode !== "community" && (
-              <>
-                <FeedModeDropdown value={feedMode} onChange={setFeedMode} />
-                <div className="flex-1 min-w-0 overflow-x-auto hidden sm:block">
-                  <FilterChips
-                    categories={["All" as Category, ...CATEGORY_CHIPS]}
-                    selected={category}
-                    onSelect={(c) => setCategory(c as Category | "All")}
-                  />
-                </div>
-              </>
-            )}
-            {mode === "community" && <div className="flex-1" />}
-            <div className="ml-auto sm:ml-0 flex items-center gap-2">
-              {mode !== "community" && (
-                <button
-                  type="button"
-                  onClick={() =>
-                    user ? setCreateOpen(true) : useAuthDialog.getState().openSignup("/portfolio/new")
-                  }
-                  aria-label="สร้างเนื้อหาใหม่"
-                  title="สร้างเนื้อหาใหม่"
-                  className="inline-flex items-center justify-center w-9 h-9 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm transition-colors shrink-0"
-                >
-                  <Plus className="w-5 h-5" />
-                </button>
-              )}
-              <FeedModeToggle value={mode} onChange={changeMode} />
-            </div>
-          </div>
-          <div className="sm:hidden -mx-1 px-1 overflow-x-auto">
-            {mode !== "community" && (
-              <FilterChips
-                categories={["All" as Category, ...CATEGORY_CHIPS]}
-                selected={category}
-                onSelect={(c) => setCategory(c as Category | "All")}
-              />
-            )}
-          </div>
-        </div>
-
+        <FeedToolbar
+          mode={mode}
+          onModeChange={changeMode}
+          feedMode={feedMode}
+          onFeedModeChange={setFeedMode}
+          search={search}
+          onSearchChange={setSearch}
+          category={category}
+          onCategoryChange={setCategory}
+          categoryChips={PROJECT_CHIP_FILTERS}
+          designerSort={designerSort}
+          onDesignerSort={setDesignerSort}
+          designerCategory={designerCategory}
+          onDesignerCategoryChange={setDesignerCategory}
+          designerCategoryChips={designerCategoryChips}
+          designerTools={designerTools}
+          designerToolOptions={designerToolOptions}
+          onToggleDesignerTool={(t) => setDesignerTools((l) => toggle(l, t))}
+          onClearFilters={() => {
+            setDesignerSort("newest");
+            setDesignerCategory("All");
+            setDesignerTools([]);
+            setStudioFeedSource("all");
+            setCategory("All");
+            setFeedModeRaw("Explore");
+          }}
+          onCreateClick={openCreatePicker}
+          showCreate={mode !== "community"}
+          communityFeedSource={communityFilter.feedSource}
+          onCommunityFeedSourceChange={(feedSource) =>
+            setCommunityFilter({ ...communityFilter, feedSource })
+          }
+          communityCategory={communityFilter.category}
+          onCommunityCategoryChange={(category) =>
+            setCommunityFilter({ ...communityFilter, category })
+          }
+          onCommunityPostClick={mode === "community" ? openCreatePicker : undefined}
+          studioFeedSource={studioFeedSource}
+          onStudioFeedSourceChange={setStudioFeedSource}
+          drillActive={isDrillView}
+          onDrillSelect={openDrill}
+        />
 
         <div>
           {needsLogin ? (
@@ -341,13 +362,19 @@ const FeedPage = (_props: { onMyPortClick: () => void }) => {
               onCollab={handleCollabDesigner}
               search={search}
               sort={designerSort}
-              categories={designerCats}
+              categories={designerCategory !== "All" ? [designerCategory] : []}
               tools={designerTools}
             />
           ) : mode === "studios" ? (
-            <StudioGrid search={search} />
+            <StudioGrid search={search} feedSource={studioFeedSource} />
           ) : mode === "community" ? (
-            <CommunityFeedPanel search={search} />
+            <CommunityFeedPanel
+              search={search}
+              filter={communityFilter}
+              onPostClick={openCreatePicker}
+            />
+          ) : isDrillView ? (
+            <DrillFeedPanel />
           ) : projectsLoading ? (
             <ProjectGridSkeleton />
           ) : (

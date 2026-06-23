@@ -141,6 +141,7 @@ const ChatThreadView = ({
       } as never)
       .then(() => {
         qc.invalidateQueries({ queryKey: ["chat-unread-counts"] });
+        qc.invalidateQueries({ queryKey: ["chat-inbox-badge"] });
       });
   }, [messages, user, conv.id, qc]);
 

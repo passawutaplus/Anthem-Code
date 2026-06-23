@@ -11,6 +11,7 @@ import CommunityPostActionBar from "@/components/community/CommunityPostActionBa
 import { formatThaiDate } from "@/lib/format";
 import { questionTopicLabel } from "@/data/communityTopics";
 import BoostButton from "@/components/boost/BoostButton";
+import FollowButton from "@/components/FollowButton";
 import Footer from "@/components/Footer";
 import UserAvatar from "@/components/UserAvatar";
 import { MOBILE_PAGE_BOTTOM_CLASS } from "@/lib/mobileLayout";

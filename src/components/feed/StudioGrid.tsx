@@ -1,28 +1,47 @@
+import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import EmptyState from "@/components/ui/EmptyState";
 import { usePublicStudios } from "@/hooks/usePublicStudios";
+import { useFollowedStudioIds } from "@/hooks/useStudioFollow";
 import { useAuth } from "@/hooks/useAuth";
 import { useAuthDialog } from "@/stores/authDialogStore";
+import type { StudioFeedSource } from "@/components/studio/StudioFilterPanel";
 import StudioCard from "./StudioCard";
 
 interface Props {
   search?: string;
+  feedSource?: StudioFeedSource;
 }
 
-const StudioGrid = ({ search = "" }: Props) => {
+const StudioGrid = ({ search = "", feedSource = "all" }: Props) => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { data = [], isLoading } = usePublicStudios();
-  const q = search.trim().toLowerCase();
-  const filtered = q ? data.filter((d) => d.searchHaystack.includes(q)) : data;
+  const { data: followedIds, isLoading: followingLoading } = useFollowedStudioIds(
+    feedSource === "following" ? user?.id : undefined,
+  );
+
+  const filtered = useMemo(() => {
+    let rows = data;
+    if (feedSource === "following") {
+      if (!user) return [];
+      rows = rows.filter((d) => followedIds?.has(d.studio.id));
+    }
+    const q = search.trim().toLowerCase();
+    if (q) rows = rows.filter((d) => d.searchHaystack.includes(q));
+    return rows;
+  }, [data, search, feedSource, user, followedIds]);
 
   const handleCreate = () => {
     if (user) navigate("/studio/new");
     else useAuthDialog.getState().openSignup();
   };
 
-  if (isLoading) {
+  const loading = isLoading || (feedSource === "following" && !!user && followingLoading);
+
+  if (loading) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
         {Array.from({ length: 4 }).map((_, i) => (
@@ -31,6 +50,15 @@ const StudioGrid = ({ search = "" }: Props) => {
       </div>
     );
   }
+
+  const emptyDescription =
+    feedSource === "following" && !user
+      ? "เข้าสู่ระบบเพื่อดูสตูดิโอที่คุณติดตาม"
+      : feedSource === "following"
+        ? "ติดตามสตูดิโอเพื่อดูอัปเดตจากทีมที่คุณสนใจ"
+        : search.trim()
+          ? `ไม่พบสตูดิโอสำหรับ "${search.trim()}"`
+          : "ยังไม่มีสตูดิโอในระบบ";
 
   return (
     <div className="space-y-4">
@@ -47,14 +75,18 @@ const StudioGrid = ({ search = "" }: Props) => {
       </div>
 
       {!filtered.length ? (
-        <div className="text-center py-12 text-muted-foreground glass-panel rounded-2xl">
-          <p className="text-lg">
-            {q ? `ไม่พบสตูดิโอสำหรับ "${search}"` : "ยังไม่มีสตูดิโอในระบบ"}
-          </p>
-          {!q && (
-            <p className="text-sm mt-2">เป็นคนแรกที่ก่อตั้ง studio บนแพลตฟอร์ม</p>
-          )}
-        </div>
+        <EmptyState
+          title={
+            feedSource === "following" && !user
+              ? "เข้าสู่ระบบก่อน"
+              : search.trim()
+                ? "ไม่พบสตูดิโอ"
+                : feedSource === "following"
+                  ? "ยังไม่ได้ติดตามสตูดิโอ"
+                  : "ยังไม่มีสตูดิโอ"
+          }
+          description={emptyDescription}
+        />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
           {filtered.map((d) => <StudioCard key={d.studio.id} data={d} />)}

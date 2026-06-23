@@ -1,4 +1,3 @@
-import { Target } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { CommunityFeedFilter } from "@/data/communityTopics";
 
@@ -8,10 +7,9 @@ type Props = {
   className?: string;
 };
 
-const tabs: { id: CommunityFeedFilter["feedSource"]; label: string; icon?: typeof Target }[] = [
+const tabs: { id: CommunityFeedFilter["feedSource"]; label: string }[] = [
   { id: "following", label: "กำลังติดตาม" },
   { id: "all", label: "สำหรับคุณ" },
-  { id: "drill", label: "Design Drill", icon: Target },
 ];
 
 const CommunityFeedTabs = ({ feedSource, onChange, className }: Props) => (
@@ -28,7 +26,6 @@ const CommunityFeedTabs = ({ feedSource, onChange, className }: Props) => (
             active ? "text-foreground" : "text-muted-foreground hover:text-foreground",
           )}
         >
-          {tab.icon && <tab.icon className="h-3.5 w-3.5" aria-hidden />}
           {tab.label}
           {active && (
             <span className="absolute inset-x-0 -bottom-px h-0.5 rounded-full bg-gradient-brand" />

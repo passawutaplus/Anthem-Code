@@ -12,7 +12,7 @@ type Props = {
 const CommunityCategoryChips = ({ selected, onSelect, className }: Props) => (
   <div
     className={cn(
-      "flex items-center gap-2 overflow-x-auto pb-1 scrollbar-hide -mx-1 px-1",
+      "flex items-center gap-5 sm:gap-6 overflow-x-auto pb-0 scrollbar-hide",
       className,
     )}
   >
@@ -36,13 +36,14 @@ const Chip = ({
     type="button"
     onClick={onClick}
     className={cn(
-      "shrink-0 rounded-full px-3.5 py-1.5 text-xs font-medium transition-colors",
-      active
-        ? "bg-primary text-primary-foreground shadow-sm"
-        : "bg-secondary/80 text-muted-foreground hover:text-foreground hover:bg-secondary",
+      "relative shrink-0 whitespace-nowrap text-sm font-medium py-1.5 transition-colors",
+      active ? "text-primary" : "text-muted-foreground hover:text-foreground",
     )}
   >
     {label}
+    {active && (
+      <span className="absolute left-0 right-0 -bottom-0.5 h-0.5 bg-primary rounded-full" />
+    )}
   </button>
 );
 

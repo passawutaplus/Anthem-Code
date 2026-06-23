@@ -2,7 +2,7 @@ import BriefcaseIcon from "../icons/BriefcaseIcon";
 import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { ArrowRight, CheckCircle2, MapPin, UserSearch } from "lucide-react";
+import { ArrowRight, CheckCircle2, MapPin, UserSearch, Building2 } from "lucide-react";
 import type { JobPost } from "@/hooks/useJobs";
 import { cn } from "@/lib/utils";
 import {
@@ -134,8 +134,12 @@ const JobCard = ({ job, compact, onClick }: Props) => {
               {name}
               {verified && <CheckCircle2 className="w-3 h-3 text-primary shrink-0" />}
             </p>
-            <p className="text-[10px] text-muted-foreground truncate">
+            <p className="text-[10px] text-muted-foreground truncate flex items-center gap-1 flex-wrap">
+              {job.poster_role === "studio" && <Building2 className="w-3 h-3 shrink-0" />}
               {job.role_category} · {empLabel[job.employment_type]}
+              {job.poster_role === "studio" && verified && (
+                <span className="text-primary font-medium">· นิติบุคคล</span>
+              )}
             </p>
           </div>
         </div>

@@ -24,6 +24,8 @@ export function communityCoverUrl(galleryUrls: string[] = [], videoUrls: string[
   return items[0]?.url ?? null;
 }
 
-export function communityMediaCount(galleryUrls: string[] = [], videoUrls: string[] = []): number {
-  return communityMediaFromPost(galleryUrls, videoUrls).length;
+export function communityHeroImageUrl(galleryUrls: string[] = [], videoUrls: string[] = []): string | null {
+  const items = communityMediaFromPost(galleryUrls, videoUrls);
+  const image = items.find((m) => m.kind === "image");
+  return image?.url ?? null;
 }

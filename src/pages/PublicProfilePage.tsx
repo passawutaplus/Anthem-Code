@@ -86,6 +86,11 @@ const PublicProfilePage = () => {
     [projects],
   );
 
+  const totalLikes = useMemo(
+    () => orderedProjects.reduce((sum, p) => sum + ((p as { likes?: number }).likes ?? 0), 0),
+    [orderedProjects],
+  );
+
   const topCategories = useMemo(() => {
     const counts = new Map<string, number>();
     orderedProjects.forEach((p) => {
@@ -177,7 +182,17 @@ const PublicProfilePage = () => {
           <div className="absolute -top-24 -right-24 w-72 h-72 rounded-full bg-gradient-brand opacity-40 blur-3xl pointer-events-none" />
           <div className="absolute -bottom-32 -left-16 w-80 h-80 rounded-full bg-gradient-brand-soft blur-3xl pointer-events-none" />
 
-          <div className="relative flex flex-col md:flex-row items-start md:items-center gap-6">
+          <div className="absolute top-4 right-4 md:top-6 md:right-6 z-10 flex flex-col items-end gap-2">
+            <FollowButton freelancerId={profile.id} />
+            <SupportButton
+              recipientId={profile.id}
+              recipientName={profile.display_name ?? "ครีเอเตอร์"}
+              recipientAvatar={profile.avatar_url ?? undefined}
+              variant="compact"
+            />
+          </div>
+
+          <div className="relative flex flex-col md:flex-row items-start md:items-center gap-6 pr-0 md:pr-36">
             {profile.avatar_url ? (
               <img src={profile.avatar_url} alt="" className="w-24 h-24 md:w-28 md:h-28 rounded-full object-cover border-4 border-white/70 shadow-lg" />
             ) : (
@@ -216,14 +231,29 @@ const PublicProfilePage = () => {
                 {[
                   { label: "ผลงาน", value: projects.length },
                   { label: "ยอดดูรวม", value: projects.reduce((s: number, p: any) => s + (p.views ?? 0), 0) },
-                  { label: "ผู้ติดตาม", value: followers },
-                  { label: "กำลังติดตาม", value: following },
+                  { label: "ถูกใจรวม", value: totalLikes },
                 ].map((s) => (
                   <div key={s.label} className="glass-chip rounded-2xl px-4 py-2">
                     <div className="font-medium text-foreground leading-tight">{s.value}</div>
                     <div className="text-[11px] text-muted-foreground">{s.label}</div>
                   </div>
                 ))}
+                <button
+                  type="button"
+                  onClick={() => navigate(`/u/${resolvedUserId}/followers`)}
+                  className="glass-chip rounded-2xl px-4 py-2 text-left hover:border-primary/30 transition-colors"
+                >
+                  <div className="font-medium text-foreground leading-tight">{followers}</div>
+                  <div className="text-[11px] text-muted-foreground">ผู้ติดตาม</div>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => navigate(`/u/${resolvedUserId}/followers?tab=following`)}
+                  className="glass-chip rounded-2xl px-4 py-2 text-left hover:border-primary/30 transition-colors"
+                >
+                  <div className="font-medium text-foreground leading-tight">{following}</div>
+                  <div className="text-[11px] text-muted-foreground">กำลังติดตาม</div>
+                </button>
               </div>
 
               {(profile.website || profile.instagram || profile.facebook || profile.line_id) && (
@@ -252,16 +282,6 @@ const PublicProfilePage = () => {
                 />
               </div>
 
-            </div>
-
-            <div className="flex flex-col gap-2 shrink-0">
-              <FollowButton freelancerId={profile.id} />
-              <SupportButton
-                recipientId={profile.id}
-                recipientName={profile.display_name ?? "ครีเอเตอร์"}
-                recipientAvatar={profile.avatar_url ?? undefined}
-                variant="compact"
-              />
             </div>
           </div>
         </div>
