@@ -20,7 +20,7 @@ import {
 } from "./sql-transform.mjs";
 
 const anthemRoot = join(dirname(fileURLToPath(import.meta.url)), "..");
-const monoRoot = join(anthemRoot, "..");
+const monoRoot = process.env.MONOREPO_ROOT || join(anthemRoot, "..");
 const envPaths = [
   join(monoRoot, "scripts", "ecosystem", ".env.seed.local"),
   join(anthemRoot, ".env"),
