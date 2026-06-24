@@ -1,4 +1,4 @@
-/** AUTO-GENERATED — do not edit. Source: Solo-Code/src/data/plans.ts */
+/** AUTO-GENERATED - do not edit. Source: Solo-Code/src/data/plans.ts */
 export type PlanId = "free" | "pro" | "pro_plus" | "inhouse";
 export type BillingCycle = "monthly" | "yearly";
 
@@ -32,7 +32,7 @@ export const PLANS: Plan[] = [
       "ใบเสนอราคา QT/INV/RC + Brief PDF",
       "Portal ลูกค้า (Track/Brief) — มี So1o badge",
       "จัดการลูกค้า & Supplier · Fair Price Calculator",
-      "AI 25 เครดิตเริ่มต้น (ครั้งเดียวต่อบัญชี)",
+      "AI Credit 5/วัน × 14 วัน (ทดลองฟรี)",
     ],
     details: [
       "So1o Storage 50 MB · Pixel100 300 MB",
@@ -46,7 +46,7 @@ export const PLANS: Plan[] = [
       "ใบเสนอราคา QT/INV/RC + Brief PDF",
       "Portal ลูกค้า — มี So1o badge",
       "จัดการลูกค้า & Supplier · Fair Price Calculator",
-      "AI 25 เครดิตเริ่มต้น (ครั้งเดียวต่อบัญชี)",
+      "AI Credit 5/วัน × 14 วัน (ทดลองฟรี)",
     ],
     cta: "เริ่มใช้งานฟรี",
   },
@@ -59,7 +59,7 @@ export const PLANS: Plan[] = [
     highlights: [
       "ปลดล็อก So1o My Desk + Pixel100 บัญชีเดียว",
       "Job Tracker ไม่จำกัด",
-      "AI 800 เครดิต/รอบบิล",
+      "Credit AI 5/วัน + 800 เครดิต/รอบบิล",
       "White-label เอกสาร — เอา So1o badge + ปรับสี QT/INV/RC/Brief",
       "Portal ลูกค้าแบรนด์ของคุณ (โลโก้ + สี)",
       "Public Tracking Links ไม่จำกัด · Priority Support",
@@ -73,7 +73,7 @@ export const PLANS: Plan[] = [
     features: [
       "ปลดล็อก So1o My Desk + Pixel100 บัญชีเดียว",
       "Job Tracker ไม่จำกัด",
-      "AI 800 เครดิต/รอบบิล",
+      "Credit AI 5/วัน + 800 เครดิต/รอบบิล",
       "White-label เอกสาร + Portal ลูกค้า",
       "Public Tracking Links ไม่จำกัด",
       "Priority Support",
@@ -84,12 +84,12 @@ export const PLANS: Plan[] = [
   {
     id: "pro_plus",
     name: "Pro+",
-    tagline: "Ecosystem เต็ม — Auto-link Anthem + เครดิต AI มากขึ้น",
+    tagline: "Ecosystem เต็ม — Auto-link Pixel100 + เครดิต AI มากขึ้น",
     monthly: 399,
     yearly: 3828,
     highlights: [
       "ทุกอย่างใน Pro (white-label เอกสาร + Portal)",
-      "AI 1,400 เครดิต/รอบบิล",
+      "Credit AI 5/วัน + 1,400 เครดิต/รอบบิล",
       "So1o 4 GB + Pixel100 2.5 GB",
       "Auto CRM / Quote จากแชท Pixel100 (เร็วๆ นี้)",
       "Priority Support",
@@ -100,7 +100,7 @@ export const PLANS: Plan[] = [
     ],
     features: [
       "ทุกอย่างใน Pro (white-label เอกสาร + Portal)",
-      "AI 1,400 เครดิต/รอบบิล",
+      "Credit AI 5/วัน + 1,400 เครดิต/รอบบิล",
       "So1o 4 GB + Pixel100 2.5 GB",
       "Auto CRM / Quote จากแชท Pixel100 (เร็วๆ นี้)",
       "Priority Support",
@@ -115,7 +115,7 @@ export const PLANS: Plan[] = [
     yearly: 5750,
     highlights: [
       "ทุกอย่างใน Pro (white-label ส่วนตัว)",
-      "AI 2,000 เครดิต/รอบบิล",
+      "Credit AI 5/วัน + 2,000 เครดิต/รอบบิล",
       "So1o 10 GB · Pixel100 8 GB",
       "แบรนด์องค์กร + ใบเสนอราคาทีม + Studio quote (nest)",
       "Multi-user Workspace · Kanban · Chat · Monitor · Team Roles",
@@ -128,7 +128,7 @@ export const PLANS: Plan[] = [
     ],
     features: [
       "ทุกอย่างใน Pro (white-label ส่วนตัว)",
-      "AI 2,000 เครดิต/รอบบิล",
+      "Credit AI 5/วัน + 2,000 เครดิต/รอบบิล",
       "So1o 10 GB · Pixel100 8 GB",
       "แบรนด์องค์กร + ใบเสนอราคาทีม + Studio quote (nest)",
       "Multi-user Workspace · Kanban · Chat · Monitor",

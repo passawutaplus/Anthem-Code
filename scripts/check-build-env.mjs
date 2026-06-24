@@ -18,7 +18,7 @@ const isProductionTarget =
   deployTarget === "prod" ||
   env.VERCEL_ENV === "production";
 
-if (isProductionTarget && demoEnabled && deployTarget !== "demo") {
+if (isProductionTarget && demoEnabled) {
   console.error(
     "[security] VITE_DEMO_MODE must not be true for production deploys.\n" +
       "Use scripts/deploy-demo-vercel.sh for preview/demo only.",

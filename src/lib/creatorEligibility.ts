@@ -1,5 +1,7 @@
 import { ONBOARDING_TASKS, WELCOME_PX_CAP } from "@/lib/onboardingTasks";
 
+export { WELCOME_PX_CAP };
+
 /** ผู้ติดตามขั้นต่ำก่อนถอนเงินสด */
 export const MIN_FOLLOWERS_FOR_CASHOUT = 15;
 

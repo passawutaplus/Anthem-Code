@@ -41,7 +41,7 @@ describe("resolveTopCategories", () => {
 
   it("prefers higher-weight behavior over interests", () => {
     const top = resolveTopCategories({
-      behaviorCategories: ["Graphic", "Graphic", "Graphic"],
+      behaviorCategories: ["Graphic", "Graphic", "Graphic", "Graphic"],
       feedInterests: ["Web/UI"],
       searchCategoryWeights: {},
     });

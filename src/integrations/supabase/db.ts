@@ -31,31 +31,42 @@ function requireSupabaseEnv() {
   return { url, key };
 }
 
-function makeClient(schema: string): SupabaseClient<Database> {
+function makeClient(): SupabaseClient<Database> {
   const { url, key } = requireSupabaseEnv();
   return createClient<Database>(url, key, {
     auth: authOpts,
-    db: { schema },
   });
 }
 
+let rootDb: SupabaseClient<Database> | undefined;
 let publicDb: SupabaseClient<Database> | undefined;
 let anthemDb: SupabaseClient<Database> | undefined;
 let sharedDb: SupabaseClient<Database> | undefined;
+let opsDb: SupabaseClient<Database> | undefined;
+
+function getRootDb() {
+  rootDb ??= makeClient();
+  return rootDb;
+}
 
 function getPublicDb() {
-  publicDb ??= makeClient("public");
+  publicDb ??= getRootDb().schema("public");
   return publicDb;
 }
 
 function getAnthemDb() {
-  anthemDb ??= makeClient("anthem");
+  anthemDb ??= getRootDb().schema("anthem");
   return anthemDb;
 }
 
 function getSharedDb() {
-  sharedDb ??= makeClient("shared");
+  sharedDb ??= getRootDb().schema("shared");
   return sharedDb;
+}
+
+function getOpsDb() {
+  opsDb ??= getRootDb().schema("ops");
+  return opsDb;
 }
 
 function lazyClient(get: () => SupabaseClient<Database>): SupabaseClient<Database> {
@@ -131,5 +142,11 @@ export const supabase = new Proxy({} as SupabaseClient<Database>, {
 const publicDbClient = lazyClient(getPublicDb);
 const anthemDbClient = lazyClient(getAnthemDb);
 const sharedDbClient = lazyClient(getSharedDb);
+const opsDbClient = lazyClient(getOpsDb);
 
-export { publicDbClient as publicDb, anthemDbClient as anthemDb, sharedDbClient as sharedDb };
+export {
+  publicDbClient as publicDb,
+  anthemDbClient as anthemDb,
+  sharedDbClient as sharedDb,
+  opsDbClient as opsDb,
+};
