@@ -10,8 +10,8 @@ describe("toolIcons", () => {
   it("prefers bundled local icons for tools missing on theSVG", () => {
     expect(toolIconSources("procreate")[0]).toBe("/tool-icons/procreate.png");
     expect(toolIconSources("procreate")[1]).toContain("thesvg.org");
-    expect(toolIconSources("invision")[0]).toBe("/tool-icons/invision.svg");
-    expect(toolIconSources("zeplin")[0]).toBe("/tool-icons/zeplin.svg");
+    expect(toolIconSources("invision")[0]).toBe("/tool-icons/invision.png");
+    expect(toolIconSources("zeplin")[0]).toBe("/tool-icons/zeplin.png");
   });
 
   it("maps common tool names to theSVG slugs", () => {

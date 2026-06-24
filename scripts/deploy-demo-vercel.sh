@@ -40,7 +40,6 @@ if [[ "${1:-}" == "--prod" ]]; then
   exit 1
 fi
 BUILD_ENVS=(
-  --build-env "DEPLOY_TARGET=demo"
   --build-env "VITE_DEMO_SUPABASE_URL=${VITE_DEMO_SUPABASE_URL}"
   --build-env "VITE_DEMO_SUPABASE_PUBLISHABLE_KEY=${VITE_DEMO_SUPABASE_PUBLISHABLE_KEY}"
   --build-env "VITE_DEMO_MODE=true"

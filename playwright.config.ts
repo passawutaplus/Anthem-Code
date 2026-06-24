@@ -35,7 +35,7 @@ export default defineConfig({
   webServer: process.env.E2E_BASE_URL
     ? undefined
     : {
-        command: "bun run dev",
+        command: "npm run dev",
         url: "http://localhost:8080",
         reuseExistingServer: !process.env.CI,
         timeout: 120_000,

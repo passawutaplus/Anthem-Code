@@ -36,6 +36,7 @@ export function normalizeForMatch(text: string): string {
 
   s = s.replace(/(?<=[\u0E00-\u0E7F])\s+(?=[\u0E00-\u0E7F])/g, "");
   s = collapseRepeats(s);
+  s = s.replace(/\bfck\b/g, "fuck");
   return s;
 }
 

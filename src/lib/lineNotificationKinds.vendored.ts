@@ -1,4 +1,4 @@
-/** AUTO-GENERATED — do not edit. Source: Solo-Code/src/lib/lineNotificationKinds.ts */
+/** AUTO-GENERATED - do not edit. Source: Solo-Code/src/lib/lineNotificationKinds.ts */
 /** LINE notification preference keys (stored in profiles.line_notify_prefs). */
 
 export type LineNotifyKind =
@@ -113,7 +113,7 @@ export const LINE_NOTIFY_GROUPS: LineNotifyGroup[] = [
   },
   {
     id: "anthem",
-    label: { th: "จากหน้าร้านโชว์เคส", en: "Anthem showcase" },
+    label: { th: "จากหน้าร้านโชว์เคส", en: "Pixel100 showcase" },
     description: {
       th: "คำขอจ้าง แชท ของขวัญ และกิจกรรมจากหน้าร้าน Pixel100",
       en: "Hire, chat, gifts, and showcase activity on Pixel100",
@@ -236,9 +236,7 @@ export const LINE_NOTIFY_GROUPS: LineNotifyGroup[] = [
   },
 ];
 
-export function mergeLineNotifyPrefs(
-  raw: unknown,
-): Record<LineNotifyKind, boolean> {
+export function mergeLineNotifyPrefs(raw: unknown): Record<LineNotifyKind, boolean> {
   const base = { ...DEFAULT_LINE_NOTIFY_PREFS };
   if (!raw || typeof raw !== "object") return base;
   for (const key of Object.keys(base) as LineNotifyKind[]) {
